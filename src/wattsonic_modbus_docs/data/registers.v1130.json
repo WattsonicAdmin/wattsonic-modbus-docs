@@ -15,10 +15,10 @@
   "read": "0x03 (FC03)",
   "write_single": "0x06 (FC06)",
   "write_multiple": "0x10 (FC16)",
-  "note": "Use 0x03 (Read Holding) for ALL registers. 0x04 (Read Input) is served ONLY for read-only registers; issued against a read/write register it returns a malformed response (MBAP Length = 0, no PDU). IMPORTANT: the control registers 11300-11303, 11320-11324, 11330 and 11442-11444 MUST be written with 0x06 single-register writes, NOT 0x10 block writes."
+  "note": "Use 0x03 (Read Holding) for ALL registers. 0x04 (Read Input) is served ONLY for read-only registers; issued against a read/write register it returns a malformed response (MBAP Length = 0, no PDU). Write 11057, 11254, 11300-11303, 11320-11324 and 11330 with 0x06, one register per request: a 0x10 request that covers more than one register and includes any of these addresses writes other settings at the same addresses instead."
  },
  "scale_note": "engineering value = register_value × scale; signed types are two's-complement; RW bounds are raw register values",
- "register_count": 178,
+ "register_count": 214,
  "source": "Wattsonic MATIC EMS Modbus TCP/IP Interface Specification v2.0.20",
  "agent_layer": {
   "description": "Register map of the website (Wattsonic_MATIC_Modbus_Registers.json, unchanged keys) with integration fields per register. A field is present only where the published documentation states it; absent means not specified.",
@@ -1131,6 +1131,7 @@
    "max": 2099,
    "group": "System Time",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1154,6 +1155,7 @@
    "max": 12,
    "group": "System Time",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1177,6 +1179,7 @@
    "max": 31,
    "group": "System Time",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1200,6 +1203,7 @@
    "max": 23,
    "group": "System Time",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1223,6 +1227,7 @@
    "max": 59,
    "group": "System Time",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1246,6 +1251,7 @@
    "max": 59,
    "group": "System Time",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1270,6 +1276,7 @@
    "values": "Lookup table: 1=UTC-12..., 13=UTC+0 (GMT), 14=UTC+1 (CET), 15=UTC+2 (EET)..., 25=UTC+12. Half-hour zones: 530=UTC+5:30 (IST), 545=UTC+5:45 (NPT). Important: set the correct time zone for TOU schedules.",
    "group": "System Time",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1298,6 +1305,7 @@
    "values": "0: Disabled 1: Enabled Must be set to 1 for EMS commands to take effect.",
    "group": "EMS Control Enable",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1335,6 +1343,7 @@
    "values": "Positive = discharge, negative = charge from grid. Values outside -2500..+2500 are accepted and clamped to +/-2500 (25.00 kW); requested and applied values are reported in the Setpoint Shadow (14250 / 14251). The inverter also limits the setpoint to its rated power: read 13034 after connecting. The setpoint is executed only while the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026). After a restart it reads 0: write the setpoint again once the EMS is back in control.",
    "group": "Active Power Control",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1359,7 +1368,7 @@
     },
     {
      "address": 14253,
-     "expect": "0 (1 = value was clamped)"
+     "expect": "0 (1 = out of range, clamped; 3 = refused; 6 = other exception)"
     },
     {
      "address": 10019,
@@ -1390,6 +1399,7 @@
    "values": "0: General (Self-Consumption) 1: Grid Balancing 2: Eco (time schedule 11190–11249) 3: UPS / Backup Priority 4: TOU (Time-of-Use) 5: Forecast 6: Off-Grid Write only the values 0-6 listed above; 7-20 are reserved.",
    "group": "Working Mode",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1428,6 +1438,7 @@
    "values": "Do not discharge below this SOC",
    "group": "SOC Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1456,6 +1467,7 @@
    "values": "Do not charge above this SOC",
    "group": "SOC Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1484,6 +1496,7 @@
    "values": "Backup reserve SOC",
    "group": "SOC Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1511,6 +1524,7 @@
    "max": 10000,
    "group": "SOC Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1539,6 +1553,7 @@
    "values": "Not used for control. Set the SOC limits with 11108 / 11109 .",
    "group": "SOC Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1567,6 +1582,7 @@
    "values": "Not used for control. Set the SOC limits with 11108 / 11109 .",
    "group": "SOC Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1595,6 +1611,7 @@
    "values": "Not used for control. Set the SOC limits with 11108 / 11109 .",
    "group": "SOC Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1626,6 +1643,7 @@
    "values": "Not used for control. Set the SOC limits with 11108 / 11109 .",
    "group": "SOC Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1657,6 +1675,7 @@
    "values": "0: Disabled 1: Enabled",
    "group": "Grid Export / Import Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1685,6 +1704,7 @@
    "values": "0: Disabled 1: Enabled",
    "group": "Grid Export / Import Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1713,6 +1733,7 @@
    "values": "Range: Maximum 2500 (25 kW). Read 13034 (Inverter_Rated_Power) and limit the value accordingly.",
    "group": "Grid Export / Import Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1741,6 +1762,7 @@
    "values": "Set to 0 for zero-export. Range: Maximum 2500 (25 kW). Read 13034 (Inverter_Rated_Power) and limit the value accordingly.",
    "group": "Grid Export / Import Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1772,6 +1794,7 @@
    "values": "Not used for control. Set import and export limits with 11106 / 11112 and 11107 / 11113 .",
    "group": "Grid Export / Import Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1800,6 +1823,7 @@
    "values": "Not used for control. Set import and export limits with 11106 / 11112 and 11107 / 11113 .",
    "group": "Grid Export / Import Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1828,6 +1852,7 @@
    "values": "Not used for control. Set import and export limits with 11106 / 11112 and 11107 / 11113 .",
    "group": "Grid Export / Import Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1859,6 +1884,7 @@
    "values": "Not used for control. Set import and export limits with 11106 / 11112 and 11107 / 11113 .",
    "group": "Grid Export / Import Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1890,6 +1916,7 @@
    "values": "0: Disabled 1: Enabled",
    "group": "Battery Power Limits",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1918,6 +1945,7 @@
    "values": "Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
    "group": "Battery Power Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1946,6 +1974,7 @@
    "values": "Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
    "group": "Battery Power Limits",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -1973,6 +2002,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2009,6 +2039,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2046,6 +2077,7 @@
    "values": "0: Discharge 1: Charge 2: Self-consumption",
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2084,6 +2116,7 @@
    "values": "Same structure as Period 1",
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2121,6 +2154,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2158,6 +2192,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2195,6 +2230,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2232,6 +2268,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2269,6 +2306,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2306,6 +2344,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2343,6 +2382,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2380,6 +2420,7 @@
    "max": 1440,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2403,6 +2444,36 @@
    }
   },
   {
+   "address": 11220,
+   "address_label": "11220–11249",
+   "address_end": 11249,
+   "name": "Eco_Start11_Set",
+   "description": "Eco Periods 11–20 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "values": "Same structure as Period 1: three registers per period, up to 11249 .",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "write_functions": "0x06 / 0x10",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
    "address": 11262,
    "address_label": "11262",
    "name": "Eco_Min_SOC_Set",
@@ -2417,6 +2488,7 @@
    "values": "Eco SOC band (with 11263). Active in Eco mode when 11263 - 11262 > 400 (4.00 %) with a BMS-connected battery; it then takes precedence over the Eco periods: self-consumption, charging below 11262 (from the grid when 11266 = 1, at up to 11268), with 11264 / 11265 capping grid import / export. Held in RAM: write again after every restart.",
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2448,6 +2520,7 @@
    "values": "Upper limit of the Eco SOC band (see 11262). Held in RAM: write again after every restart.",
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2478,6 +2551,7 @@
    "max": 6000,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2505,6 +2579,7 @@
    "max": 6000,
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2533,6 +2608,7 @@
    "values": "0: Disabled 1: Allow grid to charge battery during Eco mode.",
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2561,6 +2637,7 @@
    "values": "0: Disabled 1: Allow battery discharge to grid during Eco mode.",
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2589,6 +2666,7 @@
    "values": "Maximum battery charging power from the grid when Eco_Grid_Charge_Set = 1.",
    "group": "Eco Schedule (Economic Mode, 11190–11249)",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2606,6 +2684,41 @@
    }
   },
   {
+   "address": 11254,
+   "address_label": "11254",
+   "name": "TOU_Day_Of_Week_Mask",
+   "description": "Eco Schedule Weekdays",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 127,
+   "min": 0,
+   "max": 127,
+   "values": "Bit 0 = Monday to bit 6 = Sunday; 127 = every day, 31 = Monday to Friday, 96 = Saturday and Sunday. The Eco periods apply on the days whose bit is 1; on the other days the inverter runs self-consumption. Write it with 0x06 , one register per request.",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "write_functions": "0x06",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "confirm_by": [
+    {
+     "address": 11254,
+     "expect": "read back the written mask"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
    "address": 11137,
    "address_label": "11137",
    "name": "Backup_Switch",
@@ -2620,6 +2733,7 @@
    "values": "0: Disabled 1: Enabled",
    "group": "Backup / Off-Grid",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2648,6 +2762,7 @@
    "values": "0: Disabled 1: Enabled",
    "group": "Backup / Off-Grid",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2673,9 +2788,10 @@
    "default": 1,
    "min": 0,
    "max": 4,
-   "values": "0: Off 1: Fixed reactive power Q (setpoint 11302) 2: Fixed power factor (setpoint 11301) 3: Q(U) curve 4: Cosφ(P) curve Factory default 1 with 11302 = 0 (no reactive power). These values are used while the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026); otherwise the grid-code settings apply. Set the mode first, then the setpoint, with FC06 single-register writes; an FC16 block write to 11300–11303 does not set these values. Reactive power flows only while the inverter is exchanging active power. Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "values": "0: Off 1: Fixed reactive power Q (setpoint 11302) 2: Fixed power factor (setpoint 11301) 3: Q(U) curve 4: Cosφ(P) curve Factory default 1 with 11302 = 0 (no reactive power). These values are used while the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026); otherwise the grid-code settings apply. Set the mode first, then the setpoint, with 0x06 , one register per request; a 0x10 request across 11300–11303 does not set these values. Reactive power flows only while the inverter is exchanging active power. Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
    "group": "Reactive Power Control",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2714,6 +2830,7 @@
    "values": "−1.000 to +1.000 (mode 2). The value is stored with a resolution of 0.01; the last digit reads back as 0 (for example, 994 reads back as 990). Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
    "group": "Reactive Power Control",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2751,6 +2868,7 @@
    "values": "+leading/-lagging (mode 1) Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
    "group": "Reactive Power Control",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2788,6 +2906,7 @@
    "values": "Upper limit for the reactive-power command. Used while the EMS is in control. Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
    "group": "Reactive Power Control",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2819,6 +2938,7 @@
    "values": "0: No percentage limit (100 %) 1: Apply Active_Power_Limit_Pct (11321) to EMS dispatch Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
    "group": "Active Power Limit Percentage",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2856,6 +2976,7 @@
    "values": "0-100.0 % of rated power (700 = 70.0 %). Applied while the inverter runs EMS dispatch: the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026) and has written Active_Power_Set (11045). With 11320 = 1 the discharge (positive) setpoint is then capped at this percentage of rated power; 11320 = 0 means 100 %. For a feed-in cap that holds in every operating mode, use Export_Limits (11113, enable 11107). Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
    "group": "Active Power Limit Percentage",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2903,6 +3024,7 @@
    "values": "Rate of active power increase. 100 = 10.0 %Pn/s. Used while the EMS is in control; otherwise the grid-code ramp settings apply.",
    "group": "Power Ramp Rate / Gradient",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2934,6 +3056,7 @@
    "values": "Rate of active power decrease. Used while the EMS is in control; otherwise the grid-code ramp settings apply.",
    "group": "Power Ramp Rate / Gradient",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2965,6 +3088,7 @@
    "values": "Ramp rate after grid reconnection. Used while the EMS is in control; otherwise the grid-code setting applies.",
    "group": "Power Ramp Rate / Gradient",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -2996,6 +3120,7 @@
    "values": "0: Disabled 1: Enabled (default). Used while the EMS is in control; otherwise the grid-code P(f) setting applies.",
    "group": "Frequency-Watt P(f) Response",
    "category": "settings",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3027,6 +3152,7 @@
    "values": "0: Disabled 1: Enabled Enables the fail-safe action on loss of communication.",
    "group": "Communications Watchdog Configuration",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3061,6 +3187,7 @@
    "values": "Time without a heartbeat before the fail-safe action is executed (s).",
    "group": "Communications Watchdog Configuration",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3089,6 +3216,7 @@
    "values": "0: Stop inverter : holds PowerOn_Switch (12000) at 0. After the recovery set in 11704, write 12000 = 1 to restart. | 1: Self-consumption : the inverter operates in General mode; the stored values of 11151, 11107 and 11113 are not changed. | 2: Hold last state : no degradation, EMS setpoints retained. | 3: Zero-export : export is limited to 0 kW (stored settings are not changed). The inverter stays connected to the grid and remains in operation; this is export curtailment, not a shutdown.",
    "group": "Communications Watchdog Configuration",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3120,6 +3248,7 @@
    "values": "Pre-warning time in seconds. When 11701 − 14041 ≤ 11703 (the heartbeat is overdue), 14031 Comms_Watchdog_Status changes to 2 (PREWARN) and bit 0 of 14106 is set; the next heartbeat returns it to 1. Must be smaller than 11701 , otherwise the write is answered with exception 0x03.",
    "group": "Communications Watchdog Configuration",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3151,6 +3280,7 @@
    "values": "0 LATCH: after a timeout the 11702 action stays in force, also across a restart, even when heartbeats resume, until it is cleared as described below. 1 AUTO-RESUME (default): the first heartbeat received in SAFE_STATE returns the watchdog to NORMAL. 2 MANUAL_CONFIRM: with the heartbeat running every 1–5 s, write 12001 = 1; the next heartbeat returns the watchdog to NORMAL. Write 11704 only while the watchdog is disabled ( 11700 = 0, or 14044 = 0) and no LATCH is stored, that is before 11700 = 1; otherwise the write is answered with exception 0x03. Recovery needs 14044 = 1 ( 11060 = 1 and 12002 = 1). 0 LATCH: set 11700 = 0, wait ≥ 2 s, write the heartbeat 12026 and within 5 s Malfunction_Clear (12001) = 1, wait ≥ 2 s, then set 11700 = 1. The latch is stored in non-volatile memory and survives a power cycle; writing 12001 while 11700 = 1 does not clear it. If 11702 = 0 (stop), also write 12000 = 1 to restart the inverter.",
    "group": "Communications Watchdog Configuration",
    "category": "settings",
+   "write_functions": "0x06 / 0x10",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3168,6 +3298,153 @@
    }
   },
   {
+   "address": 11007,
+   "address_label": "11007",
+   "name": "Modbus_Addr_Set",
+   "description": "Modbus Unit ID",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 1,
+   "min": 1,
+   "max": 255,
+   "values": "Unit ID on Modbus RTU (RS-485) and Modbus TCP. On Modbus TCP the inverter also answers unit ID 0 and 255. After a change, send RTU requests to the new unit ID.",
+   "group": "Communication and SunSpec Control Gate",
+   "category": "settings",
+   "write_functions": "0x06 / 0x10",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11790,
+   "address_label": "11790",
+   "name": "SunSpec_Control_Gate",
+   "description": "SunSpec Control Gate",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 65535,
+   "values": "0x5355 (21333): SunSpec control writes are accepted. Any other value closes the gate: SunSpec control writes are answered with exception 0x04 . Stored in non-volatile memory; factory default 0.",
+   "group": "Communication and SunSpec Control Gate",
+   "category": "settings",
+   "write_functions": "0x06 / 0x10",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "confirm_by": [
+    {
+     "address": 14233,
+     "expect": "1 while the gate is open"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 19024,
+   "address_label": "19024",
+   "name": "TCP_SecondaryReader_IP_AB",
+   "description": "Read-Only Client IPv4 Address, Octets 1–2",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 65535,
+   "values": "First octet in the high byte, second in the low byte (192.168.x.x: 0xC0A8). 0: no read-only client. A client at this address uses the second connection on port 502, never obtains write control (its writes are answered with exception 0x06 ) and never displaces the connection that holds write control.",
+   "group": "Communication and SunSpec Control Gate",
+   "category": "settings",
+   "write_functions": "0x06 / 0x10",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 19025,
+   "address_label": "19025",
+   "name": "TCP_SecondaryReader_IP_CD",
+   "description": "Read-Only Client IPv4 Address, Octets 3–4",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 65535,
+   "values": "Third octet in the high byte, fourth in the low byte.",
+   "group": "Communication and SunSpec Control Gate",
+   "category": "settings",
+   "write_functions": "0x06 / 0x10",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 19074,
+   "address_label": "19074",
+   "name": "RS485_Port_Role",
+   "description": "RS-485 Port Role",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 3,
+   "values": "0: automatic; after a restart the port searches for a heat pump or boiler until a request addressed to the inverter arrives. 1: the port is reserved for an EMS. 2: heat pump; 3: boiler; with 2 or 3 the port does not answer an EMS. Write only 0 to 3, with 0x06 . Stored; applies from the next restart.",
+   "group": "Communication and SunSpec Control Gate",
+   "category": "settings",
+   "write_functions": "0x06 / 0x10",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   }
+  },
+  {
    "address": 12000,
    "address_label": "12000",
    "name": "PowerOn_Switch",
@@ -3180,6 +3457,7 @@
    "values": "0: Power Off 1: Power On",
    "group": null,
    "category": "commands",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3206,6 +3484,7 @@
    "values": "0: No action 1: Clear faults",
    "group": null,
    "category": "commands",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3235,6 +3514,7 @@
    "values": "0: Local 1: Remote Set to 1 for EMS control",
    "group": null,
    "category": "commands",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3270,6 +3550,7 @@
    "values": "1: Stop all power conversion immediately. Writing 12021 = 1 latches the inverter in the safe state. Safety-critical. Latches until cleared via 12001 Malfunction_Clear =1; then write 12000 = 1 to restart. No unlock is required.",
    "group": "Emergency Stop",
    "category": "commands",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3305,6 +3586,7 @@
    "values": "Heartbeat: write any value except 0x5A5A every 1–5 s. Each write restarts the watchdog time (14041 = 0). 0x5A5A trips the watchdog on purpose (14042 = 2).",
    "group": "Communications Watchdog",
    "category": "commands",
+   "write_functions": "0x06",
    "applies_from_firmware": "M013V1130B01D05",
    "write_function": {
     "allowed": [
@@ -3640,7 +3922,7 @@
    "description": "Reason for the last watchdog trip (held until the watchdog is enabled again)",
    "type": "U16",
    "access": "RO",
-   "values": "0: Never-tripped | 1: Heartbeat timeout (age > 11701 Timeout) | 2: Manual trigger (write 12026=0x5A5A) | 3: reserved | 4: EMS control closed while the watchdog is enabled (11060 != 1 or 12002 != 1) | 5: SAFE_STATE held/restored from the EEPROM latch (not 'reserved'). | 6: restart while the EMS was in control : the unit started in SAFE_STATE and waits for the EMS's first write. Important: read this register promptly. when 11704 Resume_Mode = LATCH, the true trip reason (1-4) is readable for about 1 second after the trip; the value then changes to 5. Poll 14031 and read 14042 as soon as 14031 changes to 3. While the latch is set, the inverter also sets 11704 to LATCH ; a different Resume_Mode written while the latch is set is replaced by LATCH. To clear the latch (with 14044 = 1): 11700 = 0 → wait ≥ 2 s → heartbeat 12026 and within 5 s 12001 = 1 → wait ≥ 2 s → 11700 = 1.",
+   "values": "0: Never-tripped | 1: Heartbeat timeout (age > 11701 Timeout) | 2: Manual trigger (write 12026=0x5A5A) | 3: reserved | 4: EMS control closed while the watchdog is enabled (11060 != 1 or 12002 != 1) | 5: SAFE_STATE held/restored from the EEPROM latch . | 6: restart while the EMS was in control : the unit started in SAFE_STATE and waits for the EMS's first write. Important: read this register promptly. when 11704 Resume_Mode = LATCH, the true trip reason (1-4) is readable for about 1 second after the trip; the value then changes to 5. Poll 14031 and read 14042 as soon as 14031 changes to 3. While the latch is set, the inverter also sets 11704 to LATCH ; a different Resume_Mode written while the latch is set is replaced by LATCH. To clear the latch (with 14044 = 1): 11700 = 0 → wait ≥ 2 s → heartbeat 12026 and within 5 s 12001 = 1 → wait ≥ 2 s → 11700 = 1.",
    "group": "Communications Watchdog Status",
    "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
@@ -3668,264 +3950,369 @@
    "group": "EMS Control & Mode Readback",
    "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
-  }
- ],
- "supplementary_registers": [
-  {
-   "address": 11254,
-   "name": "TOU_Day_Of_Week_Mask",
-   "access": "RW",
-   "type": "U16",
-   "min": 0,
-   "max": 127,
-   "description": "Weekdays of the Eco schedule: bit0 = Monday to bit6 = Sunday, 0x7F = every day.",
-   "write_function": {
-    "allowed": [
-     "0x06"
-    ],
-    "single_write_required": true,
-    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
-   },
-   "persistence": {
-    "class": "retained",
-    "note": "Stored in non-volatile memory: the value survives a restart."
-   },
-   "documented_in": {
-    "page": "native.md",
-    "section": "3. Eco Schedule Programming (TCP)"
-   },
-   "applies_from_firmware": "M013V1130B01D05"
   },
   {
-   "address": 11790,
-   "name": "SunSpec_Control_Gate",
-   "access": "RW",
-   "type": "U16",
-   "description": "SunSpec control gate. Write 0x5355 (21333) to open it; any other value closes it. Factory default 0. Stored in non-volatile memory. Closing the gate releases every held SunSpec control within 1 s.",
-   "write_function": {
-    "allowed": [
-     "0x06",
-     "0x10"
-    ],
-    "single_write_required": false
-   },
-   "persistence": {
-    "class": "retained",
-    "note": "Stored in non-volatile memory: survives a restart."
-   },
-   "confirm_by": [
-    {
-     "address": 14233,
-     "expect": "1 while the gate is open"
-    }
-   ],
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control gate"
-   },
+   "address": 14047,
+   "address_label": "14047",
+   "name": "Envelope_P_Upper",
+   "description": "Grid-code power cap under EMS control",
+   "type": "S32_BE",
+   "access": "RO",
+   "values": "Grid-code power cap of the converter in W (the lowest of its voltage-, frequency- and ramp-dependent curves). Two registers, high word first; reads −1 outside EMS control. 17359 already includes it.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14232,
+   "address_label": "14232",
    "name": "SunSpec_Diag_Layout",
-   "access": "RO",
+   "description": "Control diagnostic block: layout version",
    "type": "U16",
-   "description": "Control diagnostic block layout version: reads 0x1112.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Block layout version: reads 0x1112 (not a firmware version).",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14233,
+   "address_label": "14233",
    "name": "SunSpec_Diag_Gate",
-   "access": "RO",
+   "description": "SunSpec control gate",
    "type": "U16",
-   "description": "Control gate: 1 open, 0 closed.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Control gate: 1 open, 0 closed.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14234,
+   "address_label": "14234",
    "name": "SunSpec_Diag_Active_Power_Limit_State",
-   "access": "RO",
+   "description": "Active-power limit control: state and reason",
    "type": "U16",
-   "description": "Active Power Limit control: high byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (see the page).",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "High byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (0 none, 1 disabled by the client, 2 reversion timeout, 3 gate closed, 4 outranked, 5 machine veto, 6 displaced by the other reactive control, 7 storage only: the charge and discharge bounds exclude each other and the battery is held at 0 W).",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14235,
+   "address_label": "14235",
    "name": "SunSpec_Diag_Active_Power_Limit_Rvrt_Left",
-   "access": "RO",
+   "description": "Active-power limit: seconds to reversion",
    "type": "U16",
-   "description": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14236,
+   "address_label": "14236",
    "name": "SunSpec_Diag_Power_Factor_State",
-   "access": "RO",
+   "description": "Power-factor control: state and reason",
    "type": "U16",
-   "description": "Power Factor control: high byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (see the page).",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "High byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (0 none, 1 disabled by the client, 2 reversion timeout, 3 gate closed, 4 outranked, 5 machine veto, 6 displaced by the other reactive control, 7 storage only: the charge and discharge bounds exclude each other and the battery is held at 0 W).",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14237,
+   "address_label": "14237",
    "name": "SunSpec_Diag_Power_Factor_Rvrt_Left",
-   "access": "RO",
+   "description": "Power factor: seconds to reversion",
    "type": "U16",
-   "description": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14238,
+   "address_label": "14238",
    "name": "SunSpec_Diag_Reactive_Power_State",
-   "access": "RO",
+   "description": "Reactive-power control: state and reason",
    "type": "U16",
-   "description": "Reactive Power control: high byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (see the page).",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "High byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (0 none, 1 disabled by the client, 2 reversion timeout, 3 gate closed, 4 outranked, 5 machine veto, 6 displaced by the other reactive control, 7 storage only: the charge and discharge bounds exclude each other and the battery is held at 0 W).",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14239,
+   "address_label": "14239",
    "name": "SunSpec_Diag_Reactive_Power_Rvrt_Left",
-   "access": "RO",
+   "description": "Reactive power: seconds to reversion",
    "type": "U16",
-   "description": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14240,
+   "address_label": "14240",
    "name": "SunSpec_Diag_Storage_State",
-   "access": "RO",
+   "description": "Storage control: state and reason",
    "type": "U16",
-   "description": "Storage control: high byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (see the page).",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "High byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (0 none, 1 disabled by the client, 2 reversion timeout, 3 gate closed, 4 outranked, 5 machine veto, 6 displaced by the other reactive control, 7 storage only: the charge and discharge bounds exclude each other and the battery is held at 0 W).",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14241,
+   "address_label": "14241",
    "name": "SunSpec_Diag_Storage_Rvrt_Left",
-   "access": "RO",
+   "description": "Storage control: seconds to reversion",
    "type": "U16",
-   "description": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14242,
+   "address_label": "14242",
    "name": "SunSpec_Diag_WLim_Selected",
-   "access": "RO",
+   "description": "Active-power limit selected for dispatch",
    "type": "U16",
-   "description": "Active-power limit selected for dispatch, 0.01 % of the rated power; 0xFFFF if none.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Active-power limit selected for dispatch, 0.01 % of the rated power; 0xFFFF if none.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14243,
+   "address_label": "14243",
    "name": "SunSpec_Diag_PF_Selected",
-   "access": "RO",
+   "description": "Power factor selected for dispatch",
    "type": "S16",
-   "description": "Power factor selected for dispatch, 0.01; 0x8000 if none.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Power factor selected for dispatch, 0.01; 0x8000 if none.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14244,
+   "address_label": "14244",
    "name": "SunSpec_Diag_VAr_Selected",
-   "access": "RO",
+   "description": "Reactive power selected for dispatch",
    "type": "S16",
-   "description": "Reactive power selected for dispatch, 0.01 %; 0x8000 if none.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Reactive power selected for dispatch, 0.01 %; 0x8000 if none.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14245,
+   "address_label": "14245",
    "name": "SunSpec_Diag_Storage_Setpoint",
-   "access": "RO",
+   "description": "Storage setpoint selected for dispatch",
    "type": "S16",
-   "description": "Forced storage setpoint per phase selected for dispatch, 0.01 kW, positive = AC output; 0x8000 if none.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Forced storage setpoint per phase selected for dispatch, 0.01 kW, positive = AC output; 0x8000 if none (also while the storage control only limits the battery).",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14246,
+   "address_label": "14246",
    "name": "SunSpec_Diag_Refused_Frames",
-   "access": "RO",
+   "description": "Refused SunSpec write frames",
    "type": "U16",
-   "description": "Count of refused SunSpec write frames (saturates at 65535).",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Count of refused SunSpec write frames (saturates at 65535).",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
   {
    "address": 14247,
+   "address_label": "14247",
    "name": "SunSpec_Diag_Last_Write_Age",
-   "access": "RO",
+   "description": "Seconds since the last SunSpec write",
    "type": "U16",
-   "description": "Seconds since the last accepted SunSpec write; 0xFFFF if none since the restart.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control diagnostic block 14232–14247"
-   },
+   "access": "RO",
+   "values": "Seconds since the last accepted SunSpec write; 0xFFFF if none since the restart.",
+   "group": "Control diagnostics: power cap and SunSpec controls",
+   "category": "status",
    "applies_from_firmware": "M013V1130B01D05"
   },
+  {
+   "address": 17284,
+   "address_label": "17284",
+   "name": "Control_Truth_Layout",
+   "description": "Control-truth block: layout identifier",
+   "type": "U16",
+   "access": "RO",
+   "values": "Layout identifier, reads 0xCA12.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17285,
+   "address_label": "17285",
+   "name": "Control_Truth_Seq",
+   "description": "Publication sequence number",
+   "type": "U16",
+   "access": "RO",
+   "values": "Publication sequence number; equals the value at 17360 in a consistent read.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17286,
+   "address_label": "17286",
+   "name": "Control_Truth_WLim_Param",
+   "description": "Slot 1: parameter index (reads 321, active-power limit)",
+   "type": "U16",
+   "access": "RO",
+   "values": "Parameter index (bit 14 set for a parameter of the DC converter).",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17287,
+   "address_label": "17287",
+   "name": "Control_Truth_WLim_Requested",
+   "description": "Slot 1: active-power limit requested, 0.01 %",
+   "type": "U16",
+   "access": "RO",
+   "values": "Value requested from the power converter, after the combination of native and SunSpec commands; 0x8000 if none.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17288,
+   "address_label": "17288",
+   "name": "Control_Truth_WLim_Generation",
+   "description": "Slot 1: request generation",
+   "type": "U16",
+   "access": "RO",
+   "values": "Request generation: advances whenever the requested value changes; 0 = never requested since the restart.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17289,
+   "address_label": "17289",
+   "name": "Control_Truth_WLim_Transport",
+   "description": "Slot 1: transport state",
+   "type": "U16",
+   "access": "RO",
+   "values": "Transport state: 0 not yet sent, 1 refused by the transmit queue so far (not yet transmitted), 2 transmitted, 3 the converter's latest parameter read-back equals the requested value.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17290,
+   "address_label": "17290",
+   "name": "Control_Truth_WLim_Effective",
+   "description": "Slot 1: effective state of the active-power limit",
+   "type": "U16",
+   "access": "RO",
+   "values": "Effective state: 0 nothing requested, 2 requested, execution not reported by the converter, 3 not applied (active-power limit below 100 % outside EMS control), 4 applied (active-power limit under EMS control).",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17291,
+   "address_label": "17291",
+   "name": "Control_Truth_WLim_Measurement",
+   "description": "Slot 1: measurement register",
+   "type": "U16",
+   "access": "RO",
+   "values": "Native register of the corresponding measurement, for example 10019 for active power; 0x8000 for a mode selector.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17292,
+   "address_label": "17292–17357",
+   "address_end": 17357,
+   "name": "Control_Truth_Slots_2_12",
+   "description": "Slots 2–12, six registers each",
+   "type": "U16",
+   "access": "RO",
+   "values": "Same six-register layout as slot 1: 17292 reactive-power mode, 17298 reactive-power setpoint, 17304 power-factor setpoint, 17310 operating mode, 17316 / 17322 / 17328 active-power setpoint phase A / B / C, 17334 – 17357 battery parameters. Read the whole block 17284–17360 in one request.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17358,
+   "address_label": "17358",
+   "name": "Control_Truth_Mode",
+   "description": "Operating mode of the latest parameter pass",
+   "type": "U16",
+   "access": "RO",
+   "values": "Operating mode of the latest parameter pass that sent the active-power limit: 0 none since the restart, 1 not under EMS control, 2 under EMS control.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17359,
+   "address_label": "17359",
+   "name": "Control_Truth_Output_Bound",
+   "description": "Upper bound of the AC output under EMS control, W",
+   "type": "S16",
+   "access": "RO",
+   "values": "Under EMS control: upper bound of the AC output in W that results from the active-power limit and the converter's grid-code power cap; 0x8000 otherwise.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17360,
+   "address_label": "17360",
+   "name": "Control_Truth_Seq_End",
+   "description": "Publication sequence number (end)",
+   "type": "U16",
+   "access": "RO",
+   "values": "Publication sequence number again.",
+   "group": "Control-truth block: read 17284–17360 (77 registers) in one request",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  }
+ ],
+ "supplementary_registers": [
   {
    "address": 14250,
    "name": "Active_Power_Set_Last_Requested",
    "access": "RO",
-   "type": "U16",
-   "description": "Setpoint Shadow of 11045: last requested raw value.",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "description": "Setpoint Shadow of 11045: last requested value.",
    "documented_in": {
     "page": "native.md",
-    "section": "Controlling the inverter: closed loop"
+    "section": "EMS Setpoint Shadow"
    },
    "applies_from_firmware": "M013V1130B01D05"
   },
@@ -3933,11 +4320,27 @@
    "address": 14251,
    "name": "Active_Power_Set_Last_Applied",
    "access": "RO",
-   "type": "U16",
-   "description": "Setpoint Shadow of 11045: last applied raw value (after clamping).",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "description": "Setpoint Shadow of 11045: last applied value (after the clamp to +/-2500).",
    "documented_in": {
     "page": "native.md",
-    "section": "Controlling the inverter: closed loop"
+    "section": "EMS Setpoint Shadow"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14252,
+   "name": "Active_Power_Set_Last_Write_Age_Sec",
+   "access": "RO",
+   "type": "U16",
+   "unit": "s",
+   "scale": 1,
+   "description": "Setpoint Shadow of 11045: seconds since the last accepted write; 65535 = not written since the restart.",
+   "documented_in": {
+    "page": "native.md",
+    "section": "EMS Setpoint Shadow"
    },
    "applies_from_firmware": "M013V1130B01D05"
   },
@@ -3946,94 +4349,10 @@
    "name": "Active_Power_Set_Last_Reject_Code",
    "access": "RO",
    "type": "U16",
-   "description": "Setpoint Shadow of 11045: rejection flag (0 = accepted as written).",
+   "description": "Setpoint Shadow of 11045: reject code. 0 accepted; 1 out of range (clamped); 3 write refused (exception 04); 6 other exception.",
    "documented_in": {
     "page": "native.md",
-    "section": "Controlling the inverter: closed loop"
-   },
-   "applies_from_firmware": "M013V1130B01D05"
-  },
-  {
-   "address": 17284,
-   "name": "Control_Truth_Layout",
-   "access": "RO",
-   "type": "U16",
-   "description": "Control-truth block layout identifier, reads 0xCA12. Read 17284-17360 (77 registers) in one request.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control-truth block 17284–17360"
-   },
-   "applies_from_firmware": "M013V1130B01D05"
-  },
-  {
-   "address": 17285,
-   "name": "Control_Truth_Seq",
-   "access": "RO",
-   "type": "U16",
-   "description": "Publication sequence number; equals 17360 in a consistent read.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control-truth block 17284–17360"
-   },
-   "applies_from_firmware": "M013V1130B01D05"
-  },
-  {
-   "address": 17287,
-   "name": "Control_Truth_WLim_Requested",
-   "access": "RO",
-   "type": "U16",
-   "description": "Slot 1 (parameter 321, active-power limit): limit requested from the power converter, 0.01 %.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Checking whether the active-power limit is applied"
-   },
-   "applies_from_firmware": "M013V1130B01D05"
-  },
-  {
-   "address": 17290,
-   "name": "Control_Truth_WLim_Effective",
-   "access": "RO",
-   "type": "U16",
-   "description": "Slot 1 effective state: 4 applied under EMS control, 3 requested but not applied.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Checking whether the active-power limit is applied"
-   },
-   "applies_from_firmware": "M013V1130B01D05"
-  },
-  {
-   "address": 17358,
-   "name": "Control_Truth_Mode",
-   "access": "RO",
-   "type": "U16",
-   "description": "Operating mode of the latest parameter pass: 0 none since the restart, 1 not under EMS control, 2 under EMS control.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control-truth block 17284–17360"
-   },
-   "applies_from_firmware": "M013V1130B01D05"
-  },
-  {
-   "address": 17359,
-   "name": "Control_Truth_Output_Bound",
-   "access": "RO",
-   "type": "S16",
-   "description": "Under EMS control: upper bound of the AC output in W; 0x8000 otherwise.",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control-truth block 17284–17360"
-   },
-   "applies_from_firmware": "M013V1130B01D05"
-  },
-  {
-   "address": 17360,
-   "name": "Control_Truth_Seq_End",
-   "access": "RO",
-   "type": "U16",
-   "description": "Publication sequence number again (equals 17285 in a consistent read).",
-   "documented_in": {
-    "page": "sunspec.md",
-    "section": "Control-truth block 17284–17360"
+    "section": "EMS Setpoint Shadow"
    },
    "applies_from_firmware": "M013V1130B01D05"
   }

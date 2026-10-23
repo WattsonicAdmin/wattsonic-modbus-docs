@@ -47,7 +47,11 @@ def test_get_register_native_fields():
 
 
 def test_get_register_supplementary_and_block_and_name():
-    assert docs.get_register(11790)["supplementary"] is True
+    assert docs.get_register(14250)["supplementary"] is True
+    gate = docs.get_register(11790)                      # a register-map entry (native Settings table)
+    assert not gate.get("supplementary") and gate["name"] == "SunSpec_Control_Gate"
+    assert any(c["address"] == 14233 for c in gate["confirm_by"])
+    assert docs.get_register(11254)["write_function"]["single_write_required"] is True
     assert "block" in docs.get_register(11194)["note"]
     assert docs.get_register("Active_Power_Set")["address"] == 11045
 

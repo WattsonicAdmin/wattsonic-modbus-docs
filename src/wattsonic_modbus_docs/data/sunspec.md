@@ -51,8 +51,10 @@ Transport, sessions, function codes and the order in which a request is checked.
 |---|---|---|
 | Ethernet, Modbus TCP port 502 | Yes | Yes, while the control gate is open and the connection holds write control. |
 | Wi-Fi, Modbus TCP port 502 (if fitted) | Yes | Yes, while the control gate is open and the connection holds write control. |
-| RS-485, Modbus RTU (EMS port) | Yes, while the port is used by an EMS | Use Modbus TCP port 502 for writes; writes over RS-485 are answered with exception `0x02`. |
+| RS-485, Modbus RTU (EMS port) | Yes | Use Modbus TCP port 502 for writes; writes over RS-485 are answered with exception `0x02`. |
 | TCP port 5001 (commissioning tools) | Use port 502 | Use port 502; writes on port 5001 are answered with exception `0x02`. |
+
+Over RS-485 the SunSpec map can be read; writes go to Modbus TCP port 502. **Modbus RTU on RS-485** (115200 baud, 8N1) answers the unit ID set in native `11007`; 0 and 255 are not answered, and 90 cannot be used on RS-485. In the factory setting the port also searches the same bus for a heat pump or boiler: until the first request addressed to the inverter arrives, it listens for 3 s and then probes at 19.2 kbaud for about 1.2 s, so a request sent after a restart can time out. Repeat it: once a request addressed to the inverter has been answered, the port stays with the EMS until the next restart. To reserve the port for the EMS, write native `19074` = 1; the value is stored and applies from the next restart. A port that serves a heat pump or boiler does not answer an EMS.
 
 The SunSpec map and the native register map share port 502 and the same connection. Each request is routed by its start address: a request that starts inside `40000`–`40478` is served from the SunSpec map and must end at or before `40478`; a request that starts below `40000` is served from the native map. One request never covers registers of both maps; use separate requests.
 
@@ -99,10 +101,10 @@ A request is checked in the order below; the first condition that applies decide
 | 3 | Modbus TCP port 502 only: a write (0x06/0x10) addressed to this unit from a connection that does not hold write control (including the configured read-only reader), regardless of the register address. | `0x06` |
 | 4 | Function code other than 0x03, 0x04, 0x06 or 0x10. | `0x01` |
 | 5 | Read (0x03/0x04) starting inside 40000–40478 with quantity 0 or quantity > 125, or running past 40478. | `0x03` |
-| 6 | Read starting at 40479 or above. | `0x02` |
+| 6 | Read starting after 40478, the last register of the SunSpec map. | `0x02` |
 | 7 | Malformed 0x06/0x10 frame: length does not match the function code, byte count is not 2 × quantity, quantity is 0, or quantity > 125. | `0x03` |
 | 8 | Write to 40000–40478 over any interface other than Modbus TCP port 502 (Ethernet or Wi-Fi), for example RS-485 or service port 5001. | `0x02` |
-| 9 | Write starting at 40479 or above. | `0x02` |
+| 9 | Write starting after 40478, the last register of the SunSpec map. | `0x02` |
 | 10 | Write starting inside the map whose run passes 40478 (the END block). | `0x02` |
 | 11 | Control gate closed (native 11790 not 0x5355). | `0x04` |
 | 12 | Machine veto (see the Machine veto section). | `0x04` |
@@ -238,7 +240,9 @@ The start addresses below are derived from the chain on this firmware. Compute e
 
 Identity of the device: manufacturer, model, serial number, firmware version and Modbus address.
 
-*Registers40000–40069 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40000–40069*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -255,13 +259,13 @@ Identity of the device: manufacturer, model, serial number, firmware version and
 | 40068 | 66 | DA | uint16 |  |  | RO | Yes | Modbus device address as configured in native 11007. The model defines DA as read-write; in this implementation it is read-only. A write is answered with exception 0x02, or with 0x04 while the control gate is closed or a machine veto applies. |
 | 40069 | 67 | Pad | pad |  |  | RO | Yes | Pad register; reads 0x0000. |
 
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
-
 ## Model 123 · Immediate controls
 
 Active-power limit, power-factor and reactive-power setpoints. Writable behind the control gate; see the control interface.
 
-*Registers40070–40095 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40070–40095*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -292,13 +296,13 @@ Active-power limit, power-factor and reactive-power setpoints. Writable behind t
 | 40094 | 24 | OutPFSet_SF *M* | sunssf |  |  | RO | Yes | Scale factor, constant -3. |
 | 40095 | 25 | VArPct_SF | sunssf |  |  | RO | Yes | Scale factor, constant -1. |
 
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
-
 ## Model 124 · Storage
 
 Battery settings, state and the storage control (battery charge and discharge bounds).
 
-*Registers40096–40121 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40096–40121*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -329,13 +333,13 @@ Battery settings, state and the storage control (battery charge and discharge bo
 | 40120 | 24 | InBatV_SF | sunssf |  |  | RO | Yes | Scale factor, constant -1. |
 | 40121 | 25 | InOutWRte_SF | sunssf |  |  | RO | Yes | Scale factor, constant -2. |
 
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
-
 ## Model 103 · Inverter, three-phase
 
 AC and DC measurements of the inverter, temperatures, operating state and events.
 
-*Registers40122–40173 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40122–40173*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -385,13 +389,13 @@ AC and DC measurements of the inverter, temperatures, operating state and events
 | 40170–40171 | 48 | EvtVnd3 | bitfield32 |  |  | RO | No | Reads the not-implemented value; skip this point. |
 | 40172–40173 | 50 | EvtVnd4 | bitfield32 |  |  | RO | No | Reads the not-implemented value; skip this point. |
 
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
-
 ## Model 203 · Meter, three-phase wye
 
 Energy meter at the grid connection point. Measured points read the not-implemented value while the meter is lost.
 
-*Registers40174–40280 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40174–40280*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -470,13 +474,13 @@ Energy meter at the grid connection point. Measured points read the not-implemen
 | 40278 | 104 | TotVArh_SF | sunssf |  |  | RO | Yes | Scale factor, constant 0. |
 | 40279–40280 | 105 | Evt *M* | bitfield32 |  |  | RO | Yes | Meter event bits: bit 7 M_EVENT_Missing_Sensor while the energy meter is lost. No other bit is set.<br>bit 2 M_EVENT_Power_Failure · bit 3 M_EVENT_Under_Voltage · bit 4 M_EVENT_Low_PF · bit 5 M_EVENT_Over_Current · bit 6 M_EVENT_Over_Voltage · bit 7 M_EVENT_Missing_Sensor · bit 8 M_EVENT_Reserved1 · bit 9 M_EVENT_Reserved2 · bit 10 M_EVENT_Reserved3 · bit 11 M_EVENT_Reserved4 · bit 12 M_EVENT_Reserved5 · bit 13 M_EVENT_Reserved6 · bit 14 M_EVENT_Reserved7 · bit 15 M_EVENT_Reserved8 · bit 16 M_EVENT_OEM01 · bit 17 M_EVENT_OEM02 · bit 18 M_EVENT_OEM03 · bit 19 M_EVENT_OEM04 · bit 20 M_EVENT_OEM05 · bit 21 M_EVENT_OEM06 · bit 22 M_EVENT_OEM07 · bit 23 M_EVENT_OEM08 · bit 24 M_EVENT_OEM09 · bit 25 M_EVENT_OEM10 · bit 26 M_EVENT_OEM11 · bit 27 M_EVENT_OEM12 · bit 28 M_EVENT_OEM13 · bit 29 M_EVENT_OEM14 · bit 30 M_EVENT_OEM15 |
 
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
-
 ## Model 120 · Nameplate
 
 Ratings of the inverter and the battery.
 
-*Registers40281–40308 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40281–40308*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -509,13 +513,13 @@ Ratings of the inverter and the battery.
 | 40307 | 26 | MaxDisChaRte_SF | sunssf |  |  | RO | Yes | Scale factor, constant 1. |
 | 40308 | 27 | Pad | pad |  |  | RO | Yes | Pad register; reads 0x0000. |
 
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
-
 ## Model 121 · Basic settings
 
 Maximum output power (writable as an output cap) and reference values.
 
-*Registers40309–40340 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40309–40340*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -552,13 +556,13 @@ Maximum output power (writable as an output cap) and reference values.
 | 40339 | 30 | MaxRmpRte_SF | sunssf |  |  | RO | Yes | Scale factor, constant 0. |
 | 40340 | 31 | ECPNomHz_SF | sunssf |  |  | RO | Yes | Scale factor, constant 0. |
 
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
-
 ## Model 122 · Measurements and status
 
 Connection status of PV, storage and grid, and the active control functions.
 
-*Registers40341–40386 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40341–40386*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -585,13 +589,13 @@ Connection status of PV, storage and grid, and the active control functions.
 | 40385 | 44 | Ris | uint16 | ohms | Ris_SF | RO | No | Reads the not-implemented value; skip this point. |
 | 40386 | 45 | Ris_SF | sunssf |  |  | RO | Yes | Scale factor, constant 0. |
 
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
-
 ## Model 160 · Multiple MPPT inverter extension
 
 Per-input PV voltage, current, power, energy and state for four MPPT modules.
 
-*Registers40387–40478 · Yes Implemented · Cond. Implemented, conditional · No Not implemented*
+*Registers40387–40478*
+
+Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented. M after a name: mandatory point of the SunSpec model.
 
 | Address | Off. | Name | Type | Units | Scale factor | Access | Impl. | Description |
 |---|---|---|---|---|---|---|---|---|
@@ -651,8 +655,6 @@ Per-input PV voltage, current, power, energy and state for four MPPT modules.
 | **End model** |  |  |  |  |  |  |  |  |
 | 40477 | 0 | ID *M* | uint16 |  |  | RO | Yes | End marker 0xFFFF: no model follows. |
 | 40478 | 1 | L *M* | uint16 |  |  | RO | Yes | End marker length, constant 0. |
-
-Address: 0-based PDU address derived from the chain on this firmware. Off.: offset from the model identifier. Access: RO read-only, RW writable through SunSpec control; a point that the model declares read-write but that this device does not accept is shown RO. Impl.: Yes implemented; Cond. implemented, reads the not-implemented value under the conditions stated; No not implemented.
 
 ## Control interface
 
@@ -775,6 +777,68 @@ Writes to every other point, including points that the SunSpec model declares re
 
 Three read-only native blocks report what the control layer selected and what was passed to the power converter. They are outside the SunSpec map and are read with function code 0x03 or 0x04 on the same connection.
 
+### Checking whether the active-power limit is applied
+
+Closed loop for an active-power limit of 50 % of the rated power, written with SunSpec. The Python example continues the helpers of step 1 of the [native Quick Start](native.md) (client, unit ID, `read`, `write`, `s16`).
+
+**Preconditions.** The control gate is open, and the unit operates under EMS control while the limit shall apply. Without EMS control the limit is accepted and held, but not applied.
+
+| Function code | Register | Value | Meaning |
+|---|---|---|---|
+| `0x06` | `11790` | `0x5355` | Open the SunSpec control gate (native register, kept over a restart). |
+| `0x03` | `14233` | 1 | Gate open; read it 1 s after the write. |
+| `0x03` | `11700` | 0 | Native watchdog off when SunSpec is the only controller: SunSpec writes are not a heartbeat. |
+| – | `40101`, `40108` | – | EMS control: a storage control with a forced direction (`124.StorCtl_Mod` with a negative `124.OutWRte` or `124.InWRte`, see Worked examples), or the native EMS session with `11045` written. |
+
+**Write sequence.** One request writes the limit, its timers and the enable; the frames are listed under Worked examples.
+
+| Function code | Register | Count | Value | Meaning |
+|---|---|---|---|---|
+| `0x10` | `40075` | 5 | 500, 0, 60, 0, 1 | `WMaxLimPct` = 500 (50.0 %, `WMaxLimPct_SF` = −1), `WMaxLimPct_WinTms` = 0, `WMaxLimPct_RvrtTms` = 60 s, `WMaxLimPct_RmpTms` = 0, `WMaxLim_Ena` = 1. |
+
+**Confirmation.** About 2 s after the write, read:
+
+| Function code | Register | Count | Expected value | Meaning |
+|---|---|---|---|---|
+| `0x03` | `14234` | 1 | High byte 2 | The limit is in force in the control layer; the low byte is the reason (0 = none). |
+| `0x03` | `14242` | 1 | 5000 | Limit selected for dispatch, 0.01 % of the rated power. |
+| `0x03` | `17284` | 77 | `0xCA12` | One consistent read of the control-truth block: `17285` equals `17360`; otherwise read again. |
+| – | `17290` | – | 4 | Taken from the same read: the limit is applied (3 = requested but not applied). |
+| – | `17358` | – | 2 | Taken from the same read: the unit operates under EMS control. |
+| – | `17359` | – | W | Taken from the same read: upper bound of the AC output in W (S16), including the grid-code power cap `14047`–`14048`. |
+
+**Failure and recovery.**
+
+- `17290` = 3 and `17358` = 1: the limit is held but not applied, because the unit runs its own operating mode. Establish EMS control as listed under the preconditions. For a feed-in cap that holds in every operating mode, use the native export limit `11113` with `11107` = 1.
+- Keep-alive: write `WMaxLim_Ena` = 1 (`0x06`, `40079`) at least every 20 s, one third of `WMaxLimPct_RvrtTms` = 60 s. Without it the limit reverts after 60 s: `14234` reads high byte 0, low byte 2 (reversion timeout).
+- `14234` low byte 3 (gate closed) or 5 (machine veto: inverter off, emergency stop, native watchdog in its safe state, meter lost): the control is released and its setpoints are erased. Remove the cause, then write the limit again (`0x10`, `40075`).
+- After a restart every SunSpec control is released (`11790` is kept): write the limit again.
+
+**py81**
+
+```python
+# continues the helpers of step 1 of the native Quick Start (client, UNIT, read, write, s16)
+write(11790, 0x5355)                     # open the SunSpec control gate (native register, 0x06)
+rr = client.write_registers(40075, [500, 0, 60, 0, 1], **UNIT)   # 0x10: 50.0 %, WinTms 0, RvrtTms 60 s, RmpTms 0, enable
+if rr.isError():
+    raise IOError("WMaxLimPct: %s" % rr)
+time.sleep(2)                            # evaluated once per second, passed to the converter within about 1.6 s
+gate = read(14233)[0]                    # 1 = gate open
+diag = read(14234)[0]
+state, reason = diag >> 8, diag & 0xFF   # state 2 = in force; reason 0 = none
+truth = read(17284, 77)                  # control-truth block 17284..17360 in one request
+if truth[0] != 0xCA12 or truth[1] != truth[76]:
+    raise IOError("inconsistent read of 17284..17360: read again")
+effective, mode, bound = truth[6], truth[74], s16(truth[75])   # 17290, 17358, 17359
+if state == 2 and effective == 4 and mode == 2:
+    print("limit applied, AC output bound", bound, "W")
+elif effective == 3:
+    print("limit held but not applied: the unit is not under EMS control (17358 = %d)" % mode)
+else:
+    print("gate", gate, "state", state, "reason", reason)
+write(40079, 1)                          # keep-alive: WMaxLim_Ena = 1 at least every 20 s (RvrtTms / 3)
+```
+
 1. **SunSpec read-back** (`123`/`124` points, `122.StActCtl`): what the client commanded and what the controller selected. Not an acknowledgement from the power converter.
 2. **Control diagnostic block** `14232`–`14247` and its generation-tagged copy `17367`–`17385`: state, reason and remaining reversion time of each control, and the values selected for dispatch.
 3. **Control-truth block** `17284`–`17360`: per converter parameter the value requested from the power converter, its transport state and its effective state, and for the active-power limit whether it is applied.
@@ -832,13 +896,6 @@ Read all 77 registers in one request. The block is consistent when `17284` = `0x
 | +3 | Transport state: 0 not yet sent, 1 refused by the transmit queue so far (not yet transmitted), 2 transmitted, 3 the converter's latest parameter read-back equals the requested value. |
 | +4 | Effective state: 0 nothing requested, 2 requested, execution not reported by the converter, 3 not applied (active-power limit below 100 % outside EMS control), 4 applied (active-power limit under EMS control). |
 | +5 | Native register of the corresponding measurement, for example 10019 for active power; 0x8000 for a mode selector. |
-
-### Checking whether the active-power limit is applied
-
-1. Read `14234`: high byte 2 means the SunSpec limit is in force in the control layer; `14242` shows the limit selected for dispatch in 0.01 %.
-2. Read `17284`–`17360`. Slot 1 (`17286` = 321) is the active-power limit: `17287` the limit requested in 0.01 %, `17290` its effective state.
-3. `17290` = 4 and `17358` = 2: the unit operates under EMS control and the limit is applied; `17359` is the resulting upper bound of the AC output in W.
-4. `17290` = 3 and `17358` = 1: the limit is requested but not applied, because the unit runs its own operating mode. Establish EMS control as described in the control interface.
 
 Under EMS control, the converter also reports its grid-code power cap (the lowest of its voltage-, frequency- and ramp-dependent curves) in W at native `14047`–`14048` (int32, most-significant word first); outside EMS control, it reads −1. `17359` already includes this cap.
 
@@ -1112,6 +1169,30 @@ Terms used on this page.
 | EMS control | Operating mode in which the inverter follows an external active-power setpoint instead of its own operating mode. |
 | Native EMS interface | The EMS functions of the native Wattsonic register map, supervised by its communication watchdog (native 11700). |
 | MBAP | Modbus Application Protocol header of a Modbus TCP frame. |
+
+### Native registers referenced on this page
+
+The SunSpec points on this page are computed from, or depend on, these native registers. They are read with function code `0x03` on the same connection and unit identifier.
+
+| Native register | Meaning |
+|---|---|
+| 10029–10031 | Line voltages A–B, B–C and C–A at the inverter terminals, 0.1 V per count. |
+| 10102 | Power factor of the inverter output, 0.01 per count. |
+| 10380 | Internal temperature of the DC converter, 0.1 °C per count. |
+| 10382 | PV heat-sink temperature, 0.1 °C per count. |
+| 10612–10613 | Energy exported to the grid, two registers, high word first, 0.1 kWh per count, kept in non-volatile memory. |
+| 10614–10615 | Energy imported from the grid, two registers, high word first, 0.1 kWh per count. |
+| 10630–10637 | Lifetime energy of PV inputs 1 to 4, two registers each (input 1 at 10630–10631), high word first, 0.1 kWh per count, kept in non-volatile memory. |
+| 10755–10757 | Meter line voltages A–B, B–C and C–A, 0.1 V per count. |
+| 11124 | Commissioning state: 0 = not commissioned (factory default). While it is 0, SunSpec writes are refused. |
+| 11706–11711 | Values in force of the native EMS controls: 11706 reactive-power mode, 11707 power-factor setpoint (0.01 per count), 11708 reactive-power setpoint, 11709 reactive-power limit, 11710 active-power limit enable, 11711 active-power limit (0.01 % per count). Write them through the native EMS registers 11300–11303 and 11320–11321. |
+| 14047–14048 | Grid-code power cap of the converter under EMS control, int32 in W, most-significant word first; −1 outside EMS control. |
+| 14109–14125 | Hard-fault registers, bit fields: any value other than 0 means a fault. |
+| 14139–14151 | Hard-fault registers, bit fields: any value other than 0 means a fault. |
+| 14169 | Hard-fault register, bit field: any value other than 0 means a fault. |
+| 15000 | Grid code configured at commissioning. |
+| 15134–15135 | Reactive-power setpoint (15134) and power-factor setpoint (15135, 0.01 per count) of the grid settings; used while the native EMS interface is not active. |
+| 17367–17385 | Copy of the control diagnostic block with a generation number; see Checking a command. |
 
 ### Reference documents
 

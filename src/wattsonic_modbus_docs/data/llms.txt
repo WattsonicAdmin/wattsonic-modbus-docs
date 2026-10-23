@@ -2,7 +2,7 @@
 
 > Modbus register reference for the Wattsonic MATIC three-phase hybrid PV and storage inverter (10-25 kW, one battery input). The inverter serves Modbus TCP on port 502 (Ethernet and Wi-Fi; unit identifier 1) and Modbus RTU on RS485. Two register interfaces share the same port and connection and are selected by the start address of each request: the native Wattsonic EMS map (10000-19800: monitoring, settings, EMS dispatch, communications watchdog) and the SunSpec map (40000-40478: models 1, 123, 124, 103, 203, 120, 121, 122, 160). Applies to ARM firmware M013V1130B01D05 or later (native register 13021 >= 1130). Edition 2026-10-23.
 
-Control writes follow a closed loop: meet the preconditions, write the sequence, read back to confirm the command is in force, and know how it is released. Use function code 0x03 for reads; write the control registers 11300-11303, 11320-11324 and 11330 with 0x06 (one register per request). SunSpec control writes need the control gate 11790 = 0x5355.
+Control writes follow a closed loop: meet the preconditions, write the sequence, read back to confirm the command is in force, and know how it is released. Use function code 0x03 for reads; write 11057, 11254, 11300-11303, 11320-11324 and 11330 with 0x06 (one register per request). SunSpec control writes need the control gate 11790 = 0x5355.
 
 ## Documentation
 

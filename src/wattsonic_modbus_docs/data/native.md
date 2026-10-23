@@ -2,23 +2,24 @@
 
 > Machine-readable copy of https://modbus.wattsonic.com/Wattsonic_EMS_Modbus_Protocol.html (English). Applies to ARM firmware M013V1130B01D05 or later. Edition 2026-10-23. Generated from the published page; the HTML page is authoritative.
 
-Register map and protocol reference for the Wattsonic MATIC residential hybrid inverter series (10–25 kW). Modbus TCP, port 502, unit ID 1.
+Register map and protocol reference for the Wattsonic MATIC residential hybrid inverter series (10–25 kW). Modbus TCP, port 502, unit ID 1. Edition 2026-10-23.
 
 ## Overview
 
 Modbus EMS protocol for the Wattsonic MATIC residential hybrid inverter series (10–25 kW). Connect over Modbus TCP (port 502, unit ID 1) for monitoring, settings, and EMS dispatch control.
 
 - **Protocol**: `Modbus TCP/IP v2.0.20`
-- **Transport**: `TCP · Port 502 · Unit ID 1`
-- **Function Codes**: `FC03 / FC06 / FC16`
+- **Transport**: `TCP · port 502 · unit ID 1`
+- **Function Codes**: `0x03 / 0x06 / 0x10`
 - **Product Series**: `Wattsonic MATIC · 10–25 kW`
-- **Registers**: `178`
+- **Registers**: `214`
 - **Firmware**: `ARM ≥ M013V1130B01D05`
-- **Revision**: `2026-10-23`
+
+Start here: Quick Start, register tables, [SunSpec interface](sunspec.md).
 
 > **Scope of this document**
 >
-> - This document describes the **EMS-channel register view**: Modbus TCP on port 502 (Ethernet or Wi-Fi) and Modbus RTU over RS-485. **Cloud channels see a different view for some addresses** (for example 10009 and 10685-10689). Read `14030`: it returns `0x1018` (4120) only on an EMS-native channel.
+> - This document applies to Modbus TCP on port 502 (Ethernet or Wi-Fi) and Modbus RTU over RS-485. Read `14030` after connecting: if it is not `0x1018` (4120), this register map does not apply on this connection.
 > - Applicable firmware: ARM **M013V1130B01D05** or later (`13021` ≥ 1130). Read it after connecting.
 > - EMS commands take effect only while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026 within the 11701 timeout. `12002` is not retained: write it again after every restart of the inverter.
 > - Rated power depends on the model: read `13034` (Inverter_Rated_Power, 0.01 kW/LSB) after connecting and clamp setpoints to it. Do not hard-code 25 kW.
@@ -32,13 +33,13 @@ The inverter offers two Modbus register interfaces. Both are served on TCP port 
 - **Same connection**: Native and SunSpec requests can be mixed on one TCP connection. Keep each request within one range (10000-19800 or the SunSpec bank).
 - **SunSpec writes**: To enable SunSpec control writes, set the installer write gate `11790` = `0x5355`, then write the SunSpec control points on port 502.
 - **Arbitration**: Use one controller at a time. While the native EMS is in control (11700 = 1, 11060 = 1, 12002 = 1 with heartbeat) it has priority; SunSpec control commands take effect once the native EMS releases control.
-- **Active-power limit via SunSpec**: A SunSpec active-power limit (model 123 WMaxLimPct) is applied only while the inverter runs EMS dispatch (mode 20), for example while a SunSpec forced charge/discharge command (model 124, negative OutWRte/InWRte) or native EMS external control (11045) is active. For a permanent export cap use Export_Limits (`11113`).
+- **Active-power limit via SunSpec**: A SunSpec active-power limit (model 123 WMaxLimPct) is applied only while the inverter runs EMS dispatch (reported as `17358` = 2), for example while a SunSpec forced charge/discharge command (model 124, negative OutWRte/InWRte) or native EMS external control (11045) is active. For a permanent export cap use Export_Limits (`11113`).
 
 ### Controlling the inverter: closed loop
 
-1. **Preconditions.** Set the watchdog: `11701` timeout (s), `11702` timeout action, `11704` recovery mode, then `11700` = 1. Write `11060` = 1 and `12002` = 1. Confirm: `14044` = 1 (EMS control active) and `14031` = 1 (watchdog normal).
-2. **Write sequence.** Write the heartbeat `12026` every 1–5 s (any value except 0x5A5A); this also keeps write control on port 502. Write setpoints with `0x06`: `11045` active power (+discharge / -charge, 0.01 kW, ±2500); optionally `11320` = 1 with `11321` as a discharge cap; reactive power: first `11300`, then `11302` (mode 1) or `11301` (mode 2).
-3. **Confirm it is in force.** Read the Setpoint Shadow: `14250` requested and `14251` applied value of `11045`, `14253` rejection flag. Check the result at `10019` (inverter active power) and `10346` (battery power), and that `14031` stays 1.
+1. **Preconditions.** Open the session in the order of Quick Start step 2: `11700` = 0, `11701`, `11702`, `11704`, `11700` = 1, then `11060` = 1, `12002` = 1 and the first heartbeat `12026`. Confirm `14044` = 1 and `14031` = 1.
+2. **Write sequence.** Keep the heartbeat `12026` every 1–5 s (step 4) and write each setpoint with `0x06`, one register per request (step 5).
+3. **Confirm it is in force.** Read the Setpoint Shadow of the setpoint (`14250`–`14253` for `11045`: requested value, applied value, age, reject code) and the result at `10019` and `10346` (step 5).
 4. **Failure and recovery.** Without a heartbeat for `11701` s the inverter enters SAFE_STATE (`14031` = 3, cause in `14042`) and applies the `11702` action; `14031` = 2 before that is the pre-warning. Recovery follows `11704` and needs `14044` = 1 (`11060` = 1 and `12002` = 1): AUTO returns with the next heartbeat; MANUAL_CONFIRM: with the heartbeat running, write `12001` = 1, the next heartbeat returns to normal; LATCH: set `11700` = 0, wait at least 2 s, write the heartbeat and within 5 s `12001` = 1, wait at least 2 s, then set `11700` = 1. After an inverter restart, write the heartbeat, `12002` = 1 and your setpoints again (`11045` reads 0 after a restart; if the EMS was in control before, the unit starts in SAFE_STATE with `14042` = 6 until this first write). Values written over TCP port 502 to `11068`, `11069`, `11300`–`11303`, `11320` and `11321` are held in RAM only: write them again after every restart.
 
 ### What changed in this edition
@@ -50,7 +51,7 @@ Edition 2026-10-23, applicable to ARM firmware M013V1130B01D05 or later (`13021`
 3. **Battery BMS 32-bit values are high word first.** `10677`, `10679` and `10693` are U32_BE. Units running older firmware may deliver them low word first. *Action:* if your EMS also serves such units, read `13021` and swap the two words when it is below 1126.
 4. **Active_Power_Set `11045`.** Values outside ±2500 (±25.00 kW, 0.01 kW) are clamped to ±2500 without an exception; the default is 0 and the value is not retained across a restart. *Action:* send the setpoint again after a restart; compare requested and applied values in `14250` / `14251`.
 5. **Corrected defaults and ranges.** `11177` = 2500, `11300` = 1, `11301` = 0, `11303` = 10000 (range 0-10000), `11322` = 10, `11323` = 40, `11324` = 10, `11330` = 1; minimum of `11000` = 1990. *Action:* do not rely on the previously published defaults; write the values you need.
-6. **Active_Power_Limit_Pct `11321`** applies only during EMS dispatch (mode 20): the EMS is in control and has written `11045`, or a SunSpec forced charge/discharge command is active. *Action:* for a feed-in cap that holds in every operating mode use Export_Limits `11113` (enable `11107`).
+6. **Active_Power_Limit_Pct `11321`** applies only during EMS dispatch (reported as `17358` = 2): the EMS is in control and has written `11045`, or a SunSpec forced charge/discharge command is active. *Action:* for a feed-in cap that holds in every operating mode use Export_Limits `11113` (enable `11107`).
 7. **Start-up after a restart.** If the EMS was in control before a restart, the inverter starts in SAFE_STATE (`14031` = 3, `14042` = 6) and applies the `11702` action until the EMS's first successful write. `12002` reads 0 after every restart. *Action:* after reconnecting, send the heartbeat (`12026`) and write `12002` = 1 again.
 8. **Connections on port 502.** Port 502 accepts two simultaneous connections. One connection holds write control; writes from the other connection are answered with exception 0x06. Requests split across TCP segments are reassembled, back-to-back requests are answered in order, and a rejected `0x10` frame writes nothing. Port 5001 is a service port. *Action:* write from one connection only and treat exception 0x06 as "another client holds write control".
 9. **Example code corrected.** Earlier examples wrote `12008` = 0x55AA as a "safety unlock" and `12007` = 1 as emergency stop. `12008` requests a reset of operating parameters and `12007` is not the emergency stop. *Action:* remove any write to `12007` or `12008` copied from the old examples; emergency stop is `12021` = 1, no unlock needed.
@@ -63,9 +64,11 @@ Edition 2026-10-23, applicable to ARM firmware M013V1130B01D05 or later (`13021`
 16. **Values held in RAM.** Written over TCP port 502, `11068`, `11069`, `11300`–`11303`, `11320` and `11321` change the working value only; after a restart they return to their last stored value. *Action:* write them again after every restart, together with `12002` = 1 and `11045`.
 17. **Setpoint Shadow.** For `11060`, `14290` is the requested and `14291` the applied value. Reject codes are 0 (accepted), 1 (out of range), 3 (write refused) and 6 (other); for every setpoint except `11045` the shadow registers are updated by `0x06` writes only. *Action:* read the applied value from `14291` and write setpoints with `0x06`.
 18. **Mode-specific SOC and power settings.** `11162`–`11165` and `11176`–`11179` are not used for control. *Action:* set the SOC limits with `11108`/`11109` and the grid limits with `11106`/`11112` and `11107`/`11113`.
+19. **Registers written one register per request.** Write `11057`, `11254`, `11300`–`11303`, `11320`–`11324` and `11330` with `0x06`, one register per request; the previous edition listed only part of them. *Action:* send each of these registers in its own request and read it back. Now also documented: `11007` (unit ID), `11254` (Eco weekdays), `11790` (SunSpec control gate), `19024` / `19025` (read-only client address) and the Setpoint Shadow blocks from `14250`.
+20. **Control-confirmation registers documented as register rows.** `14047`–`14048`, `14232`–`14247` and `17284`–`17360` are listed under System Status with type and values, and the Recommended Polling Groups were corrected (each group inside one block, at most 125 registers). *Action:* read the status group as `14000`–`14048` and the alarm bits as `14100`–`14115`; read the energy group as `10785`–`10796`.
 
-- **Total Registers**: 178
-- **Implemented**: 178
+- **Total Registers**: 214
+- **Implemented**: 214
 
 *Implemented*
 
@@ -95,13 +98,21 @@ Edition 2026-10-23, applicable to ARM firmware M013V1130B01D05 or later (`13021`
 
 | Address range | Content |
 |---|---|
-| 10000 - 10799 | **Real-Time Monitoring** RO: AC / PV / Battery / Grid / Meter / Energy |
-| 11000 - 11249 | **System Settings** RW: Mode / SOC / TOU / Export Limit / Power |
-| 11262 - 11268 | **Eco SOC Band** RW: minimum/maximum SOC, import/export power limits, grid charging, battery to grid, charge power |
-| 12000 - 12006 | **Control Commands** W: On/Off / Fault Clear / Remote / Restart |
-| 13000 - 13042 | **Device Information & Diagnostics** RO: SN / Model / Firmware / Protocol Version / Modbus diagnostics |
-| 14000 - 14030 | **System Status** RO: Working Mode / State / On-Off Status |
-| 14100 - 14199 | **Alarms & Faults** ALARM: Grid / Inverter / Battery / System |
+| 10000–10796 | **Real-time monitoring**, read-only (`0x03`): inverter, grid, PV, battery, meter and energy counters. |
+| 11000–11330 | **Settings**, read/write (`0x03`, `0x06`, `0x10`): unit ID, battery and SOC limits, export limit, Eco schedule 11190–11268, reactive power and power limit 11300–11330. Some registers are written with `0x06` only (see Settings). |
+| 11700–11704 | **Communication watchdog**, read/write (`0x06`): enable, timeout, action, pre-warning, recovery mode. |
+| 11790 | **SunSpec control gate**, read/write (`0x06`). |
+| 12000–12026 | **Commands**, write with `0x06`, read back with `0x03`: on/off, fault clear, remote mode, emergency stop, heartbeat. |
+| 13000–13121 | **Device information**, read-only: serial number, model, firmware versions, rated power. |
+| 14000–14048 | **System status and EMS session**, read-only: working mode and state, derating bits 14022–14023, channel check `14030`, watchdog 14031–14042, EMS control `14044`, power cap 14047–14048. |
+| 14100–14115 | **Alarm and fault bits**, read-only: grid, inverter, battery and system. |
+| 14232–14247 | **Control diagnostic block**, read-only: state, reason and selected value of each SunSpec control. |
+| 14250–14293 | **Setpoint Shadow**, read-only: requested value, applied value, age and reject code of each EMS setpoint. |
+| 17284–17360 | **Control-truth block**, read-only: what was passed to the power converter; read all 77 registers in one request. |
+| 19024–19025 | **Read-only client address**, read/write: IPv4 address admitted as monitoring client without write control. |
+| 19074 | **RS-485 port role**, read/write (`0x06`): automatic, reserved for an EMS, heat pump or boiler. |
+
+Each row is a range of documented registers; addresses between them are not documented. To read a range in one request, use the Recommended Polling Groups: each group lies inside one 200-register block and has at most 125 registers.
 
 ### Sign Convention
 
@@ -114,14 +125,12 @@ Edition 2026-10-23, applicable to ARM firmware M013V1130B01D05 or later (`13021`
 
 ### EMS Integration Notes
 
-1. Enable EMS mode by writing `1` to register `11060` (EMS_Switch_Set) before sending control commands.
-2. Set `Remote_Mode (12002) = 1` to enable remote control.
-3. Apply the scale factor specified for each register. Example: register value `2500` with scale factor 0.01 kW = `25.00 kW`.
-4. SOC values use scale factor 0.01 %. Example: register value `8000` = `80.00 %`.
-5. TOU time values are given in minutes after midnight (0–1440). Example: `480` = 08:00, `1080` = 18:00.
-6. **Meter Current Scale:** Meter current registers (10758-10760) use scale `0.1 A` while inverter/grid currents use `0.01 A`. Handle both scale factors in your parser.
-7. Read the ARM firmware version `13021` after connecting; this document applies when it reads 1130 or higher.
-8. Enable the communication watchdog `11700` and write the heartbeat `12026` every 1–5 s to keep the fail-safe function active.
+1. Open the EMS session exactly as in Quick Start step 2: the watchdog first (`11700` = 0, `11701`, `11702`, `11704`, `11700` = 1), then `11060` = 1 and `12002` = 1, then the heartbeat `12026` every 1–5 s.
+2. Apply the scale factor specified for each register. Example: register value `2500` with scale factor 0.01 kW = `25.00 kW`.
+3. SOC values use scale factor 0.01 %. Example: register value `8000` = `80.00 %`.
+4. TOU time values are given in minutes after midnight (0–1440). Example: `480` = 08:00, `1080` = 18:00.
+5. **Meter Current Scale:** Meter current registers (10758-10760) use scale `0.1 A` while inverter/grid currents use `0.01 A`. Handle both scale factors in your parser.
+6. Read the ARM firmware version `13021` after connecting; this document applies when it reads 1130 or higher.
 
 ### Reference Standards
 
@@ -129,7 +138,7 @@ Edition 2026-10-23, applicable to ARM firmware M013V1130B01D05 or later (`13021`
 - **IEC 61850**: some register descriptions use logical node names from IEC 61850-7-4 and IEC 61850-7-420 Ed.2 (MMXU, MMDC, ZBAT) for readability. The inverter does not provide an IEC 61850 interface (MMS, GOOSE, SV or SCL/ICD files).
 - **EN 50549-1:2019**: European LV grid code for generating plants. The inverter implements LFSM-O / LFSM-U / FRT and the reconnection ramp according to the configured grid code. While the EMS is in control, the EMS-facing registers 11320-11324 (active power % and ramps) and 11330 (P(f)) apply; otherwise the grid-code settings apply.
 - **VDE-AR-N 4105:2018-11**: German LV grid code. The inverter implements Cosφ(P), P(f) droop and ramp rates per §5.7 through the grid-code settings; registers 11300–11303 (reactive power), 11320–11324 and 11330 apply while the EMS is in control. Rules for controllable consumers are set out in §14a **EnWG** and the related BNetzA determinations.
-- **SG Ready**: BWP e.V. "Technical Interface Specifications for SG Ready" v1.1 (2025-05-01) defines a three-state dry-contact heat-pump interface (blocked / normal / switch-on recommended). Register 11355 `Heatpump_Hint_Mode` drives the inverter's dry-contact relay outputs when `11380 DC_Mode = 1` (SG Ready mode); see registers `11380–11399` (configuration) and `14126–14139` (status).
+- **SG Ready**: BWP e.V. "Technical Interface Specifications for SG Ready" v1.1 (2025-05-01) defines a three-state dry-contact heat-pump interface (blocked / normal / switch-on recommended). Register 11355 `Heatpump_Hint_Mode` drives the inverter's dry-contact relay outputs when `11380 DC_Mode = 1` (SG Ready mode); `14128` reports the state applied to the contacts and `14129` its source.
 
 ## Data Types
 
@@ -139,7 +148,7 @@ Data formats used in the register map. All multi-byte values are transmitted in 
 >
 > Function code `0x04` (Read Input Registers) is served **only** for the read-only register ranges (`10xxx`, `13xxx`, `14xxx`, `17xxx`).
 >
-> Issuing `0x04` against a **read/write** register (e.g. `11045`, `11113`, `12000`, `15000`) causes the device to return a **malformed response**: a 6-byte MBAP header with `Length = 0x0000` and no PDU, which standard Modbus client libraries report as a timeout or parse error. Use 0x03 for these registers.
+> Issuing `0x04` against a **read/write** register (e.g. `11045`, `11113`, `12000`) causes the device to return a **malformed response**: a 6-byte MBAP header with `Length = 0x0000` and no PDU, which standard Modbus client libraries report as a timeout or parse error. Use 0x03 for these registers.
 >
 > **Use `0x03` (Read Holding Registers) for all registers.** Do not rely on `0x04`.
 
@@ -170,6 +179,8 @@ Data formats used in the register map. All multi-byte values are transmitted in 
 > Each connection is handled as a byte stream: a request split across TCP segments is reassembled, and several requests may be sent back-to-back without waiting for each reply (pipelining). Replies are returned in request order.
 >
 > Port `502` on Wi-Fi follows the same rules with its own writer. RS485 (Modbus RTU) serves the same register map for an EMS.
+>
+> **Modbus RTU on RS-485** (115200 baud, 8N1) answers the unit ID set in `11007`; 0 and 255 are not answered, and 90 cannot be used on RS-485. In the factory setting the port also searches the same bus for a heat pump or boiler: until the first request addressed to the inverter arrives, it listens for 3 s and then probes at 19.2 kbaud for about 1.2 s, so a request sent after a restart can time out. Repeat it: once a request addressed to the inverter has been answered, the port stays with the EMS until the next restart. To reserve the port for the EMS, write `19074` = 1; the value is stored and applies from the next restart. A port that serves a heat pump or boiler does not answer an EMS.
 >
 > Connect the EMS to port `502`. Port `5001` is reserved for the installer service tool (commissioning, local firmware update).
 >
@@ -215,7 +226,7 @@ Data formats used in the register map. All multi-byte values are transmitted in 
 
 | Parameter | Value | Notes |
 |---|---|---|
-| Supported Functions | 0x03, 0x06, 0x10 | Read every register with 0x03 (Read Holding Registers). 0x04 (Read Input Registers) is supported for read-only registers only; do not use it for read/write registers. Write the control registers 11300–11303 and 11320–11321 with 0x06 (Write Single Register), one register per request. |
+| Supported Functions | 0x03, 0x06, 0x10 | Read every register with 0x03 (Read Holding Registers). 0x04 (Read Input Registers) is supported for read-only registers only; do not use it for read/write registers. Write 11057, 11254, 11300–11303, 11320–11324 and 11330 with 0x06 (Write Single Register), one register per request. |
 | Max Registers per Read | 125 | Maximum 125 registers (250 bytes of data) per request, as defined in the Modbus Application Protocol Specification. Larger requests return exception 02. |
 | Inter-Frame Silence (RTU) | 3.5 chars (~4ms @115200) | Minimum gap between frames. Frames arriving faster may be discarded. |
 | Min Poll Interval | 200 ms | Leave at least 200 ms between consecutive requests on one connection. |
@@ -235,17 +246,19 @@ Data formats used in the register map. All multi-byte values are transmitted in 
 
 | Group | Address Range | Registers | Interval | Purpose |
 |---|---|---|---|---|
-| 1. AC & Grid | 10000 - 10064 | 65 | 1–2 s | Inverter output, grid, backup power (single read) |
-| 2a. Battery DC Power | 10337 - 10346 | 10 | 2–5 s | Battery converter V/I/P (use 10346 for total) |
-| 2b. PV / DC | 10348 - 10368 | 21 | 2–5 s | PV strings + total power (10367) + DC bus |
-| 3. Battery Port 1 | 10671 - 10697 | 27 | 2–5 s | SOC, voltage, current, energy, alarms |
-| 5. Meter | 10752 - 10783 | 32 | 1–2 s | External meter data |
-| 6. Energy | 10785 - 10799 | 15 | 30–60 s | Energy counters (daily + lifetime) |
-| 6a. Load & KPIs | 10800 - 10812 | 13 | 1–2 s | Load power + system KPIs |
-| 7. Status | 14000 - 14149 | 150 | 2–5 s | Operating state, alarms, operating limits, grid code, DC output, energy-storage dispatch |
-| 8. Settings Read-Back | 11000 - 11006 | 7 | 60 s | RTC; settings read-back after each change |
-| 10. Diesel | 10077, 10096, 14011 | 3 | 2–5 s | Diesel generator frequency, power, working status |
-| 11. MATIC On-Grid Load | 10074 - 10076 | 3 | 2–5 s | On-grid load power per phase |
+| AC and grid | 10000–10064 | 65 | 1–2 s | Inverter output (10019), grid (10041), backup output |
+| On-grid load | 10074–10076 | 3 | 2–5 s | On-grid load power per phase |
+| Battery and PV | 10337–10368 | 32 | 2–5 s | Battery power (10346), PV inputs and PV power (10367) |
+| Battery port | 10671–10697 | 27 | 2–5 s | SOC (10671), voltage, current, energy counters, BMS alarm |
+| Meter | 10752–10783 | 32 | 1–2 s | External meter, grid power at the meter (10765) |
+| Energy | 10785–10796 | 12 | 30–60 s | Energy counters (daily and total) |
+| Settings read-back | 11000–11006 | 7 | 60 s | Clock; read back each setting after writing it |
+| Device information | 13000–13035 | 36 | on demand | Serial number, model, firmware versions, rated power: after connecting |
+| Status and EMS session | 14000–14048 | 49 | 1–5 s | Working mode and state, derating bits, channel check, watchdog, EMS control (14044), power cap |
+| Alarm and fault bits | 14100–14115 | 16 | 2–5 s | Grid, inverter, battery and system alarms |
+| Control diagnostics | 14232–14247 | 16 | on demand | SunSpec controls: after each SunSpec command |
+| Setpoint Shadow | 14250–14293 | 44 | on demand | Read 1–2 s after each setpoint write |
+| Control-truth block | 17284–17360 | 77 | on demand | What was passed to the power converter: after each command |
 
 ## Monitoring Registers
 
@@ -354,7 +367,13 @@ Real-time measurements. All registers are read-only; read them with function cod
 
 ## Settings Registers
 
-Configurable settings. Write with function code 0x06 (Write Single Register) or 0x10 (Write Multiple Registers); the control registers 11300–11303 and 11320–11321 accept 0x06 only. Changes take effect immediately unless otherwise noted.
+Configurable settings. Write with function code 0x06 (Write Single Register) or 0x10 (Write Multiple Registers); write 11057, 11254, 11300–11303, 11320–11324 and 11330 with 0x06 only, one register per request. Changes take effect immediately unless otherwise noted.
+
+> **Important: write these settings with 0x06, one register per request**
+>
+> Write `11057`, `11254`, `11300`–`11303`, `11320`–`11324` and `11330` with function code `0x06` (Write Single Register), one register per request, and read each value back after writing it.
+>
+> A `0x10` request that covers more than one register and includes any of these addresses writes other settings at the same addresses instead (for example the TOU schedule) and leaves these settings unchanged.
 
 *Implemented (60 registers)*
 
@@ -412,7 +431,7 @@ Configurable settings. Write with function code 0x06 (Write Single Register) or 
 | Implemented | 11211–11213 | Eco_Period8 | Eco Period 8 (Start/End/Type) | S16 | min | 1 | 0 | 0 | 1440 |  |
 | Implemented | 11214–11216 | Eco_Period9 | Eco Period 9 (Start/End/Type) | S16 | min | 1 | 0 | 0 | 1440 |  |
 | Implemented | 11217–11219 | Eco_Period10 | Eco Period 10 (Start/End/Type) | S16 | min | 1 | 0 | 0 | 1440 |  |
-| Periods 11–20 follow the same pattern (registers 11220–11249). |  |  |  |  |  |  |  |  |  |  |
+| Implemented | 11220–11249 | Eco_Start11_Set | Eco Periods 11–20 (Start/End/Type) | S16 | min | 1 | 0 | 0 | 1440 | Same structure as Period 1: three registers per period, up to `11249`. |
 | Program periods 1–20 only (11190–11249). On this interface `11254` is the weekday mask of the Eco schedule. The Eco SOC band follows at `11262`–`11268`. |  |  |  |  |  |  |  |  |  |  |
 | Implemented | 11262 | Eco_Min_SOC_Set | Eco Mode Minimum SOC | S16 | % | 0.01 | 0 | 0 | 10000 | Eco SOC band (with 11263). Active in Eco mode when 11263 - 11262 > 400 (4.00 %) with a BMS-connected battery; it then takes precedence over the Eco periods: self-consumption, charging below 11262 (from the grid when 11266 = 1, at up to 11268), with 11264 / 11265 capping grid import / export. Held in RAM: write again after every restart. |
 | Implemented | 11263 | Eco_Max_SOC_Set | Eco Mode Maximum SOC | S16 | % | 0.01 | 0 | 0 | 10000 | Upper limit of the Eco SOC band (see 11262). Held in RAM: write again after every restart. |
@@ -421,11 +440,12 @@ Configurable settings. Write with function code 0x06 (Write Single Register) or 
 | Implemented | 11266 | Eco_Grid_Charge_Set | Eco Mode Allow Grid Charging | S16 |  | 1 | 0 | 0 | 1 | 0: Disabled 1: Allow grid to charge battery during Eco mode. |
 | Implemented | 11267 | Eco_Batto_Grid_Set | Eco Mode Allow Battery to Grid | S16 |  | 1 | 0 | 0 | 1 | 0: Disabled 1: Allow battery discharge to grid during Eco mode. |
 | Implemented | 11268 | Eco_Max_Chg_Set | Eco Mode Max Grid Charge Power | S16 | kW | 0.01 | 0 | 0 | 6000 | Maximum battery charging power from the grid when Eco_Grid_Charge_Set = 1. |
+| Implemented | 11254 | TOU_Day_Of_Week_Mask | Eco Schedule Weekdays | U16 |  | 1 | 127 | 0 | 127 | Bit 0 = Monday to bit 6 = Sunday; 127 = every day, 31 = Monday to Friday, 96 = Saturday and Sunday. The Eco periods apply on the days whose bit is 1; on the other days the inverter runs self-consumption. Write it with `0x06`, one register per request. |
 | **9. Backup / Off-Grid** |  |  |  |  |  |  |  |  |  |  |
 | Implemented | 11137 | Backup_Switch | Backup Output Enable | S16 |  | 1 | 1 | 0 | 1 | 0: Disabled 1: Enabled |
 | Implemented | 11041 | On_Off_Grid_Switch_Enable | Planned Off-Grid Enable | S16 |  | 1 | 1 | 0 | 1 | 0: Disabled 1: Enabled |
 | **10. Reactive Power Control** |  |  |  |  |  |  |  |  |  |  |
-| Implemented | 11300 | Reactive_Power_Mode | Reactive Power Control Mode | S16 |  | 1 | 1 | 0 | 4 | 0: Off<br>1: Fixed reactive power Q (setpoint 11302)<br>2: Fixed power factor (setpoint 11301)<br>3: Q(U) curve<br>4: Cosφ(P) curve<br>Factory default 1 with 11302 = 0 (no reactive power). These values are used while the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026); otherwise the grid-code settings apply. Set the mode first, then the setpoint, with FC06 single-register writes; an FC16 block write to 11300–11303 does not set these values. Reactive power flows only while the inverter is exchanging active power. Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart. |
+| Implemented | 11300 | Reactive_Power_Mode | Reactive Power Control Mode | S16 |  | 1 | 1 | 0 | 4 | 0: Off<br>1: Fixed reactive power Q (setpoint 11302)<br>2: Fixed power factor (setpoint 11301)<br>3: Q(U) curve<br>4: Cosφ(P) curve<br>Factory default 1 with 11302 = 0 (no reactive power). These values are used while the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026); otherwise the grid-code settings apply. Set the mode first, then the setpoint, with `0x06`, one register per request; a `0x10` request across 11300–11303 does not set these values. Reactive power flows only while the inverter is exchanging active power. Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart. |
 | Implemented | 11301 | Reactive_Power_PF_Set | Power Factor Setpoint | S16 |  | 0.001 | 0 | -1000 | 1000 | −1.000 to +1.000 (mode 2). The value is stored with a resolution of 0.01; the last digit reads back as 0 (for example, 994 reads back as 990). Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart. |
 | Implemented | 11302 | Reactive_Power_Q_Set | Reactive Power Setpoint | S16 | kVar | 0.01 | 0 | -2500 | 2500 | +leading/-lagging (mode 1) Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart. |
 | Implemented | 11303 | Reactive_Power_Q_Max | Max Reactive Power | S16 | kVar | 0.01 | 10000 | 0 | 10000 | Upper limit for the reactive-power command. Used while the EMS is in control. Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart. |
@@ -444,20 +464,20 @@ Configurable settings. Write with function code 0x06 (Write Single Register) or 
 | Implemented | 11702 | Comms_Timeout_Action | Timeout Action | S16 |  | 1 | 0 | 0 | 3 | 0: **Stop inverter**: holds PowerOn_Switch (12000) at 0. After the recovery set in 11704, write 12000 = 1 to restart. \| 1: **Self-consumption**: the inverter operates in General mode; the stored values of 11151, 11107 and 11113 are not changed. \| 2: **Hold last state**: no degradation, EMS setpoints retained. \| 3: **Zero-export**: export is limited to 0 kW (stored settings are not changed). The inverter stays connected to the grid and remains in operation; this is export curtailment, not a shutdown. |
 | Implemented | 11703 | Comms_Watchdog_Prewarn_Sec | Pre-Warning Time | U16 |  | 1 | 20 | 5 | 300 | Pre-warning time in seconds. When `11701` − `14041` ≤ `11703` (the heartbeat is overdue), `14031 Comms_Watchdog_Status` changes to `2` (PREWARN) and bit 0 of `14106` is set; the next heartbeat returns it to 1. Must be smaller than `11701`, otherwise the write is answered with exception 0x03. |
 | Implemented | 11704 | Comms_Watchdog_Resume_Mode | Recovery Behavior | U16 |  | 1 | 1 | 0 | 2 | `0` LATCH: after a timeout the `11702` action stays in force, also across a restart, even when heartbeats resume, until it is cleared as described below.<br>`1` AUTO-RESUME (default): the first heartbeat received in SAFE_STATE returns the watchdog to NORMAL.<br>`2` MANUAL_CONFIRM: with the heartbeat running every 1–5 s, write `12001` = 1; the next heartbeat returns the watchdog to NORMAL.<br>**Write 11704 only while the watchdog is disabled** (`11700` = 0, or `14044` = 0) and no LATCH is stored, that is before `11700` = 1; otherwise the write is answered with exception 0x03.<br>**Recovery** needs `14044` = 1 (`11060` = 1 and `12002` = 1). `0` LATCH: set `11700` = 0, wait ≥ 2 s, write the heartbeat `12026` and within 5 s `Malfunction_Clear (12001)` = 1, wait ≥ 2 s, then set `11700` = 1. The latch is stored in non-volatile memory and survives a power cycle; writing `12001` while `11700` = 1 does not clear it. If `11702` = 0 (stop), also write `12000` = 1 to restart the inverter. |
+| **23. Communication and SunSpec Control Gate** |  |  |  |  |  |  |  |  |  |  |
+| Implemented | 11007 | Modbus_Addr_Set | Modbus Unit ID | U16 |  | 1 | 1 | 1 | 255 | Unit ID on Modbus RTU (RS-485) and Modbus TCP. On Modbus TCP the inverter also answers unit ID 0 and 255. After a change, send RTU requests to the new unit ID. |
+| Implemented | 11790 | SunSpec_Control_Gate | SunSpec Control Gate | U16 |  | 1 | 0 | 0 | 65535 | `0x5355` (21333): SunSpec control writes are accepted. Any other value closes the gate: SunSpec control writes are answered with exception `0x04`. Stored in non-volatile memory; factory default 0. |
+| Implemented | 19024 | TCP_SecondaryReader_IP_AB | Read-Only Client IPv4 Address, Octets 1–2 | U16 |  | 1 | 0 | 0 | 65535 | First octet in the high byte, second in the low byte (192.168.x.x: 0xC0A8). 0: no read-only client. A client at this address uses the second connection on port 502, never obtains write control (its writes are answered with exception `0x06`) and never displaces the connection that holds write control. |
+| Implemented | 19025 | TCP_SecondaryReader_IP_CD | Read-Only Client IPv4 Address, Octets 3–4 | U16 |  | 1 | 0 | 0 | 65535 | Third octet in the high byte, fourth in the low byte. |
+| Implemented | 19074 | RS485_Port_Role | RS-485 Port Role | U16 |  | 1 | 0 | 0 | 3 | 0: automatic; after a restart the port searches for a heat pump or boiler until a request addressed to the inverter arrives. 1: the port is reserved for an EMS. 2: heat pump; 3: boiler; with 2 or 3 the port does not answer an EMS. Write only 0 to 3, with `0x06`. Stored; applies from the next restart. |
 
 ## Control Commands
 
 Command registers. Write them with function code 0x06, one register per request. 12000, 12002 and 12021 can be read back to confirm the state; 12002 reads 0 after every restart.
 
-> **Important: write the registers below with FC06 (Write Single Register), not FC16.**
->
-> Write these registers with `0x06`, one register per request: `11300`-`11303`, `11320`-`11324`, `11330`, `11442`-`11444`.
->
-> Read each value back after writing it. A `0x10` request covering two or more of these registers writes other settings at the same addresses instead (for example the TOU schedule), so always use one `0x06` request per register.
-
 > **Integration notes**
 >
-> **Unit ID must be 1.** Requests carrying any other unit ID (except 0) are **silently discarded**: no exception is returned, so an incorrect unit ID results in a timeout. Requests with unit ID 0 are answered.
+> **Use unit ID 1** (factory setting, register `11007`). Requests carrying any other unit ID are **discarded without a response**, so a wrong unit ID results in a timeout; on Modbus TCP unit ID 0 and 255 are also answered.
 >
 > **Two registers report battery voltage.** `10337` Bat1_Voltage is measured by the inverter; `10674` BMS_Bat1_Voltage is reported by the BMS. The two values can differ significantly. Use one source consistently in your integration.
 >
@@ -521,22 +541,53 @@ Current operating state of inverter subsystems. Poll these registers to determin
 | Implemented | 14000 | PCS_Working_Mode | PCS Working Mode | U16 | 0: General 1: Grid Balancing 2: Economic 3: UPS 4: TOU 5: Forecast 6: Off-Grid |
 | Implemented | 14001 | TOU_Submode | TOU Sub-Mode | U16 | 0: Self-Use 1: Charge 2: Discharge 3: Peak Shaving 4: Battery Off |
 | Implemented | 14002 | PCS_Working_Status | PCS Running Status | U16 | 0: Self-checking 1: Standby 2: Pre-charging 3: Grid-synchronizing 4: Waiting 5: Initializing 6: Starting 7: Connecting 8: Running<br>*EMS commands are accepted only in states 1 (Standby) and 8 (Running).* |
-| Implemented | 14003 | Battery1_Working_Status | Battery Port 1 Status | U16 | 0: Stop 1: Charging 2: Discharging 3: Not Connected 4: Abnormal |
-| Implemented | 14005 | PV1_Working_Status | PV1 Status | U16 | 0: Stop 1: Running 2: Not Connected 3: Abnormal 4: No Interface |
+| Implemented | 14003 | Battery1_Working_Status | Battery Port 1 Status | U16 | 0: Stop1: Charging2: Discharging 3: Not Connected4: Abnormal |
+| Implemented | 14005 | PV1_Working_Status | PV1 Status | U16 | 0: Stop1: Running 2: Not Connected3: Abnormal 4: No Interface |
 | Implemented | 14006 | PV2_Working_Status | PV2 Status | U16 | Same as PV1 |
 | Implemented | 14007 | PV3_Working_Status | PV3 Status | U16 | Same as PV1 |
 | Implemented | 14008 | PV4_Working_Status | PV4 Status | U16 | Same as PV1 |
 | Implemented | 14009 | PV5_Working_Status | PV5 Status | U16 | Same as PV1 |
-| Implemented | 14010 | Grid_Working_Status | Grid Connection Status | U16 | 0: On-Grid 1: Off-Grid (Islanded) |
-| Implemented | 14027 | AC_Power_On_Off_Status | AC Side On/Off Status | U16 | 0: Off 1: On |
-| Implemented | 14028 | DC_Power_On_Off_Status | DC Side On/Off Status | U16 | 0: Off 1: On |
+| Implemented | 14010 | Grid_Working_Status | Grid Connection Status | U16 | 0: On-Grid1: Off-Grid (Islanded) |
+| Implemented | 14027 | AC_Power_On_Off_Status | AC Side On/Off Status | U16 | 0: Off1: On |
+| Implemented | 14028 | DC_Power_On_Off_Status | DC Side On/Off Status | U16 | 0: Off1: On |
 | **Communications Watchdog Status** |  |  |  |  |  |
 | Implemented | 14031 | Comms_Watchdog_Status | Watchdog State | U16 | 0: Disabled (`11700` = 0 or `14044` = 0) \| 1: Normal (heartbeat OK) \| 2: Pre-warning: the heartbeat is overdue (`11701` − `14041` ≤ `11703`); write `12026` at once \| **3: SAFE_STATE: the `11702` action is applied; recover as set in `11704` (cause in `14042`)** |
 | Implemented | 14041 | Comms_Watchdog_Age_Sec | Seconds Since Last Heartbeat | U16 | Seconds since the last heartbeat write to `12026` (0 after each heartbeat, maximum 65535). Time left before the timeout = `11701` − `14041`; the pre-warning (`14031` = 2) starts when this is `11703` or less. |
-| Implemented | 14042 | Comms_Watchdog_Trip_Reason | Reason for the last watchdog trip (held until the watchdog is enabled again) | U16 | 0: Never-tripped \| 1: Heartbeat timeout (age > 11701 Timeout) \| 2: Manual trigger (write 12026=0x5A5A) \| 3: reserved \| 4: EMS control closed while the watchdog is enabled (11060 != 1 or 12002 != 1) \| **5: SAFE_STATE held/restored from the EEPROM latch** (not 'reserved'). \| **6: restart while the EMS was in control**: the unit started in SAFE_STATE and waits for the EMS's first write. **Important: read this register promptly.** when 11704 Resume_Mode = LATCH, the true trip reason (1-4) is readable for **about 1 second** after the trip; the value then changes to 5. Poll 14031 and read 14042 as soon as 14031 changes to 3. While the latch is set, the inverter also **sets 11704 to LATCH**; a different Resume_Mode written while the latch is set is replaced by LATCH. To clear the latch (with `14044` = 1): 11700 = 0 → wait ≥ 2 s → heartbeat 12026 and within 5 s 12001 = 1 → wait ≥ 2 s → 11700 = 1. |
+| Implemented | 14042 | Comms_Watchdog_Trip_Reason | Reason for the last watchdog trip (held until the watchdog is enabled again) | U16 | 0: Never-tripped \| 1: Heartbeat timeout (age > 11701 Timeout) \| 2: Manual trigger (write 12026=0x5A5A) \| 3: reserved \| 4: EMS control closed while the watchdog is enabled (11060 != 1 or 12002 != 1) \| **5: SAFE_STATE held/restored from the EEPROM latch**. \| **6: restart while the EMS was in control**: the unit started in SAFE_STATE and waits for the EMS's first write. **Important: read this register promptly.** when 11704 Resume_Mode = LATCH, the true trip reason (1-4) is readable for **about 1 second** after the trip; the value then changes to 5. Poll 14031 and read 14042 as soon as 14031 changes to 3. While the latch is set, the inverter also **sets 11704 to LATCH**; a different Resume_Mode written while the latch is set is replaced by LATCH. To clear the latch (with `14044` = 1): 11700 = 0 → wait ≥ 2 s → heartbeat 12026 and within 5 s 12001 = 1 → wait ≥ 2 s → 11700 = 1. |
 | Implemented | 14030 | EMS_Channel_Canary | Constant 0x1018 on EMS channels: use it to verify that you are reading the EMS register view | U16 | **Reads 0x1018 (4120) only on EMS-native channels** (Modbus TCP 502, Wi-Fi 502, RS-485 RTU). This document describes the EMS-channel view; cloud channels see a different view for some addresses (e.g. 10009, 10685–10689). If this register does not read 0x1018, you are not connected to an EMS channel and the register definitions in this document do not apply. |
 | **EMS Control & Mode Readback** |  |  |  |  |  |
-| Implemented | 14044 | EMS_Control_Active | EMS Control Active Status | U16 | 0: EMS disabled (local control) 1: EMS active (remote control)<br>Combined state of EMS_Switch_Set (11060) and Remote_Mode (12002). |
+| Implemented | 14044 | EMS_Control_Active | EMS Control Active Status | U16 | 0: EMS disabled (local control)1: EMS active (remote control)<br>Combined state of EMS_Switch_Set (11060) and Remote_Mode (12002). |
+| **Control diagnostics: power cap and SunSpec controls** |  |  |  |  |  |
+| Implemented | 14047 | Envelope_P_Upper | Grid-code power cap under EMS control | S32_BE | Grid-code power cap of the converter in W (the lowest of its voltage-, frequency- and ramp-dependent curves). Two registers, high word first; reads −1 outside EMS control. `17359` already includes it. |
+| Implemented | 14232 | SunSpec_Diag_Layout | Control diagnostic block: layout version | U16 | Block layout version: reads 0x1112 (not a firmware version). |
+| Implemented | 14233 | SunSpec_Diag_Gate | SunSpec control gate | U16 | Control gate: 1 open, 0 closed. |
+| Implemented | 14234 | SunSpec_Diag_Active_Power_Limit_State | Active-power limit control: state and reason | U16 | High byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (0 none, 1 disabled by the client, 2 reversion timeout, 3 gate closed, 4 outranked, 5 machine veto, 6 displaced by the other reactive control, 7 storage only: the charge and discharge bounds exclude each other and the battery is held at 0 W). |
+| Implemented | 14235 | SunSpec_Diag_Active_Power_Limit_Rvrt_Left | Active-power limit: seconds to reversion | U16 | Seconds left until reversion; 0xFFFF if RvrtTms = 0. |
+| Implemented | 14236 | SunSpec_Diag_Power_Factor_State | Power-factor control: state and reason | U16 | High byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (0 none, 1 disabled by the client, 2 reversion timeout, 3 gate closed, 4 outranked, 5 machine veto, 6 displaced by the other reactive control, 7 storage only: the charge and discharge bounds exclude each other and the battery is held at 0 W). |
+| Implemented | 14237 | SunSpec_Diag_Power_Factor_Rvrt_Left | Power factor: seconds to reversion | U16 | Seconds left until reversion; 0xFFFF if RvrtTms = 0. |
+| Implemented | 14238 | SunSpec_Diag_Reactive_Power_State | Reactive-power control: state and reason | U16 | High byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (0 none, 1 disabled by the client, 2 reversion timeout, 3 gate closed, 4 outranked, 5 machine veto, 6 displaced by the other reactive control, 7 storage only: the charge and discharge bounds exclude each other and the battery is held at 0 W). |
+| Implemented | 14239 | SunSpec_Diag_Reactive_Power_Rvrt_Left | Reactive power: seconds to reversion | U16 | Seconds left until reversion; 0xFFFF if RvrtTms = 0. |
+| Implemented | 14240 | SunSpec_Diag_Storage_State | Storage control: state and reason | U16 | High byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (0 none, 1 disabled by the client, 2 reversion timeout, 3 gate closed, 4 outranked, 5 machine veto, 6 displaced by the other reactive control, 7 storage only: the charge and discharge bounds exclude each other and the battery is held at 0 W). |
+| Implemented | 14241 | SunSpec_Diag_Storage_Rvrt_Left | Storage control: seconds to reversion | U16 | Seconds left until reversion; 0xFFFF if RvrtTms = 0. |
+| Implemented | 14242 | SunSpec_Diag_WLim_Selected | Active-power limit selected for dispatch | U16 | Active-power limit selected for dispatch, 0.01 % of the rated power; 0xFFFF if none. |
+| Implemented | 14243 | SunSpec_Diag_PF_Selected | Power factor selected for dispatch | S16 | Power factor selected for dispatch, 0.01; 0x8000 if none. |
+| Implemented | 14244 | SunSpec_Diag_VAr_Selected | Reactive power selected for dispatch | S16 | Reactive power selected for dispatch, 0.01 %; 0x8000 if none. |
+| Implemented | 14245 | SunSpec_Diag_Storage_Setpoint | Storage setpoint selected for dispatch | S16 | Forced storage setpoint per phase selected for dispatch, 0.01 kW, positive = AC output; 0x8000 if none (also while the storage control only limits the battery). |
+| Implemented | 14246 | SunSpec_Diag_Refused_Frames | Refused SunSpec write frames | U16 | Count of refused SunSpec write frames (saturates at 65535). |
+| Implemented | 14247 | SunSpec_Diag_Last_Write_Age | Seconds since the last SunSpec write | U16 | Seconds since the last accepted SunSpec write; 0xFFFF if none since the restart. |
+| **Control-truth block: read 17284–17360 (77 registers) in one request** |  |  |  |  |  |
+| Implemented | 17284 | Control_Truth_Layout | Control-truth block: layout identifier | U16 | Layout identifier, reads 0xCA12. |
+| Implemented | 17285 | Control_Truth_Seq | Publication sequence number | U16 | Publication sequence number; equals the value at 17360 in a consistent read. |
+| Implemented | 17286 | Control_Truth_WLim_Param | Slot 1: parameter index (reads 321, active-power limit) | U16 | Parameter index (bit 14 set for a parameter of the DC converter). |
+| Implemented | 17287 | Control_Truth_WLim_Requested | Slot 1: active-power limit requested, 0.01 % | U16 | Value requested from the power converter, after the combination of native and SunSpec commands; 0x8000 if none. |
+| Implemented | 17288 | Control_Truth_WLim_Generation | Slot 1: request generation | U16 | Request generation: advances whenever the requested value changes; 0 = never requested since the restart. |
+| Implemented | 17289 | Control_Truth_WLim_Transport | Slot 1: transport state | U16 | Transport state: 0 not yet sent, 1 refused by the transmit queue so far (not yet transmitted), 2 transmitted, 3 the converter's latest parameter read-back equals the requested value. |
+| Implemented | 17290 | Control_Truth_WLim_Effective | Slot 1: effective state of the active-power limit | U16 | Effective state: 0 nothing requested, 2 requested, execution not reported by the converter, 3 not applied (active-power limit below 100 % outside EMS control), 4 applied (active-power limit under EMS control). |
+| Implemented | 17291 | Control_Truth_WLim_Measurement | Slot 1: measurement register | U16 | Native register of the corresponding measurement, for example 10019 for active power; 0x8000 for a mode selector. |
+| Implemented | 17292–17357 | Control_Truth_Slots_2_12 | Slots 2–12, six registers each | U16 | Same six-register layout as slot 1: 17292 reactive-power mode, 17298 reactive-power setpoint, 17304 power-factor setpoint, 17310 operating mode, 17316 / 17322 / 17328 active-power setpoint phase A / B / C, 17334–17357 battery parameters. Read the whole block 17284–17360 in one request. |
+| Implemented | 17358 | Control_Truth_Mode | Operating mode of the latest parameter pass | U16 | Operating mode of the latest parameter pass that sent the active-power limit: 0 none since the restart, 1 not under EMS control, 2 under EMS control. |
+| Implemented | 17359 | Control_Truth_Output_Bound | Upper bound of the AC output under EMS control, W | S16 | Under EMS control: upper bound of the AC output in W that results from the active-power limit and the converter's grid-code power cap; 0x8000 otherwise. |
+| Implemented | 17360 | Control_Truth_Seq_End | Publication sequence number (end) | U16 | Publication sequence number again. |
 
 ## EMS Setpoint Shadow
 
@@ -546,8 +597,8 @@ For the setpoints listed above, four shadow registers report the last requested 
 >
 > Use this write-and-verify sequence for each setpoint that has shadow registers: `11045` (14250–14253), `11321` (14262–14265), `11068` (14266–14269), `11069` (14270–14273), `11701` (14282–14285), `11704` (14286–14289), `11060` (14290–14293). The four registers are, in this order: requested value, applied value, seconds since the write, reject code.
 >
-> 1. **(once, after connecting)** Enable EMS dispatch: `FC 0x06 @ 11060 = 1` (EMS_Switch_Set) and `FC 0x06 @ 12002 = 1` (Remote_Mode). Confirm with `14291 EMS_Switch_Set_Last_Applied == 1` and `14044 == 1`. Setpoint writes take effect only while 14044 = 1.
-> 2. **(once, after connecting)** Enable the communication watchdog: with `11700` = 0 write `11701` (timeout, s), `11702` (action) and `11704` (recovery mode), then `FC 0x06 @ 11700 = 1`. Confirm with `14031 Comms_Watchdog_Status == 1 (Normal)`.
+> 1. **(once, after connecting)** Configure the communication watchdog as in Quick Start step 2: with `11700` = 0 write `11701` (timeout, s), `11702` (action) and `11704` (recovery mode), then `FC 0x06 @ 11700 = 1`.
+> 2. **(once, after connecting)** Enable EMS dispatch: `FC 0x06 @ 11060 = 1` (EMS_Switch_Set), then `FC 0x06 @ 12002 = 1` (Remote_Mode), then the first heartbeat `12026`. Confirm with `14044 == 1`, `14031 Comms_Watchdog_Status == 1 (Normal)` and `14291 EMS_Switch_Set_Last_Applied == 1`. Setpoint writes take effect only while 14044 = 1.
 > 3. **(continuous, every 1–5 s)** Send heartbeat: `FC 0x06 @ 12026` = any value except 0x5A5A (Comms_Heartbeat). `14041 Comms_Watchdog_Age_Sec` returns to 0 with each heartbeat.
 > 4. **(on dispatch change)** Write the setpoint with `FC 0x06`, one register per request (e.g. 11045 Active_Power_Set, 11321 Active_Power_Limit_Pct). For 11321, 11068, 11069, 11701, 11704 and 11060 only `0x06` writes update the shadow registers.
 > 5. **(1–2 s later)** Read the four shadow registers for that setpoint (Last_Requested, Last_Applied, Last_Write_Age_Sec, Last_Reject_Code). If *Last_Applied != Last_Requested*, check *Last_Reject_Code*.
@@ -561,7 +612,7 @@ For the setpoints listed above, four shadow registers report the last requested 
 > sleep(1 s)
 > requested = read(14250)                # Active_Power_Set_Last_Requested
 > applied   = read(14251)                # Active_Power_Set_Last_Applied (after the ±2500 clamp)
-> reject    = read(14253)                # 0 = accepted, 1 = clamped
+> reject    = read(14253)                # 0 accepted, 1 out of range (clamped), 3 refused, 6 other
 > if reject != 0 or applied != requested:
 >     use applied as the setpoint in force; keep requests within ±rated power (13034)
 > check the result at 10019 (inverter active power) and 10346 (battery power)
@@ -569,7 +620,15 @@ For the setpoints listed above, four shadow registers report the last requested 
 >
 > **Reject codes:** 0 = accepted, 1 = out of range, 3 = write refused, 6 = other exception.
 
-*Shadow block 14250–14293: four registers per setpoint; the setpoints are listed above.*
+| Registers | Setpoint | Content, in this order |
+|---|---|---|
+| 14250–14253 | `11045` Active_Power_Set | Requested value, applied value, seconds since the last accepted write (65535 = not written since the restart), reject code |
+| 14262–14265 | `11321` Active_Power_Limit_Pct | Requested value, applied value, seconds since the last accepted write (65535 = not written since the restart), reject code |
+| 14266–14269 | `11068` Bat1_Max_Chg_Power_Set | Requested value, applied value, seconds since the last accepted write (65535 = not written since the restart), reject code |
+| 14270–14273 | `11069` Bat1_Max_Dchg_Power_Set | Requested value, applied value, seconds since the last accepted write (65535 = not written since the restart), reject code |
+| 14282–14285 | `11701` Comms_Watchdog_Timeout | Requested value, applied value, seconds since the last accepted write (65535 = not written since the restart), reject code |
+| 14286–14289 | `11704` Comms_Watchdog_Resume_Mode | Requested value, applied value, seconds since the last accepted write (65535 = not written since the restart), reject code |
+| 14290–14293 | `11060` EMS_Switch_Set | Requested value, applied value, seconds since the last accepted write (65535 = not written since the restart), reject code |
 
 ## Alarms & Faults
 
@@ -635,71 +694,265 @@ For the complete fault register list, contact Wattsonic technical support.
 
 ## Quick Start Guide
 
-Step-by-step guide for integrating the Wattsonic MATIC inverter via Modbus.
+Six steps from the first connection to a closed control loop. Each step lists the exact requests and gives a Python example that runs as written with any pymodbus 3.x release; the examples of steps 2 to 6 continue the one of step 1.
 
-### 1. Connect & Identify
+### 1. Connect and identify the inverter
 
-- Connect over Modbus TCP, port `502`, unit ID `1`, or over Modbus RTU (RS-485, `115200` baud, 8N1, unit ID `1`)
-- Read `Device_SN (13000)` and `Device_Info (13016)` to verify device identity
-- **Confirm the model:** read `Device_Info (13016)`. MATIC units report 10-14 (10 = 10 kW, 11 = 12 kW, 12 = 15 kW, 13 = 20 kW, 14 = 25 kW); any other value means the device is not a MATIC inverter covered by this document.
-- Read `Inverter_Rated_Power (13034)` to determine the rated power and limit power setpoints to it.
+Connect over Modbus TCP to port `502`, unit ID `1`, or over Modbus RTU: RS-485, `115200` baud, 8N1, unit ID `1`. Then read:
 
-### 2. Enable EMS Control
+| Function code | Register | Count or value | Type | Scale, unit | Meaning |
+|---|---|---|---|---|---|
+| `0x03` | `13000` | 16 | ASCII32 | – | Serial number: 32 ASCII characters, high byte first, padded with 0 |
+| `0x03` | `13016` | 1 | U16 | – | Model code: 10 = 10 kW, 11 = 12 kW, 12 = 15 kW, 13 = 20 kW, 14 = 25 kW. Any other value: not a MATIC inverter covered by this document. |
+| `0x03` | `13021` | 1 | U16 | – | ARM firmware version: 1130 or higher for this document |
+| `0x03` | `13034` | 1 | U16 | 0.01 kW | Rated power: limit every power setpoint to it |
+| `0x03` | `14030` | 1 | U16 | – | 0x1018 (4120) on an EMS channel. Any other value: the register definitions of this document do not apply on this connection. |
 
-- Write `Comms_Watchdog_Timeout (11701) = 60` (60 s), with `11700` = 0.
-- Write `Comms_Timeout_Action (11702) = 1` (self-consumption on timeout).
-- Write `Comms_Watchdog_Resume_Mode (11704) = 1` (AUTO). 11704 can be written only while the watchdog is disabled.
-- Write `Comms_Watchdog_Enable (11700) = 1` to enable the communication watchdog.
-- Write `EMS_Switch_Set (11060) = 1` to enable external EMS dispatch.
-- Write `Remote_Mode (12002) = 1`, then the first heartbeat `12026`. Confirm: `14044` = 1 and `14031` = 1.
+**Python (pymodbus 3.x)**
 
-### 3. Monitor System State
+```python
+import inspect, time
+from pymodbus.client import ModbusTcpClient
 
-Poll real-time data every 1–5 s:
+client = ModbusTcpClient("192.168.1.100", port=502)   # IP address of the inverter
+client.connect()
+# unit ID 1: pymodbus 3.x calls the argument slave= (older) or device_id= (newer)
+_params = inspect.signature(client.read_holding_registers).parameters
+UNIT = {"device_id" if "device_id" in _params else "slave": 1}
 
-- Grid power: `Meter_Active_Power_Total (10765)`, +export / −import
-- PV power: `PV_Total_Power (10367)`
-- Battery SOC: `BMS_Bat1_SOC (10671)`
-- Battery power: `Bat_Power_Total (10346)`, +discharge / −charge
-- Load power: `Load_Power_Total (10800)`
-- Working mode: `PCS_Working_Mode (14000)`
-- Grid status: `Grid_Working_Status (14010)`
-- Watchdog: `Comms_Watchdog_Status (14031)`
-- Alarms: registers `14022`–`14026` and `14100` onwards
+def read(address, count=1):                  # function code 0x03
+    rr = client.read_holding_registers(address, count=count, **UNIT)
+    if rr.isError():
+        raise IOError("read %d: %s" % (address, rr))
+    return rr.registers
 
-### 4. Send Heartbeat (Loop)
+def write(address, value):                   # 0x06, one register per request
+    # a negative value is sent as 16-bit two's complement
+    rr = client.write_register(address, value & 0xFFFF, **UNIT)
+    if rr.isError():
+        raise IOError("write %d: %s" % (address, rr))
 
-Write the heartbeat register every 1–5 s:
+def s16(raw):                                # S16: signed 16-bit
+    return raw - 0x10000 if raw & 0x8000 else raw
 
-Heartbeat Loop
+raw = b"".join(r.to_bytes(2, "big") for r in read(13000, 16))
+serial = raw.rstrip(b"\x00").decode("ascii", "replace")
+model = read(13016)[0]                       # 10..14 = MATIC 10/12/15/20/25 kW
+arm = read(13021)[0]                         # 1130 or higher
+rated = read(13034)[0]                       # rated power, 0.01 kW
+assert read(14030)[0] == 0x1018, "not an EMS channel"
+print(serial, model, arm, rated * 0.01, "kW")
+```
 
-Write Comms_Heartbeat (12026) = counter (any value except 0x5A5A)  
-Interval: every 1–5 s (this also keeps write control on port 502, which is released after 30 s without a write)  
-14031 = 2 (pre-warning): the heartbeat is overdue; write it at once and check the connection.  
-14031 = 3 (SAFE_STATE): the 11702 action is applied; recover as set in 11704.
+**Modbus TCP frames (hex)**
 
-### 5. Control Operations
+```text
+# read 14030, 1 register (0x03): channel check
+request   00 01 00 00 00 06 01 03 36 CE 00 01
+response  00 01 00 00 00 05 01 03 02 10 18      # 0x1018: EMS channel
+# read 13021, 1 register (0x03): ARM firmware version
+request   00 02 00 00 00 06 01 03 32 DD 00 01
+response  00 02 00 00 00 05 01 03 02 04 6A      # 0x046A = 1130
+```
 
-- **Set Working Mode:** Write `Run_Mode_Set (11151)` = 0 / 2 / 4
-- **Set Active Power:** Write `Active_Power_Set (11045)`
+### 2. Open the EMS session
 
-Active Power Examples
+Write the registers in this order with function code `0x06`, one register per request, and read each one back. Every EMS command takes effect only while this session is open.
 
-Write 1500 = discharge 15.00 kW  
-Write -1000 = charge 10.00 kW from grid
+| Function code | Register | Count or value | Type | Scale, unit | Meaning |
+|---|---|---|---|---|---|
+| `0x06` | `11700` | 0 | S16 | – | Watchdog off while you configure it (11704 can be written only while the watchdog is disabled) |
+| `0x06` | `11701` | 60 | S16 | 1 s | Watchdog timeout, 10–600 s |
+| `0x06` | `11702` | 1 | S16 | – | Fail-safe action on timeout: 1 = self-consumption |
+| `0x06` | `11704` | 1 | U16 | – | Recovery after a timeout: 1 = AUTO-RESUME (the next heartbeat returns to normal) |
+| `0x06` | `11700` | 1 | S16 | – | Enable the communication watchdog |
+| `0x06` | `11060` | 1 | S16 | – | Enable EMS dispatch |
+| `0x06` | `12002` | 1 | S16 | – | Remote control. Reads 0 after every restart: write it again after a restart. |
+| `0x06` | `12026` | 1 | U16 | – | First heartbeat: any value except 0x5A5A |
+| `0x03` | `14044` | 1 | U16 | – | Confirm: 1 = EMS in control |
+| `0x03` | `14031` | 1 | U16 | – | Confirm: 1 = watchdog normal |
 
-- **Export Limit (Zero Export):** Write `Export_Limits_Switch (11107) = 1`, then `Export_Limits (11113) = 0`.
-- **SOC Limits:** Write `Grid_tied_SOC_MIN (11108) = 1000` (10.00%)
-- **Reactive Power:** Write `Reactive_Power_Mode (11300)` first, then the setpoint: `11302` (Q, mode 1) or `11301` (PF, mode 2).
+**Python (pymodbus 3.x)**
 
-### 6. Safety & Error Handling
+```python
+# continues the example of step 1
+SESSION = [(11700, 0),    # watchdog off while it is configured
+           (11701, 60),   # timeout, s
+           (11702, 1),    # action on timeout: self-consumption
+           (11704, 1),    # recovery: AUTO-RESUME
+           (11700, 1),    # enable the communication watchdog
+           (11060, 1),    # enable EMS dispatch
+           (12002, 1)]    # remote control
+for address, value in SESSION:
+    write(address, value)
+    assert read(address)[0] == value, address   # read back
+hb = 1
+write(12026, hb)                             # first heartbeat
+time.sleep(1)
+print("14044 =", read(14044)[0], " 14031 =", read(14031)[0])   # expected: 1 and 1
+```
 
-- Poll the alarm and fault registers periodically.
-- Use `Malfunction_Clear (12001) = 1` to clear recoverable faults
-- **Emergency Stop:** Write `Emergency_Stop (12021) = 1` to stop power conversion immediately. To clear it, write `Malfunction_Clear (12001) = 1`.
-- **Verify EMS:** Poll `EMS_Control_Active (14044)` periodically. 0 means that `11060` or `12002` is no longer 1 (12002 reads 0 after every restart); write `11060` = 1 and `12002` = 1 again.
-- Before shutting down the inverter, write `PowerOn_Switch (12000) = 0`.
-- Before disconnecting the EMS, write `EMS_Switch_Set (11060) = 0`.
+### 3. Poll the system state
+
+Read every 1–5 s with function code `0x03`, one request per polling group (six requests per cycle), and take each value at its offset in the group. Multiply the raw value by the scale; S16 values are signed.
+
+| Function code | Register | Count or value | Meaning |
+|---|---|---|---|
+| `0x03` | `10000` | 65 | Group AC and grid, 10000–10064: holds 10019 |
+| `0x03` | `10337` | 32 | Group battery and PV, 10337–10368: holds 10346 and 10367 |
+| `0x03` | `10671` | 27 | Group battery port, 10671–10697: holds 10671 |
+| `0x03` | `10752` | 32 | Group meter, 10752–10783: holds 10765 |
+| `0x03` | `14000` | 49 | Group status and EMS session, 14000–14048: holds 14002, 14010, 14022, 14023, 14031 and 14044 |
+| `0x03` | `14100` | 16 | Group alarm and fault bits, 14100–14115 |
+
+Registers taken from these reads:
+
+| Function code | Register | Count or value | Type | Scale, unit | Meaning |
+|---|---|---|---|---|---|
+| `0x03` | `10765` | – | S16 | 0.01 kW | Grid power at the meter: + export / − import |
+| `0x03` | `10367` | – | S16 | 0.01 kW | PV power, all MPPT inputs |
+| `0x03` | `10346` | – | S16 | 0.01 kW | Battery power: + discharge / − charge |
+| `0x03` | `10671` | – | U16 | 0.01 % | Battery SOC; use the value only when it lies in 0–10000 |
+| `0x03` | `10019` | – | S16 | 0.01 kW | Inverter active power: + output / − input |
+| `0x03` | `14002` | – | U16 | – | Running status: EMS commands are accepted in 1 (standby) and 8 (running) |
+| `0x03` | `14010` | – | U16 | – | Grid connection: 0 = on-grid, 1 = off-grid |
+| `0x03` | `14031` | – | U16 | – | Watchdog: 1 = normal, 2 = pre-warning, 3 = SAFE_STATE |
+| `0x03` | `14044` | – | U16 | – | 1 = EMS in control |
+| `0x03` | `14022` | – | U16 | – | Alarm and fault bits: 14022, 14023 and the registers from 14100 listed under Alarms & Faults; a set bit is active |
+
+**Python (pymodbus 3.x)**
+
+```python
+# continues the example of step 1: one request per polling group (Data Types)
+GROUPS = {"ac": (10000, 65), "dc": (10337, 32), "bat": (10671, 27),
+          "meter": (10752, 32), "status": (14000, 49), "alarms": (14100, 16)}
+ALARMS = (14022, 14023, 14100, 14101, 14104, 14109, 14110, 14112, 14113, 14115)
+
+def poll():
+    regs = {}
+    for start, count in GROUPS.values():        # 6 requests per cycle
+        regs.update(zip(range(start, start + count), read(start, count)))
+    soc = regs[10671]
+    return {
+        "grid_kw": s16(regs[10765]) * 0.01,          # + export / - import
+        "pv_kw": s16(regs[10367]) * 0.01,
+        "battery_kw": s16(regs[10346]) * 0.01,       # + discharge / - charge
+        "soc_pct": soc * 0.01 if soc <= 10000 else None,
+        "inverter_kw": s16(regs[10019]) * 0.01,      # + output / - input
+        "pcs_status": regs[14002],                   # 1 standby, 8 running
+        "grid_status": regs[14010],                  # 0 on-grid, 1 off-grid
+        "watchdog": regs[14031],               # 1 normal, 2 pre-warning, 3 SAFE_STATE
+        "ems_active": regs[14044],                   # 1 = EMS in control
+        "alarms": {a: regs[a] for a in ALARMS if regs[a]},   # a set bit is active
+    }
+
+print(poll())
+```
+
+### 4. Send the heartbeat
+
+Write the heartbeat every 1–5 s for as long as the EMS is in control. It also keeps write control on port 502, which is released after 30 s without a write.
+
+| Function code | Register | Count or value | Type | Scale, unit | Meaning |
+|---|---|---|---|---|---|
+| `0x06` | `12026` | 1–65535 (≠ 0x5A5A) | U16 | – | Heartbeat: a counter. 0x5A5A trips the watchdog on purpose (14042 = 2). |
+| `0x03` | `14041` | 1 | U16 | 1 s | Seconds since the last heartbeat; 0 after each heartbeat |
+| `0x03` | `14031` | 1 | U16 | – | 2 = pre-warning: write the heartbeat at once. 3 = SAFE_STATE: the 11702 action is applied, the cause is in 14042; recover as set in 11704. |
+
+**Python (pymodbus 3.x)**
+
+```python
+# continues the examples of steps 1 and 2
+def heartbeat(counter):
+    counter = counter % 65535 + 1            # 1..65535
+    if counter == 0x5A5A:                    # trips the watchdog on purpose: skip
+        counter += 1
+    write(12026, counter)
+    return counter
+
+for _ in range(5):                           # in your EMS: every 1-5 s, all session
+    hb = heartbeat(hb)
+    if read(14031)[0] == 3:                  # SAFE_STATE: the 11702 action is applied
+        print("SAFE_STATE, reason", read(14042)[0])
+    time.sleep(2)
+```
+
+### 5. Control the inverter
+
+With the session open (step 2) and the heartbeat running (step 4), write the setpoint and confirm it in the Setpoint Shadow.
+
+| Function code | Register | Count or value | Type | Scale, unit | Meaning |
+|---|---|---|---|---|---|
+| `0x06` | `11045` | 1500 | S16 | 0.01 kW | Active power setpoint: + discharge / − charge (1500 = discharge 15.00 kW, −1000 = charge 10.00 kW from the grid). Limit it to ± 13034; values beyond ±2500 are clamped. Not retained after a restart. |
+| `0x03` | `14250` | 4 | S16, S16, U16, U16 | 0.01 kW, 0.01 kW, 1 s, – | Requested value, applied value, seconds since the write, reject code: 0 accepted; 1 out of range (11045: clamped, the applied value shows the clamp); 3 write refused (exception 04), not written; 6 other exception, not written. See Setpoint Shadow. |
+| `0x06` | `11107` | 1 | S16 | – | Export limit on (then 11113) |
+| `0x06` | `11113` | 0 | S16 | 0.01 kW | Maximum export power; 0 = zero export. Stored setting: it stays after a restart. |
+| `0x06` | `11108` | 1000 | S16 | 0.01 % | Minimum SOC on-grid (1000 = 10.00 %) |
+| `0x06` | `11300` | 1 | S16 | – | Reactive power mode first (1 = fixed Q with 11302, 2 = fixed power factor with 11301), then the setpoint; one register per request |
+| `0x03` | `11113` | 1 | S16 | 0.01 kW | Read back: expect the value you wrote. Another value means the write was not applied; write it again (one register per request). |
+| `0x03` | `11108` | 1 | S16 | 0.01 % | Read back: expect the value you wrote. Another value means the write was not applied; write it again (one register per request). |
+| `0x03` | `11300` | 1 | S16 | – | Read back: expect the value you wrote. Another value means the write was not applied; write it again (one register per request). |
+
+**Python (pymodbus 3.x)**
+
+```python
+# continues the examples of steps 1, 2 and 4
+setpoint = 1500                    # 15.00 kW discharge; -1000 = 10.00 kW charge
+setpoint = max(-rated, min(rated, setpoint)) # rated power read in step 1
+write(11045, setpoint)
+time.sleep(1)
+requested, applied, age, reject = read(14250, 4)   # Setpoint Shadow of 11045
+print("requested", s16(requested) * 0.01, "kW, applied", s16(applied) * 0.01, "kW")
+ACTION = {0: "accepted: the applied value is in force",
+          1: "out of range: clamped, use the applied value",
+          3: "refused (exception 04), not written: check 14044 and 14031",
+          6: "other exception, not written: read back, then write again"}
+print("reject code", reject, "->", ACTION.get(reject, "unknown: read back"))
+print("inverter", s16(read(10019)[0]) * 0.01, "kW")
+print("battery", s16(read(10346)[0]) * 0.01, "kW")
+hb = heartbeat(hb)                           # keep the heartbeat running
+```
+
+**Modbus TCP frames (hex)**
+
+```text
+# write 11045 = 1500 (0x06): discharge 15.00 kW
+request   00 03 00 00 00 06 01 06 2B 25 05 DC
+response  00 03 00 00 00 06 01 06 2B 25 05 DC   # echo: written
+# read 14250, 4 registers (0x03): Setpoint Shadow of 11045
+request   00 04 00 00 00 06 01 03 37 AA 00 04
+response  00 04 00 00 00 0B 01 03 08 05 DC 05 DC 00 01 00 00
+#         requested 1500, applied 1500, 1 s since the write, reject code 0
+```
+
+### 6. Safety and end of session
+
+Poll `14044`: 0 means that `11060` or `12002` is no longer 1 (12002 reads 0 after every restart); write both again. To end the session, write these two registers in this order with function code `0x06`:
+
+| Function code | Register | Count or value | Type | Scale, unit | Meaning |
+|---|---|---|---|---|---|
+| `0x06` | `11700` | 0 | S16 | – | End of session, first: watchdog off. Closing EMS control while the watchdog is enabled is a trip (14042 = 4). |
+| `0x06` | `11060` | 0 | S16 | – | Then: EMS dispatch off |
+
+**Python (pymodbus 3.x)**
+
+```python
+# continues the example of step 1: end the EMS session
+# watchdog off first: closing EMS control while it is enabled trips it (14042 = 4)
+write(11700, 0)
+write(11060, 0)    # EMS dispatch off
+client.close()
+```
+
+#### Emergency and power commands
+
+These commands are not part of ending a session: they stop or switch off the inverter. Send them only when the plant must stop, never as a cleanup step.
+
+| Function code | Register | Count or value | Type | Scale, unit | Meaning |
+|---|---|---|---|---|---|
+| `0x06` | `12001` | 1 | S16 | – | Clear recoverable faults and an emergency stop |
+| `0x06` | `12021` | 1 | S16 | – | Emergency stop: stops power conversion at once and stays set until 12001 = 1 |
+| `0x06` | `12000` | 0 | S16 | – | Switch the inverter off (1 = on) |
 
 ## Scenarios
 
@@ -735,10 +988,12 @@ Read inverter output, PV production, battery SOC, and grid/meter power to build 
 
 ```python
 from pymodbus.client import ModbusTcpClient  # or ModbusSerialClient
+import inspect
 import time, struct
 
 # RTU: client = ModbusSerialClient(port="/dev/ttyUSB0", baudrate=115200)
 client = ModbusTcpClient("192.168.1.100", port=502)
+UNIT = {"device_id" if "device_id" in inspect.signature(client.read_holding_registers).parameters else "slave": 1}   # unit ID 1 (pymodbus 3.x: slave= in older, device_id= in newer releases)
 client.connect()
 
 def signed16(val):
@@ -746,29 +1001,29 @@ def signed16(val):
 
 while True:
     # Group 1: inverter basics (10000-10003)
-    g1 = client.read_holding_registers(10000, 4, slave=1)
+    g1 = client.read_holding_registers(10000, count=4, **UNIT)
     freq = g1.registers[0] * 0.01          # Hz
     v_a  = g1.registers[1] * 0.1           # V
     v_b  = g1.registers[2] * 0.1           # V
     v_c  = g1.registers[3] * 0.1           # V
 
     # Group 2: PV production (10348-10367, 20 regs)
-    g2 = client.read_holding_registers(10348, 20, slave=1)
+    g2 = client.read_holding_registers(10348, count=20, **UNIT)
     pv1_v    = g2.registers[0] * 0.1       # V  (10348)
     pv2_v    = g2.registers[4] * 0.1       # V  (10352, skip [3]=Given_V)
     pv_total = g2.registers[19] * 0.01     # kW (10367)
 
     # Group 3: battery (10671-10675)
-    g3 = client.read_holding_registers(10671, 5, slave=1)
+    g3 = client.read_holding_registers(10671, count=5, **UNIT)
     soc     = g3.registers[0] * 0.01       # %
     bat_cur = signed16(g3.registers[4]) * 0.1  # A (+dis/-chg)
 
     # Meter power
-    m = client.read_holding_registers(10765, 1, slave=1)
+    m = client.read_holding_registers(10765, count=1, **UNIT)
     meter_w = signed16(m.registers[0]) * 0.01  # kW (+export/-import)
 
     # PCS status
-    s = client.read_holding_registers(14002, 1, slave=1)
+    s = client.read_holding_registers(14002, count=1, **UNIT)
     print(f"Grid:{freq:.1f}Hz V:{v_a:.0f}/{v_b:.0f}/{v_c:.0f}V "
           f"PV:{pv_total:.2f}kW SOC:{soc:.0f}% Meter:{meter_w:.2f}kW")
     time.sleep(1)
@@ -924,18 +1179,19 @@ Prevent export to the grid by adjusting the inverter output to the local load. U
 
 ```python
 from pymodbus.client import ModbusTcpClient
+import inspect
 import time
 
 # RTU: from pymodbus.client import ModbusSerialClient
 #      client = ModbusSerialClient(port="/dev/ttyUSB0", baudrate=115200)
 client = ModbusTcpClient("192.168.1.100", port=502)
 client.connect()
-UNIT = 1
+UNIT = {"device_id" if "device_id" in inspect.signature(client.read_holding_registers).parameters else "slave": 1}   # unit ID 1 (pymodbus 3.x: slave= in older, device_id= in newer releases)
 
 def signed16(v): return v - 65536 if v >= 32768 else v
 def to_unsigned(v): return v + 65536 if v < 0 else v
-def w(addr, value): client.write_register(addr, value, slave=UNIT)   # FC 0x06, one register per request
-def r(addr): return client.read_holding_registers(addr, 1, slave=UNIT).registers[0]
+def w(addr, value): client.write_register(addr, value, **UNIT)   # FC 0x06, one register per request
+def r(addr): return client.read_holding_registers(addr, count=1, **UNIT).registers[0]
 
 # Open the EMS session (Quick Start step 2)
 w(11700, 0)      # watchdog off while it is configured (11704 is writable only then)
@@ -1173,32 +1429,34 @@ Run the battery on a daily time schedule. Select Eco mode with Run_Mode_Set `111
 
 ```python
 from pymodbus.client import ModbusTcpClient
+import inspect
 
 # RTU: from pymodbus.client import ModbusSerialClient
 #      client = ModbusSerialClient(port="/dev/ttyUSB0", baudrate=115200)
 client = ModbusTcpClient("192.168.1.100", port=502)
+UNIT = {"device_id" if "device_id" in inspect.signature(client.read_holding_registers).parameters else "slave": 1}   # unit ID 1 (pymodbus 3.x: slave= in older, device_id= in newer releases)
 client.connect()
 
 # Eco mode (11151 = 2) and general SOC limits
-client.write_register(11151, 2, slave=1)       # Eco mode
+client.write_register(11151, 2, **UNIT)       # Eco mode
 
 # General SOC limits
-client.write_register(11108, int(10.0 * 100), slave=1)   # SOC_MIN = 10%
-client.write_register(11109, int(100.0 * 100), slave=1)  # SOC_MAX = 100%
+client.write_register(11108, int(10.0 * 100), **UNIT)   # SOC_MIN = 10%
+client.write_register(11109, int(100.0 * 100), **UNIT)  # SOC_MAX = 100%
 # Period 1: Charge 00:00-07:00 (charge)
-client.write_registers(11190, [0, 420, 1], slave=1)      # start=0, end=420, charge=1
+client.write_registers(11190, [0, 420, 1], **UNIT)      # start=0, end=420, charge=1
 
 # Period 2: Self-use 07:00-17:00
-client.write_registers(11193, [420, 1020, 2], slave=1)   # start=420, end=1020, self-use=2
+client.write_registers(11193, [420, 1020, 2], **UNIT)   # start=420, end=1020, self-use=2
 
 # Period 3: Discharge 17:00-23:00 (discharge)
-client.write_registers(11196, [1020, 1380, 0], slave=1)  # start=1020, end=1380, discharge=0
+client.write_registers(11196, [1020, 1380, 0], **UNIT)  # start=1020, end=1380, discharge=0
 
 # Enable for all days (Mon-Sun = bits 0-6 = 0x7F)
-client.write_register(11254, 0x7F, slave=1)
+client.write_register(11254, 0x7F, **UNIT)
 
 # Verify by readback
-r = client.read_holding_registers(11190, 9, slave=1)
+r = client.read_holding_registers(11190, count=9, **UNIT)
 for i in range(3):
     start, end, mode = r.registers[i*3], r.registers[i*3+1], r.registers[i*3+2]
     label = ["Discharge", "Charge", "Self-use"][mode]
@@ -1346,18 +1604,19 @@ Keep grid import below a set demand limit. The battery discharges to cover the l
 
 ```python
 from pymodbus.client import ModbusTcpClient
+import inspect
 import time
 
 # RTU: from pymodbus.client import ModbusSerialClient
 #      client = ModbusSerialClient(port="/dev/ttyUSB0", baudrate=115200)
 client = ModbusTcpClient("192.168.1.100", port=502)
 client.connect()
-UNIT = 1
+UNIT = {"device_id" if "device_id" in inspect.signature(client.read_holding_registers).parameters else "slave": 1}   # unit ID 1 (pymodbus 3.x: slave= in older, device_id= in newer releases)
 
 def signed16(v): return v - 65536 if v >= 32768 else v
 def to_unsigned(v): return v + 65536 if v < 0 else v
-def w(addr, value): client.write_register(addr, value, slave=UNIT)   # FC 0x06, one register per request
-def r(addr): return client.read_holding_registers(addr, 1, slave=UNIT).registers[0]
+def w(addr, value): client.write_register(addr, value, **UNIT)   # FC 0x06, one register per request
+def r(addr): return client.read_holding_registers(addr, count=1, **UNIT).registers[0]
 
 # Open the EMS session (Quick Start step 2)
 w(11700, 0)      # watchdog off while it is configured (11704 is writable only then)
@@ -1592,18 +1851,19 @@ Maximize self-consumption of PV energy. Charge the battery with surplus PV energ
 
 ```python
 from pymodbus.client import ModbusTcpClient
+import inspect
 import time
 
 # RTU: from pymodbus.client import ModbusSerialClient
 #      client = ModbusSerialClient(port="/dev/ttyUSB0", baudrate=115200)
 client = ModbusTcpClient("192.168.1.100", port=502)
 client.connect()
-UNIT = 1
+UNIT = {"device_id" if "device_id" in inspect.signature(client.read_holding_registers).parameters else "slave": 1}   # unit ID 1 (pymodbus 3.x: slave= in older, device_id= in newer releases)
 
 def signed16(v): return v - 65536 if v >= 32768 else v
 def to_unsigned(v): return v + 65536 if v < 0 else v
-def w(addr, value): client.write_register(addr, value, slave=UNIT)   # FC 0x06, one register per request
-def r(addr): return client.read_holding_registers(addr, 1, slave=UNIT).registers[0]
+def w(addr, value): client.write_register(addr, value, **UNIT)   # FC 0x06, one register per request
+def r(addr): return client.read_holding_registers(addr, count=1, **UNIT).registers[0]
 
 # Open the EMS session (Quick Start step 2)
 w(11700, 0)      # watchdog off while it is configured (11704 is writable only then)
@@ -1842,18 +2102,19 @@ A VPP aggregator sends active-power setpoints to a fleet of inverters through it
 
 ```python
 from pymodbus.client import ModbusTcpClient
+import inspect
 import time
 
 # RTU: from pymodbus.client import ModbusSerialClient
 #      client = ModbusSerialClient(port="/dev/ttyUSB0", baudrate=115200)
 client = ModbusTcpClient("192.168.1.100", port=502)
 client.connect()
-UNIT = 1
+UNIT = {"device_id" if "device_id" in inspect.signature(client.read_holding_registers).parameters else "slave": 1}   # unit ID 1 (pymodbus 3.x: slave= in older, device_id= in newer releases)
 
 def signed16(v): return v - 65536 if v >= 32768 else v
 def to_unsigned(v): return v + 65536 if v < 0 else v
-def w(addr, value): client.write_register(addr, value, slave=UNIT)   # FC 0x06, one register per request
-def r(addr): return client.read_holding_registers(addr, 1, slave=UNIT).registers[0]
+def w(addr, value): client.write_register(addr, value, **UNIT)   # FC 0x06, one register per request
+def r(addr): return client.read_holding_registers(addr, count=1, **UNIT).registers[0]
 
 # Open the EMS session (Quick Start step 2)
 w(11700, 0)      # watchdog off while it is configured (11704 is writable only then)
@@ -1873,7 +2134,7 @@ w(11045, to_unsigned(int(power_kw * 100)))
 print("EMS control active:", r(14044) == 1)        # 1 = 11060 and 12002 are both 1
 print("Watchdog state:", r(14031))                 # 1 = normal
 print("Setpoint in force (kW):", signed16(r(14251)) * 0.01)
-hi, lo = client.read_holding_registers(14039, 2, slave=UNIT).registers
+hi, lo = client.read_holding_registers(14039, count=2, **UNIT).registers
 print("Last command time (s):", (hi << 16) | lo)   # U32_BE
 
 while True:
@@ -2073,32 +2334,33 @@ Shut down the inverter in response to a safety event (for example a grid fault, 
 
 ```python
 from pymodbus.client import ModbusSerialClient   # Modbus RTU over RS-485
+import inspect
 # from pymodbus.client import ModbusTcpClient    # Modbus TCP alternative
 import time
 
 client = ModbusSerialClient(port="/dev/ttyUSB0", baudrate=115200)
 # client = ModbusTcpClient("192.168.1.100", port=502)
 client.connect()
-UNIT = 1
+UNIT = {"device_id" if "device_id" in inspect.signature(client.read_holding_registers).parameters else "slave": 1}   # unit ID 1 (pymodbus 3.x: slave= in older, device_id= in newer releases)
 
 def signed16(v): return v - 65536 if v >= 32768 else v
-def r(addr): return client.read_holding_registers(addr, 1, slave=UNIT).registers[0]
+def r(addr): return client.read_holding_registers(addr, count=1, **UNIT).registers[0]
 
 # Emergency stop: one write, no unlock required
-client.write_register(12021, 1, slave=UNIT)
+client.write_register(12021, 1, **UNIT)
 
 # Confirm: 12021 reads 1, 12000 is held at 0 and the AC output falls to 0
 time.sleep(2)
 print("12021 =", r(12021), "12000 =", r(12000), "P =", signed16(r(10019)) * 0.01, "kW")
 
 # Alarm registers for the diagnosis
-rr = client.read_holding_registers(14100, 20, slave=UNIT)
+rr = client.read_holding_registers(14100, count=20, **UNIT)
 print("Alarm registers with bits set:", [14100 + i for i, v in enumerate(rr.registers) if v != 0])
 
 # Restart only after the operator has cleared the cause:
-# client.write_register(12001, 1, slave=UNIT)   # clears the emergency stop (12021 reads 0 again)
+# client.write_register(12001, 1, **UNIT)   # clears the emergency stop (12021 reads 0 again)
 # time.sleep(2)
-# client.write_register(12000, 1, slave=UNIT)   # power on
+# client.write_register(12000, 1, **UNIT)   # power on
 ```
 
 **Node.js**
@@ -2205,7 +2467,7 @@ func main() {
 
 ### 8. SG-Ready Heat Pump Coordination (RTU)
 
-Control an SG Ready heat pump through the MATIC dry-contact relay outputs. SG Ready is specified by **BWP e.V. "Technical Interface Specifications for SG Ready" v1.1 (2025-05-01)** as a three-state dry-contact interface (*blocked / normal / switch-on recommended*). Configure the outputs with `11380–11399` and read their status at `14126–14139`: set `11380 DC_Mode = 1` to enable SG Ready mode, then write the BWP state (1/2/3) to `11355 Heatpump_Hint_Mode`. The inverter maps the value to the contacts as defined in BWP v1.1.
+Control an SG Ready heat pump through the MATIC dry-contact relay outputs. SG Ready is specified by **BWP e.V. "Technical Interface Specifications for SG Ready" v1.1 (2025-05-01)** as a three-state dry-contact interface (*blocked / normal / switch-on recommended*). Set `11380 DC_Mode = 1` to enable SG Ready mode, then write the BWP state (1/2/3) to `11355 Heatpump_Hint_Mode`. The inverter maps the value to the contacts as defined in BWP v1.1; `14128` reports the state applied to the contacts and `14129` its source.
 
 #### Key Registers
 
@@ -2234,19 +2496,20 @@ Control an SG Ready heat pump through the MATIC dry-contact relay outputs. SG Re
 
 ```python
 from pymodbus.client import ModbusSerialClient
+import inspect
 # from pymodbus.client import ModbusTcpClient
 import time
 
 client = ModbusSerialClient(port="/dev/ttyUSB0", baudrate=115200)
 # client = ModbusTcpClient("192.168.1.100", port=502)
 client.connect()
-UNIT = 1
+UNIT = {"device_id" if "device_id" in inspect.signature(client.read_holding_registers).parameters else "slave": 1}   # unit ID 1 (pymodbus 3.x: slave= in older, device_id= in newer releases)
 
 # Enable EMS
-client.write_register(11060, 1, slave=UNIT)
+client.write_register(11060, 1, **UNIT)
 
 # Enable SG-Ready dry-contact output
-client.write_register(11380, 1, slave=UNIT)  # DC_Mode = 1 (SG-Ready)
+client.write_register(11380, 1, **UNIT)  # DC_Mode = 1 (SG-Ready)
 
 HYSTERESIS_W = 500    # 500 W deadband
 HOLD_TIME = 60        # Seconds before mode change
@@ -2254,18 +2517,18 @@ last_mode = 2
 last_change = 0
 
 def read_signed(addr):
-    rr = client.read_holding_registers(addr, 1, slave=UNIT)
+    rr = client.read_holding_registers(addr, count=1, **UNIT)
     v = rr.registers[0]
     return (v - 65536 if v > 32767 else v)
 
 while True:
-    rr = client.read_holding_registers(10367, 1, slave=UNIT)
+    rr = client.read_holding_registers(10367, count=1, **UNIT)
     pv_kw = rr.registers[0] * 0.01              # PV generation
 
     grid_w = read_signed(10765) * 10             # Meter power (W), +export / -import
     surplus_kw = grid_w / 1000.0 if grid_w > 0 else 0
 
-    rr = client.read_holding_registers(10671, 1, slave=UNIT)
+    rr = client.read_holding_registers(10671, count=1, **UNIT)
     soc = rr.registers[0] * 0.01                # Battery SOC %
 
     # Heatpump_Hint_Mode state machine (BWP v1.1 3-state model)
@@ -2278,7 +2541,7 @@ while True:
     # Note: BWP state 1 (Blocked) is set by the DSO / EVU, not by EMS surplus logic
 
     if new_mode != last_mode and time.time() - last_change > HOLD_TIME:
-        client.write_register(11355, new_mode, slave=UNIT)
+        client.write_register(11355, new_mode, **UNIT)
         last_mode = new_mode
         last_change = time.time()
 

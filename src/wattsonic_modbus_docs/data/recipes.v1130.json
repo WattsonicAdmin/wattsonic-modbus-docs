@@ -12,7 +12,7 @@
    "id": "native.ems_session_start",
    "title": "Open an EMS control session with communications watchdog and heartbeat",
    "interface": "native",
-   "summary": "Arms the communications watchdog, opens EMS control (11060 + 12002) and keeps it alive with the heartbeat on 12026. Every native setpoint (11045, 11300-11303, 11320-11324, 11330) is used only while this session is active.",
+   "summary": "Enables the communication watchdog, opens EMS control (11060 + 12002) and keeps it alive with the heartbeat on 12026. Every native setpoint (11045, 11300-11303, 11320-11324, 11330) is used only while this session is active.",
    "preconditions": [
     {
      "text": "Modbus TCP connection to port 502, unit identifier 1. Use one connection for all writes: a write from a second connection is answered with exception 0x06 (another client holds write control)."
@@ -47,6 +47,14 @@
     }
    ],
    "steps": [
+    {
+     "op": "write",
+     "address": 11700,
+     "function_code": "0x06",
+     "value": 0,
+     "description": "Watchdog off while it is configured: 11704 can be written only while the watchdog is disabled.",
+     "check": "read back 11700 = 0"
+    },
     {
      "op": "write",
      "address": 11701,
@@ -507,7 +515,7 @@
    "id": "native.eco_schedule",
    "title": "Program the Eco time schedule (11151 = 2, periods from 11190)",
    "interface": "native",
-   "summary": "Runs the battery on a daily time schedule: up to 24 periods of 3 registers each (start, end, type) from 11190, weekday mask 11254.",
+   "summary": "Runs the battery on a daily time schedule: up to 20 periods of 3 registers each (start, end, type) from 11190, weekday mask 11254.",
    "preconditions": [
     {
      "text": "Inverter clock and time zone correct (11006): periods use local inverter time.",
