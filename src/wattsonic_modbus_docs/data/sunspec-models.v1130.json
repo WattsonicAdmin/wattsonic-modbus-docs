@@ -1,0 +1,6908 @@
+{
+ "format": "SunSpec model definitions in the SunSpec Alliance JSON layout (id, group, points), one entry per model of the device chain, extended with a 'device' object per model and per point.",
+ "device": "Wattsonic MATIC hybrid inverter, SunSpec Modbus interface",
+ "firmware_applicability": "ARM >= M013V1130B01D05 (13021 >= 1130)",
+ "edition": "2026-10-23",
+ "transport": {
+  "protocol": "Modbus TCP",
+  "port": 502,
+  "unit_id_default": 1,
+  "read_function_codes": [
+   "0x03",
+   "0x04"
+  ],
+  "write_function_codes": [
+   "0x06",
+   "0x10"
+  ],
+  "max_read_registers": 125,
+  "max_write_registers": 123,
+  "write_gate": {
+   "address": 11790,
+   "open_value": 21333,
+   "open_value_hex": "0x5355",
+   "status_address": 14233
+  }
+ },
+ "base_address": 40000,
+ "marker": {
+  "address": 40000,
+  "size": 2,
+  "value": "SunS",
+  "words": [
+   "0x5375",
+   "0x6E53"
+  ],
+  "description": "SunSpec identifier, ASCII \"SunS\" (0x53756E53)."
+ },
+ "map_end": 40478,
+ "chain": [
+  {
+   "model": 1,
+   "id_address": 40002,
+   "length": 66,
+   "first_data_address": 40004,
+   "last_address": 40069,
+   "offset_from_base": 2
+  },
+  {
+   "model": 123,
+   "id_address": 40070,
+   "length": 24,
+   "first_data_address": 40072,
+   "last_address": 40095,
+   "offset_from_base": 70
+  },
+  {
+   "model": 124,
+   "id_address": 40096,
+   "length": 24,
+   "first_data_address": 40098,
+   "last_address": 40121,
+   "offset_from_base": 96
+  },
+  {
+   "model": 103,
+   "id_address": 40122,
+   "length": 50,
+   "first_data_address": 40124,
+   "last_address": 40173,
+   "offset_from_base": 122
+  },
+  {
+   "model": 203,
+   "id_address": 40174,
+   "length": 105,
+   "first_data_address": 40176,
+   "last_address": 40280,
+   "offset_from_base": 174
+  },
+  {
+   "model": 120,
+   "id_address": 40281,
+   "length": 26,
+   "first_data_address": 40283,
+   "last_address": 40308,
+   "offset_from_base": 281
+  },
+  {
+   "model": 121,
+   "id_address": 40309,
+   "length": 30,
+   "first_data_address": 40311,
+   "last_address": 40340,
+   "offset_from_base": 309
+  },
+  {
+   "model": 122,
+   "id_address": 40341,
+   "length": 44,
+   "first_data_address": 40343,
+   "last_address": 40386,
+   "offset_from_base": 341
+  },
+  {
+   "model": 160,
+   "id_address": 40387,
+   "length": 88,
+   "first_data_address": 40389,
+   "last_address": 40476,
+   "offset_from_base": 387
+  },
+  {
+   "model": "END",
+   "id_address": 40477,
+   "id_value": 65535,
+   "length": 0,
+   "offset_from_base": 477
+  }
+ ],
+ "conventions": {
+  "word_order": "32-bit values: high word first (lower address).",
+  "scale_factor": "value = raw x 10^sf, sf read from the sunssf point named in 'sf' (device.sf_address).",
+  "not_implemented": "int16 0x8000, uint16 0xFFFF, acc32/uint32 0x00000000/0xFFFFFFFF as defined by SunSpec; skip such readings.",
+  "access": "'access' is the SunSpec model declaration; device.writable / device.write_range state what this device accepts. Writes to any other point are answered with exception 0x02.",
+  "requests": "A request that starts inside the map must end at or before map_end; a request never covers native and SunSpec registers together."
+ },
+ "models": [
+  {
+   "id": 1,
+   "group": {
+    "name": "common",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40002,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 1.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40003,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 66.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Mn",
+      "type": "string",
+      "size": 16,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Manufacturer",
+      "desc": "Well known value registered with SunSpec for compliance",
+      "device": {
+       "address": 40004,
+       "offset": 2,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Manufacturer, constant \"Wattsonic\".",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Md",
+      "type": "string",
+      "size": 16,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model",
+      "desc": "Manufacturer specific value (32 chars)",
+      "device": {
+       "address": 40020,
+       "offset": 18,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model, constant \"WattMatic AIO\".",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Opt",
+      "type": "string",
+      "size": 8,
+      "access": "R",
+      "mandatory": "O",
+      "static": "S",
+      "label": "Options",
+      "desc": "Manufacturer specific value (16 chars)",
+      "device": {
+       "address": 40036,
+       "offset": 34,
+       "implemented": "no",
+       "writable": false,
+       "description": "Not implemented; all characters NUL.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Vr",
+      "type": "string",
+      "size": 8,
+      "access": "R",
+      "mandatory": "O",
+      "static": "S",
+      "label": "Version",
+      "desc": "Manufacturer specific value (16 chars)",
+      "device": {
+       "address": 40044,
+       "offset": 42,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Firmware version string \"V\\<DC>.\\<AC>.\\<main>\": application version of the DC converter (native 13019), of the AC converter (native 13017) and of the main controller (native 13021), updated every second. The third field identifies the firmware that defines this register layout. If a field reads 0 shortly after start-up, read the point again.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "SN",
+      "type": "string",
+      "size": 16,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Serial Number",
+      "desc": "Manufacturer specific value (32 chars)",
+      "device": {
+       "address": 40052,
+       "offset": 50,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Serial number, up to 32 ASCII characters from native 13000–13015, NUL-padded.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "DA",
+      "type": "uint16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "O",
+      "label": "Device Address",
+      "desc": "Modbus device address",
+      "device": {
+       "address": 40068,
+       "offset": 66,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Modbus device address as configured in native 11007. The model defines DA as read-write; in this implementation it is read-only. A write is answered with exception 0x02, or with 0x04 while the control gate is closed or a machine veto applies.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Pad",
+      "type": "pad",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "static": "S",
+      "desc": "Force even alignment",
+      "device": {
+       "address": 40069,
+       "offset": 67,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Pad register; reads 0x0000.",
+       "page_access": "RO"
+      }
+     }
+    ],
+    "label": "Common",
+    "desc": "All SunSpec compliant devices must include this as the first model"
+   },
+   "device": {
+    "id_address": 40002,
+    "length": 66
+   }
+  },
+  {
+   "id": 123,
+   "group": {
+    "name": "controls",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40070,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 123.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40071,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 24.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Conn_WinTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "Conn_WinTms",
+      "desc": "Time window for connect/disconnect.",
+      "device": {
+       "address": 40072,
+       "offset": 2,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Conn_RvrtTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "Conn_RvrtTms",
+      "desc": "Timeout period for connect/disconnect.",
+      "device": {
+       "address": 40073,
+       "offset": 3,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Conn",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "M",
+      "label": "Conn",
+      "desc": "Connection control.",
+      "symbols": [
+       {
+        "name": "DISCONNECT",
+        "value": 0
+       },
+       {
+        "name": "CONNECT",
+        "value": 1
+       }
+      ],
+      "device": {
+       "address": 40074,
+       "offset": 4,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        1
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "fixed_value",
+       "description": "Connection state: 1 while the inverter is switched on (native 12000 not 0), 0 while it is switched off. Writing 1 while the inverter is switched on is acknowledged without effect and writing 0 is refused with exception 0x03; while the inverter is switched off every write to the map is refused with exception 0x04 (machine veto). The point does not switch the inverter.\n0 DISCONNECT · 1 CONNECT",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "WMaxLimPct",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WMaxLimPct_SF",
+      "units": "% WMax",
+      "access": "RW",
+      "mandatory": "M",
+      "label": "WMaxLimPct",
+      "desc": "Set power output to specified level.",
+      "device": {
+       "address": 40075,
+       "offset": 5,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        1000
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "sf_address": 40093,
+       "description": "Active-power limit in percent of WMax, 0.1 % per count. While the control is released: the limit selected by the native EMS interface (native 11711, 0.01 % per count, divided by 10) while that interface is active with its limit enabled (native 11710), otherwise 100.0 %. While the control is held: the last accepted setpoint (100.0 % if none has been written), or while in force the value reached so far during a ramp. The limit is applied only while the unit operates under EMS control (see Implementation notes).",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "WMaxLimPct_WinTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "WMaxLimPct_WinTms",
+      "desc": "Time window for power limit change.",
+      "device": {
+       "address": 40076,
+       "offset": 6,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Random start window for the active-power limit, in seconds. Reads 0xFFFF while the active-power limit control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "WMaxLimPct_RvrtTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "WMaxLimPct_RvrtTms",
+      "desc": "Timeout period for power limit.",
+      "device": {
+       "address": 40077,
+       "offset": 7,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Reversion timeout for the active-power limit, in seconds. Reads 0xFFFF while the active-power limit control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "WMaxLimPct_RmpTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "WMaxLimPct_RmpTms",
+      "desc": "Ramp time for moving from current setpoint to new setpoint.",
+      "device": {
+       "address": 40078,
+       "offset": 8,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Ramp time for the active-power limit, in seconds. Reads 0xFFFF while the active-power limit control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "WMaxLim_Ena",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "M",
+      "label": "WMaxLim_Ena",
+      "desc": "Throttle enable/disable control.",
+      "symbols": [
+       {
+        "name": "DISABLED",
+        "value": 0
+       },
+       {
+        "name": "ENABLED",
+        "value": 1
+       }
+      ],
+      "device": {
+       "address": 40079,
+       "offset": 9,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        1
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Active-power limit enable. While the control is released: 1 while the native EMS interface is active with its limit enabled (native 11710), otherwise 0. While the control is held: the value last written by the client.\n0 DISABLED · 1 ENABLED",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "OutPFSet",
+      "type": "int16",
+      "size": 1,
+      "sf": "OutPFSet_SF",
+      "units": "cos()",
+      "access": "RW",
+      "mandatory": "M",
+      "label": "OutPFSet",
+      "desc": "Set power factor to specific value - cosine of angle.",
+      "device": {
+       "address": 40080,
+       "offset": 10,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        -1000,
+        1000
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "sf_address": 40094,
+       "description": "Power-factor setpoint, 0.001 per count. While the control is released: the power-factor setpoint selected for the converter (native 11707 while the native EMS interface is active, native 15135 otherwise), converted from 0.01 to 0.001 per count. While the control is held: the last accepted setpoint rounded to the nearest 0.01 (1.000 if none has been written), or while in force the value reached so far during a ramp. Reads the not-implemented value if the native setpoint cannot be represented.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "OutPFSet_WinTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "OutPFSet_WinTms",
+      "desc": "Time window for power factor change.",
+      "device": {
+       "address": 40081,
+       "offset": 11,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Random start window for the power-factor setpoint, in seconds. Reads 0xFFFF while the power-factor control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "OutPFSet_RvrtTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "OutPFSet_RvrtTms",
+      "desc": "Timeout period for power factor.",
+      "device": {
+       "address": 40082,
+       "offset": 12,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Reversion timeout for the power-factor setpoint, in seconds. Reads 0xFFFF while the power-factor control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "OutPFSet_RmpTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "OutPFSet_RmpTms",
+      "desc": "Ramp time for moving from current setpoint to new setpoint.",
+      "device": {
+       "address": 40083,
+       "offset": 13,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Ramp time for the power-factor setpoint, in seconds. Reads 0xFFFF while the power-factor control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "OutPFSet_Ena",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "M",
+      "label": "OutPFSet_Ena",
+      "desc": "Fixed power factor enable/disable control.",
+      "symbols": [
+       {
+        "name": "DISABLED",
+        "value": 0
+       },
+       {
+        "name": "ENABLED",
+        "value": 1
+       }
+      ],
+      "device": {
+       "address": 40084,
+       "offset": 14,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        1
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Power-factor setpoint enable. While the control is released: 1 while the selected native reactive-power mode is fixed power factor (mode 2), otherwise 0. While the control is held: the value last written by the client.\n0 DISABLED · 1 ENABLED",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VArWMaxPct",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArPct_SF",
+      "units": "% WMax",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArWMaxPct",
+      "desc": "Reactive power in percent of WMax.",
+      "device": {
+       "address": 40085,
+       "offset": 15,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40095,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArMaxPct",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArPct_SF",
+      "units": "% VArMax",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArMaxPct",
+      "desc": "Reactive power in percent of VArMax.",
+      "device": {
+       "address": 40086,
+       "offset": 16,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        -1000,
+        1000
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "sf_address": 40095,
+       "description": "Reactive-power setpoint in percent of the converter's reactive-power reference, 0.1 % per count. While the control is released: the native reactive-power setpoint (native 11708 relative to 11709 while the native EMS interface is active; native 15134 relative to full scale otherwise). While the control is held: the last accepted setpoint (0 % if none has been written), or while in force the value reached so far during a ramp. Reads the not-implemented value while the native EMS interface is active with a zero reactive-power maximum.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VArAvalPct",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArPct_SF",
+      "units": "% VArAval",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArAvalPct",
+      "desc": "Reactive power in percent of VArAval.",
+      "device": {
+       "address": 40087,
+       "offset": 17,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40095,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArPct_WinTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArPct_WinTms",
+      "desc": "Time window for VAR limit change.",
+      "device": {
+       "address": 40088,
+       "offset": 18,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Random start window for the reactive-power setpoint, in seconds. Reads 0xFFFF while the reactive-power control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VArPct_RvrtTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArPct_RvrtTms",
+      "desc": "Timeout period for VAR limit.",
+      "device": {
+       "address": 40089,
+       "offset": 19,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Reversion timeout for the reactive-power setpoint, in seconds. Reads 0xFFFF while the reactive-power control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VArPct_RmpTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArPct_RmpTms",
+      "desc": "Ramp time for moving from current setpoint to new setpoint.",
+      "device": {
+       "address": 40090,
+       "offset": 20,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Ramp time for the reactive-power setpoint, in seconds. Reads 0xFFFF while the reactive-power control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VArPct_Mod",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArPct_Mod",
+      "desc": "VAR percent limit mode.",
+      "symbols": [
+       {
+        "name": "NONE",
+        "value": 0
+       },
+       {
+        "name": "WMax",
+        "value": 1
+       },
+       {
+        "name": "VArMax",
+        "value": 2
+       },
+       {
+        "name": "VArAval",
+        "value": 3
+       }
+      ],
+      "device": {
+       "address": 40091,
+       "offset": 21,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Reactive-power reference mode, constant 2 (VArMax). Not writable.\n0 NONE · 1 WMax · 2 VArMax · 3 VArAval",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArPct_Ena",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "M",
+      "label": "VArPct_Ena",
+      "desc": "Percent limit VAr enable/disable control.",
+      "symbols": [
+       {
+        "name": "DISABLED",
+        "value": 0
+       },
+       {
+        "name": "ENABLED",
+        "value": 1
+       }
+      ],
+      "device": {
+       "address": 40092,
+       "offset": 22,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        1
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Reactive-power setpoint enable. While the control is released: 1 while the selected native reactive-power mode is fixed reactive power (mode 1), otherwise 0. While the control is held: the value last written by the client. The factory-default native reactive-power mode is fixed reactive power; this point therefore reads 1 on a factory-default unit while the control is released.\n0 DISABLED · 1 ENABLED",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "WMaxLimPct_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "WMaxLimPct_SF",
+      "desc": "Scale factor for power output percent.",
+      "device": {
+       "address": 40093,
+       "offset": 23,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "OutPFSet_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "OutPFSet_SF",
+      "desc": "Scale factor for power factor.",
+      "device": {
+       "address": 40094,
+       "offset": 24,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -3.",
+       "page_access": "RO",
+       "constant_value": -3
+      }
+     },
+     {
+      "name": "VArPct_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "VArPct_SF",
+      "desc": "Scale factor for reactive power percent.",
+      "device": {
+       "address": 40095,
+       "offset": 25,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     }
+    ],
+    "label": "Immediate Controls",
+    "desc": "Immediate Inverter Controls"
+   },
+   "device": {
+    "id_address": 40070,
+    "length": 24
+   }
+  },
+  {
+   "id": 124,
+   "group": {
+    "name": "storage_basic",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40096,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 124.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40097,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 24.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WChaMax",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WChaMax_SF",
+      "units": "W",
+      "access": "RW",
+      "mandatory": "M",
+      "label": "WChaMax",
+      "desc": "Setpoint for maximum charge.",
+      "device": {
+       "address": 40098,
+       "offset": 2,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        3200
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "stored_setting",
+       "sf_address": 40114,
+       "description": "Maximum charge power setting, 10 W per count: native 11068 (0.01 kW per count). It is the reference of OutWRte and InWRte. A value below 25 000 W also caps the battery charge power (0 W: charging not allowed); values of 25 000 W (factory default) and above do not cap it. While the battery management system requests a protective charge, the setting is not applied. A value written through the SunSpec map takes effect immediately but is not retained after a restart (see Implementation notes).",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "WChaGra",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WChaDisChaGra_SF",
+      "units": "% WChaMax/sec",
+      "access": "RW",
+      "mandatory": "M",
+      "label": "WChaGra",
+      "desc": "Setpoint for maximum charging rate. Default is MaxChaRte.",
+      "device": {
+       "address": 40099,
+       "offset": 3,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        100
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "sf_address": 40115,
+       "description": "Charge ramp limit in percent of WChaMax per second. Reads 100 while the storage control is released; while it is held, the value written by the client (100 if none). 0 and 100 both mean no limit.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "WDisChaGra",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WChaDisChaGra_SF",
+      "units": "% WChaMax/sec",
+      "access": "RW",
+      "mandatory": "M",
+      "label": "WDisChaGra",
+      "desc": "Setpoint for maximum discharge rate. Default is MaxDisChaRte.",
+      "device": {
+       "address": 40100,
+       "offset": 4,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        100
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "sf_address": 40115,
+       "description": "Discharge ramp limit in percent of WChaMax per second. Reads 100 while the storage control is released; while it is held, the value written by the client (100 if none). 0 and 100 both mean no limit.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "StorCtl_Mod",
+      "type": "bitfield16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "M",
+      "label": "StorCtl_Mod",
+      "desc": "Activate hold/discharge/charge storage control mode.",
+      "symbols": [
+       {
+        "name": "CHARGE",
+        "value": 0
+       },
+       {
+        "name": "DiSCHARGE",
+        "value": 1
+       }
+      ],
+      "device": {
+       "address": 40101,
+       "offset": 5,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        3
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Storage control mode: bit 0 CHARGE enables InWRte, bit 1 DISCHARGE enables OutWRte. Reads 0 while the storage control is released, also after InOutWRte_RvrtTms expiry although the mode is retained internally (see Implementation notes); while it is held, the value written by the client.\nbit 0 CHARGE · bit 1 DiSCHARGE (symbol as defined in SunSpec model 124)",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VAChaMax",
+      "type": "uint16",
+      "size": 1,
+      "sf": "VAChaMax_SF",
+      "units": "VA",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VAChaMax",
+      "desc": "Setpoint for maximum charging VA.",
+      "device": {
+       "address": 40102,
+       "offset": 6,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40116,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "MinRsvPct",
+      "type": "uint16",
+      "size": 1,
+      "sf": "MinRsvPct_SF",
+      "units": "% WChaMax",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "MinRsvPct",
+      "desc": "Setpoint for minimum reserve for storage as a percentage of the nominal maximum storage.",
+      "device": {
+       "address": 40103,
+       "offset": 7,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        0,
+        10000
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "stored_setting",
+       "sf_address": 40117,
+       "description": "Minimum reserve, 0.01 % per count: native 11108, the minimum state of charge applied while the inverter runs grid-tied. A stored setting.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "ChaState",
+      "type": "uint16",
+      "size": 1,
+      "sf": "ChaState_SF",
+      "units": "% AhrRtg",
+      "access": "R",
+      "mandatory": "O",
+      "label": "ChaState",
+      "desc": "Currently available energy as a percent of the capacity rating.",
+      "device": {
+       "address": 40104,
+       "offset": 8,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40118,
+       "description": "State of charge, 0.01 % per count: native 10671 (battery management system).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "StorAval",
+      "type": "uint16",
+      "size": 1,
+      "sf": "StorAval_SF",
+      "units": "AH",
+      "access": "R",
+      "mandatory": "O",
+      "label": "StorAval",
+      "desc": "State of charge (ChaState) minus storage reserve (MinRsvPct) times capacity rating (AhrRtg).",
+      "device": {
+       "address": 40105,
+       "offset": 9,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40119,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "InBatV",
+      "type": "uint16",
+      "size": 1,
+      "sf": "InBatV_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "O",
+      "label": "InBatV",
+      "desc": "Internal battery voltage.",
+      "device": {
+       "address": 40106,
+       "offset": 10,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40120,
+       "description": "Battery voltage, 0.1 V per count: native 10337.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ChaSt",
+      "type": "enum16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "ChaSt",
+      "desc": "Charge status of storage device.",
+      "symbols": [
+       {
+        "name": "OFF",
+        "value": 1
+       },
+       {
+        "name": "EMPTY",
+        "value": 2
+       },
+       {
+        "name": "DISCHARGING",
+        "value": 3
+       },
+       {
+        "name": "CHARGING",
+        "value": 4
+       },
+       {
+        "name": "FULL",
+        "value": 5
+       },
+       {
+        "name": "HOLDING",
+        "value": 6
+       },
+       {
+        "name": "TESTING",
+        "value": 7
+       }
+      ],
+      "device": {
+       "address": 40107,
+       "offset": 11,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Charge status from the sign of the total battery power (native 10346): positive 3 DISCHARGING, negative 4 CHARGING; at zero 6 HOLDING while a storage mode is set, including a mode retained after InOutWRte_RvrtTms expiry (see Implementation notes), otherwise 1 OFF. The values 2 EMPTY, 5 FULL and 7 TESTING are never published.\n1 OFF · 2 EMPTY · 3 DISCHARGING · 4 CHARGING · 5 FULL · 6 HOLDING · 7 TESTING",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "OutWRte",
+      "type": "int16",
+      "size": 1,
+      "sf": "InOutWRte_SF",
+      "units": "% WDisChaMax",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "OutWRte",
+      "desc": "Percent of max discharge rate.",
+      "device": {
+       "address": 40108,
+       "offset": 12,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        -10000,
+        10000
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "sf_address": 40121,
+       "description": "Discharge bound in percent of WChaMax, 0.01 % per count: with the DISCHARGE bit of StorCtl_Mod the battery discharge power is limited to WChaMax × OutWRte; a negative value forces charging (see Implementation notes). Reads the not-implemented value while the storage control is released; while it is held, the last accepted value (0 if none has been written), or while in force the value reached so far during a ramp.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "InWRte",
+      "type": "int16",
+      "size": 1,
+      "sf": "InOutWRte_SF",
+      "units": "% WChaMax",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "InWRte",
+      "desc": "Percent of max charging rate.",
+      "device": {
+       "address": 40109,
+       "offset": 13,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        -10000,
+        10000
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "sf_address": 40121,
+       "description": "Charge bound in percent of WChaMax, 0.01 % per count: with the CHARGE bit of StorCtl_Mod the battery charge power is limited to WChaMax × InWRte; a negative value forces discharging (see Implementation notes). Reads the not-implemented value while the storage control is released; while it is held, the last accepted value (0 if none has been written), or while in force the value reached so far during a ramp.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "InOutWRte_WinTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "InOutWRte_WinTms",
+      "desc": "Time window for charge/discharge rate change.",
+      "device": {
+       "address": 40110,
+       "offset": 14,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Random start window for the storage setpoints, in seconds. Reads 0xFFFF while the storage control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "InOutWRte_RvrtTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "InOutWRte_RvrtTms",
+      "desc": "Timeout period for charge/discharge rate.",
+      "device": {
+       "address": 40111,
+       "offset": 15,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Reversion timeout for the storage setpoints, in seconds. Reads 0xFFFF while the storage control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "InOutWRte_RmpTms",
+      "type": "uint16",
+      "size": 1,
+      "units": "Secs",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "InOutWRte_RmpTms",
+      "desc": "Ramp time for moving from current setpoint to new setpoint.",
+      "device": {
+       "address": 40112,
+       "offset": 16,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "description": "Ramp time for the storage setpoints, in seconds. Reads 0xFFFF while the storage control is released; while it is held, the value last written since the restart, 0 if none.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "ChaGriSet",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "O",
+      "symbols": [
+       {
+        "name": "PV",
+        "value": 0
+       },
+       {
+        "name": "GRID",
+        "value": 1
+       }
+      ],
+      "device": {
+       "address": 40113,
+       "offset": 17,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point. Not writable.\n0 PV · 1 GRID",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WChaMax_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "WChaMax_SF",
+      "desc": "Scale factor for maximum charge.",
+      "device": {
+       "address": 40114,
+       "offset": 18,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "WChaDisChaGra_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "WChaDisChaGra_SF",
+      "desc": "Scale factor for maximum charge and discharge rate.",
+      "device": {
+       "address": 40115,
+       "offset": 19,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "VAChaMax_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "VAChaMax_SF",
+      "desc": "Scale factor for maximum charging VA.",
+      "device": {
+       "address": 40116,
+       "offset": 20,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "MinRsvPct_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "MinRsvPct_SF",
+      "desc": "Scale factor for minimum reserve percentage.",
+      "device": {
+       "address": 40117,
+       "offset": 21,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     },
+     {
+      "name": "ChaState_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "ChaState_SF",
+      "desc": "Scale factor for available energy percent.",
+      "device": {
+       "address": 40118,
+       "offset": 22,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     },
+     {
+      "name": "StorAval_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "StorAval_SF",
+      "desc": "Scale factor for state of charge.",
+      "device": {
+       "address": 40119,
+       "offset": 23,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "InBatV_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "InBatV_SF",
+      "desc": "Scale factor for battery voltage.",
+      "device": {
+       "address": 40120,
+       "offset": 24,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "InOutWRte_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "InOutWRte_SF",
+      "desc": "Scale factor for percent charge/discharge rate.",
+      "device": {
+       "address": 40121,
+       "offset": 25,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     }
+    ],
+    "label": "Storage",
+    "desc": "Basic Storage Controls"
+   },
+   "device": {
+    "id_address": 40096,
+    "length": 24
+   }
+  },
+  {
+   "id": 103,
+   "group": {
+    "name": "inverter_three_phase",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40122,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 103.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40123,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 50.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "A",
+      "type": "uint16",
+      "size": 1,
+      "sf": "A_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Amps",
+      "desc": "AC Current",
+      "device": {
+       "address": 40124,
+       "offset": 2,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40128,
+       "description": "Total AC current: sum of the three phase currents (native 10026–10028, 0.01 A per count). Reads the not-implemented value if any phase current is unavailable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "AphA",
+      "type": "uint16",
+      "size": 1,
+      "sf": "A_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Amps PhaseA",
+      "desc": "Phase A Current",
+      "device": {
+       "address": 40125,
+       "offset": 3,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40128,
+       "description": "Phase A AC current at the inverter terminals, native 10026, 0.01 A per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "AphB",
+      "type": "uint16",
+      "size": 1,
+      "sf": "A_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Amps PhaseB",
+      "desc": "Phase B Current",
+      "device": {
+       "address": 40126,
+       "offset": 4,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40128,
+       "description": "Phase B AC current at the inverter terminals, native 10027, 0.01 A per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "AphC",
+      "type": "uint16",
+      "size": 1,
+      "sf": "A_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Amps PhaseC",
+      "desc": "Phase C Current",
+      "device": {
+       "address": 40127,
+       "offset": 5,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40128,
+       "description": "Phase C AC current at the inverter terminals, native 10028, 0.01 A per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "A_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "device": {
+       "address": 40128,
+       "offset": 6,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     },
+     {
+      "name": "PPVphAB",
+      "type": "uint16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Phase Voltage AB",
+      "desc": "Phase Voltage AB",
+      "device": {
+       "address": 40129,
+       "offset": 7,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40135,
+       "description": "Line voltage A–B at the inverter terminals, native 10029, 0.1 V per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PPVphBC",
+      "type": "uint16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Phase Voltage BC",
+      "desc": "Phase Voltage BC",
+      "device": {
+       "address": 40130,
+       "offset": 8,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40135,
+       "description": "Line voltage B–C at the inverter terminals, native 10030, 0.1 V per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PPVphCA",
+      "type": "uint16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Phase Voltage CA",
+      "desc": "Phase Voltage CA",
+      "device": {
+       "address": 40131,
+       "offset": 9,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40135,
+       "description": "Line voltage C–A at the inverter terminals, native 10031, 0.1 V per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphA",
+      "type": "uint16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage AN",
+      "desc": "Phase Voltage AN",
+      "device": {
+       "address": 40132,
+       "offset": 10,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40135,
+       "description": "Phase A voltage, native 10023, 0.1 V per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphB",
+      "type": "uint16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage BN",
+      "desc": "Phase Voltage BN",
+      "device": {
+       "address": 40133,
+       "offset": 11,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40135,
+       "description": "Phase B voltage, native 10024, 0.1 V per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphC",
+      "type": "uint16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage CN",
+      "desc": "Phase Voltage CN",
+      "device": {
+       "address": 40134,
+       "offset": 12,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40135,
+       "description": "Phase C voltage, native 10025, 0.1 V per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "V_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "device": {
+       "address": 40135,
+       "offset": 13,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "W",
+      "type": "int16",
+      "size": 1,
+      "sf": "W_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Watts",
+      "desc": "AC Power",
+      "device": {
+       "address": 40136,
+       "offset": 14,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40137,
+       "description": "AC active power of the inverter, native 10019 (0.01 kW per count); positive is output.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "W_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "device": {
+       "address": 40137,
+       "offset": 15,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "Hz",
+      "type": "uint16",
+      "size": 1,
+      "sf": "Hz_SF",
+      "units": "Hz",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Hz",
+      "desc": "Line Frequency",
+      "device": {
+       "address": 40138,
+       "offset": 16,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40139,
+       "description": "Grid frequency, native 10022, 0.01 Hz per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Hz_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "device": {
+       "address": 40139,
+       "offset": 17,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     },
+     {
+      "name": "VA",
+      "type": "int16",
+      "size": 1,
+      "sf": "VA_SF",
+      "units": "VA",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VA",
+      "desc": "AC Apparent Power",
+      "device": {
+       "address": 40140,
+       "offset": 18,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40141,
+       "description": "AC apparent power, native 10021 (0.01 kVA per count).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VA_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "device": {
+       "address": 40141,
+       "offset": 19,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "VAr",
+      "type": "int16",
+      "size": 1,
+      "sf": "VAr_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VAr",
+      "desc": "AC Reactive Power",
+      "device": {
+       "address": 40142,
+       "offset": 20,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40143,
+       "description": "AC reactive power, native 10020 (0.01 kvar per count).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VAr_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "device": {
+       "address": 40143,
+       "offset": 21,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "PF",
+      "type": "int16",
+      "size": 1,
+      "sf": "PF_SF",
+      "units": "Pct",
+      "access": "R",
+      "mandatory": "O",
+      "label": "PF",
+      "desc": "AC Power Factor",
+      "device": {
+       "address": 40144,
+       "offset": 22,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40145,
+       "description": "Power factor in percent: native 10102 (0.01 per count) multiplied by 100 and published with PF_SF −2; a power factor of 0.95 reads 9500 and decodes to 95.00 %.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PF_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "device": {
+       "address": 40145,
+       "offset": 23,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     },
+     {
+      "name": "WH",
+      "type": "acc32",
+      "size": 2,
+      "sf": "WH_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "M",
+      "label": "WattHours",
+      "desc": "AC Energy",
+      "device": {
+       "address": 40146,
+       "offset": 24,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40148,
+       "description": "AC energy delivered by the inverter, 0.1 kWh per count: integrated every second from the positive part of native 10019 and kept in non-volatile memory. On a unit updated from firmware M013V1111B01D05 or earlier, the counter starts at 0 when the update is installed; record a baseline value at commissioning.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WH_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "device": {
+       "address": 40148,
+       "offset": 26,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 2.",
+       "page_access": "RO",
+       "constant_value": 2
+      }
+     },
+     {
+      "name": "DCA",
+      "type": "uint16",
+      "size": 1,
+      "sf": "DCA_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "O",
+      "label": "DC Amps",
+      "desc": "DC Current",
+      "device": {
+       "address": 40149,
+       "offset": 27,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40150,
+       "description": "Reads the not-implemented value. Read native 10339 for the battery current, or model 160 for the PV input currents.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "DCA_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "device": {
+       "address": 40150,
+       "offset": 28,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     },
+     {
+      "name": "DCV",
+      "type": "uint16",
+      "size": 1,
+      "sf": "DCV_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "O",
+      "label": "DC Voltage",
+      "desc": "DC Voltage",
+      "device": {
+       "address": 40151,
+       "offset": 29,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40152,
+       "description": "Internal DC-link (bus) voltage, native 10368, 0.1 V per count. It is neither a PV nor a battery voltage.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "DCV_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "device": {
+       "address": 40152,
+       "offset": 30,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "DCW",
+      "type": "int16",
+      "size": 1,
+      "sf": "DCW_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "O",
+      "label": "DC Watts",
+      "desc": "DC Power",
+      "device": {
+       "address": 40153,
+       "offset": 31,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40154,
+       "description": "Total PV input power, native 10367 (0.01 kW per count).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "DCW_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "device": {
+       "address": 40154,
+       "offset": 32,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "TmpCab",
+      "type": "int16",
+      "size": 1,
+      "sf": "Tmp_SF",
+      "units": "C",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Cabinet Temperature",
+      "desc": "Cabinet Temperature",
+      "device": {
+       "address": 40155,
+       "offset": 33,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40159,
+       "description": "Internal temperature of the DC converter, native 10380, 0.1 °C per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TmpSnk",
+      "type": "int16",
+      "size": 1,
+      "sf": "Tmp_SF",
+      "units": "C",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Heat Sink Temperature",
+      "desc": "Heat Sink Temperature",
+      "device": {
+       "address": 40156,
+       "offset": 34,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40159,
+       "description": "PV heat-sink temperature, native 10382, 0.1 °C per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TmpTrns",
+      "type": "int16",
+      "size": 1,
+      "sf": "Tmp_SF",
+      "units": "C",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Transformer Temperature",
+      "desc": "Transformer Temperature",
+      "device": {
+       "address": 40157,
+       "offset": 35,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40159,
+       "description": "Reads the not-implemented value. Read 103.TmpCab and 103.TmpSnk for the temperatures.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TmpOt",
+      "type": "int16",
+      "size": 1,
+      "sf": "Tmp_SF",
+      "units": "C",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Other Temperature",
+      "desc": "Other Temperature",
+      "device": {
+       "address": 40158,
+       "offset": 36,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40159,
+       "description": "Reads the not-implemented value. Read 103.TmpCab and 103.TmpSnk for the temperatures.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Tmp_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "device": {
+       "address": 40159,
+       "offset": 37,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "St",
+      "type": "enum16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "Operating State",
+      "desc": "Operating state",
+      "symbols": [
+       {
+        "name": "OFF",
+        "value": 1
+       },
+       {
+        "name": "SLEEPING",
+        "value": 2
+       },
+       {
+        "name": "STARTING",
+        "value": 3
+       },
+       {
+        "name": "MPPT",
+        "value": 4
+       },
+       {
+        "name": "THROTTLED",
+        "value": 5
+       },
+       {
+        "name": "SHUTTING_DOWN",
+        "value": 6
+       },
+       {
+        "name": "FAULT",
+        "value": 7
+       },
+       {
+        "name": "STANDBY",
+        "value": 8
+       }
+      ],
+      "device": {
+       "address": 40160,
+       "offset": 38,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Operating state derived from the native status registers; the mapping is given in the Implementation notes.\n1 OFF · 2 SLEEPING · 3 STARTING · 4 MPPT · 5 THROTTLED · 6 SHUTTING_DOWN · 7 FAULT · 8 STANDBY",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "StVnd",
+      "type": "enum16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Vendor Operating State",
+      "desc": "Vendor specific operating state code",
+      "device": {
+       "address": 40161,
+       "offset": 39,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Evt1",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "M",
+      "label": "Event1",
+      "desc": "Event fields",
+      "symbols": [
+       {
+        "name": "GROUND_FAULT",
+        "value": 0
+       },
+       {
+        "name": "DC_OVER_VOLT",
+        "value": 1
+       },
+       {
+        "name": "AC_DISCONNECT",
+        "value": 2
+       },
+       {
+        "name": "DC_DISCONNECT",
+        "value": 3
+       },
+       {
+        "name": "GRID_DISCONNECT",
+        "value": 4
+       },
+       {
+        "name": "CABINET_OPEN",
+        "value": 5
+       },
+       {
+        "name": "MANUAL_SHUTDOWN",
+        "value": 6
+       },
+       {
+        "name": "OVER_TEMP",
+        "value": 7
+       },
+       {
+        "name": "OVER_FREQUENCY",
+        "value": 8
+       },
+       {
+        "name": "UNDER_FREQUENCY",
+        "value": 9
+       },
+       {
+        "name": "AC_OVER_VOLT",
+        "value": 10
+       },
+       {
+        "name": "AC_UNDER_VOLT",
+        "value": 11
+       },
+       {
+        "name": "BLOWN_STRING_FUSE",
+        "value": 12
+       },
+       {
+        "name": "UNDER_TEMP",
+        "value": 13
+       },
+       {
+        "name": "MEMORY_LOSS",
+        "value": 14
+       },
+       {
+        "name": "HW_TEST_FAILURE",
+        "value": 15
+       }
+      ],
+      "device": {
+       "address": 40162,
+       "offset": 40,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Event bits. Bit 4 GRID_DISCONNECT while off-grid (native 14010 not 0); bit 6 MANUAL_SHUTDOWN while the inverter is switched off (native 12000 = 0); bit 7 OVER_TEMP on heat-sink over-temperature (native 14104 bit 1) or thermal derating (native 14022 bits 0 and 6, native 14023 bits 3 and 4). No other bit is set.\nbit 0 GROUND_FAULT · bit 1 DC_OVER_VOLT · bit 2 AC_DISCONNECT · bit 3 DC_DISCONNECT · bit 4 GRID_DISCONNECT · bit 5 CABINET_OPEN · bit 6 MANUAL_SHUTDOWN · bit 7 OVER_TEMP · bit 8 OVER_FREQUENCY · bit 9 UNDER_FREQUENCY · bit 10 AC_OVER_VOLT · bit 11 AC_UNDER_VOLT · bit 12 BLOWN_STRING_FUSE · bit 13 UNDER_TEMP · bit 14 MEMORY_LOSS · bit 15 HW_TEST_FAILURE",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Evt2",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "M",
+      "label": "Event Bitfield 2",
+      "desc": "Reserved for future use",
+      "device": {
+       "address": 40164,
+       "offset": 42,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Reserved event bits; reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "EvtVnd1",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Vendor Event Bitfield 1",
+      "desc": "Vendor defined events",
+      "device": {
+       "address": 40166,
+       "offset": 44,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Vendor event bits. Bit 0: PV input voltage derating (native 14023 bit 7). Bit 1: battery charging prohibited by the battery management system (native 14023 bit 8). Bit 2: battery discharging prohibited by the battery management system (native 14023 bit 9). Bits 3 to 16: reserved vendor status bits (native 14023 bits 10, 11, 13 to 15 and native 14022 bits 7 to 15); their meaning is not defined, so do not evaluate them. Bits 17 to 31 are always 0. Derating that limits the active output is reported by 103.St = 5 (THROTTLED) instead.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "EvtVnd2",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Vendor Event Bitfield 2",
+      "desc": "Vendor defined events",
+      "device": {
+       "address": 40168,
+       "offset": 46,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "EvtVnd3",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Vendor Event Bitfield 3",
+      "desc": "Vendor defined events",
+      "device": {
+       "address": 40170,
+       "offset": 48,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "EvtVnd4",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Vendor Event Bitfield 4",
+      "desc": "Vendor defined events",
+      "device": {
+       "address": 40172,
+       "offset": 50,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     }
+    ],
+    "label": "Inverter (Three Phase)",
+    "desc": "Include this model for three phase inverter monitoring"
+   },
+   "device": {
+    "id_address": 40122,
+    "length": 50
+   }
+  },
+  {
+   "id": 203,
+   "group": {
+    "name": "ac_meter_abcn",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40174,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 203.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40175,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 105.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "A",
+      "type": "int16",
+      "size": 1,
+      "sf": "A_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Amps",
+      "desc": "Total AC Current",
+      "device": {
+       "address": 40176,
+       "offset": 2,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40180,
+       "description": "Total meter current: sum of the meter phase currents (native 10758–10760, 0.1 A per count). Reads the not-implemented value while the energy meter is lost.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "AphA",
+      "type": "int16",
+      "size": 1,
+      "sf": "A_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Amps PhaseA",
+      "desc": "Phase A Current",
+      "device": {
+       "address": 40177,
+       "offset": 3,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40180,
+       "description": "Meter phase A current, native 10758, 0.1 A per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "AphB",
+      "type": "int16",
+      "size": 1,
+      "sf": "A_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Amps PhaseB",
+      "desc": "Phase B Current",
+      "device": {
+       "address": 40178,
+       "offset": 4,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40180,
+       "description": "Meter phase B current, native 10759, 0.1 A per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "AphC",
+      "type": "int16",
+      "size": 1,
+      "sf": "A_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Amps PhaseC",
+      "desc": "Phase C Current",
+      "device": {
+       "address": 40179,
+       "offset": 5,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40180,
+       "description": "Meter phase C current, native 10760, 0.1 A per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "A_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "desc": "Current scale factor",
+      "device": {
+       "address": 40180,
+       "offset": 6,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "PhV",
+      "type": "int16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Voltage LN",
+      "desc": "Line to Neutral AC Voltage (average of active phases)",
+      "device": {
+       "address": 40181,
+       "offset": 7,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40189,
+       "description": "Mean of the three meter phase voltages (native 10752–10754, 0.1 V per count). Reads the not-implemented value while native 10752 (phase A) reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphA",
+      "type": "int16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage AN",
+      "desc": "Phase Voltage AN",
+      "device": {
+       "address": 40182,
+       "offset": 8,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40189,
+       "description": "Meter phase A voltage, native 10752, 0.1 V per count. Reads the not-implemented value while native 10752 reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphB",
+      "type": "int16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage BN",
+      "desc": "Phase Voltage BN",
+      "device": {
+       "address": 40183,
+       "offset": 9,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40189,
+       "description": "Meter phase B voltage, native 10753, 0.1 V per count. Reads the not-implemented value while native 10752 (phase A) reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphC",
+      "type": "int16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage CN",
+      "desc": "Phase Voltage CN",
+      "device": {
+       "address": 40184,
+       "offset": 10,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40189,
+       "description": "Meter phase C voltage, native 10754, 0.1 V per count. Reads the not-implemented value while native 10752 (phase A) reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PPV",
+      "type": "int16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Voltage LL",
+      "desc": "Line to Line AC Voltage (average of active phases)",
+      "device": {
+       "address": 40185,
+       "offset": 11,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40189,
+       "description": "Mean line voltage from the meter line voltages (native 10755–10757). Reads the not-implemented value when the meter supplies no line voltages (see Implementation notes) or while native 10752 (phase A) reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphAB",
+      "type": "int16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage AB",
+      "desc": "Phase Voltage AB",
+      "device": {
+       "address": 40186,
+       "offset": 12,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40189,
+       "description": "Meter line voltage A–B, native 10755, 0.1 V per count; see Implementation notes. Reads the not-implemented value while native 10752 (phase A) reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphBC",
+      "type": "int16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage BC",
+      "desc": "Phase Voltage BC",
+      "device": {
+       "address": 40187,
+       "offset": 13,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40189,
+       "description": "Meter line voltage B–C, native 10756, 0.1 V per count; see Implementation notes. Reads the not-implemented value while native 10752 (phase A) reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PhVphCA",
+      "type": "int16",
+      "size": 1,
+      "sf": "V_SF",
+      "units": "V",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Phase Voltage CA",
+      "desc": "Phase Voltage CA",
+      "device": {
+       "address": 40188,
+       "offset": 14,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40189,
+       "description": "Meter line voltage C–A, native 10757, 0.1 V per count; see Implementation notes. Reads the not-implemented value while native 10752 (phase A) reads 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "V_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "desc": "Voltage scale factor",
+      "device": {
+       "address": 40189,
+       "offset": 15,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "Hz",
+      "type": "int16",
+      "size": 1,
+      "sf": "Hz_SF",
+      "units": "Hz",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Hz",
+      "desc": "Frequency",
+      "device": {
+       "address": 40190,
+       "offset": 16,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40191,
+       "description": "Frequency measured by the meter, native 10778, 0.01 Hz per count.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Hz_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "desc": "Frequency scale factor",
+      "device": {
+       "address": 40191,
+       "offset": 17,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     },
+     {
+      "name": "W",
+      "type": "int16",
+      "size": 1,
+      "sf": "W_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Watts",
+      "desc": "Total Real Power",
+      "device": {
+       "address": 40192,
+       "offset": 18,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40196,
+       "description": "Active power at the grid connection point, native 10041 (0.01 kW per count); positive is export to the grid, negative is import.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WphA",
+      "type": "int16",
+      "size": 1,
+      "sf": "W_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Watts phase A",
+      "device": {
+       "address": 40193,
+       "offset": 19,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40196,
+       "description": "Reads the not-implemented value. Use the total 203.W.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WphB",
+      "type": "int16",
+      "size": 1,
+      "sf": "W_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Watts phase B",
+      "device": {
+       "address": 40194,
+       "offset": 20,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40196,
+       "description": "Reads the not-implemented value. Use the total 203.W.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WphC",
+      "type": "int16",
+      "size": 1,
+      "sf": "W_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Watts phase C",
+      "device": {
+       "address": 40195,
+       "offset": 21,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40196,
+       "description": "Reads the not-implemented value. Use the total 203.W.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "W_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "desc": "Real Power scale factor",
+      "device": {
+       "address": 40196,
+       "offset": 22,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "VA",
+      "type": "int16",
+      "size": 1,
+      "sf": "VA_SF",
+      "units": "VA",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VA",
+      "desc": "AC Apparent Power",
+      "device": {
+       "address": 40197,
+       "offset": 23,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40201,
+       "description": "Reads the not-implemented value. Use 203.W and 203.VAR.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VAphA",
+      "type": "int16",
+      "size": 1,
+      "sf": "VA_SF",
+      "units": "VA",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VA phase A",
+      "device": {
+       "address": 40198,
+       "offset": 24,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40201,
+       "description": "Reads the not-implemented value. Use the total 203.W and 203.VAR.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VAphB",
+      "type": "int16",
+      "size": 1,
+      "sf": "VA_SF",
+      "units": "VA",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VA phase B",
+      "device": {
+       "address": 40199,
+       "offset": 25,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40201,
+       "description": "Reads the not-implemented value. Use the total 203.W and 203.VAR.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VAphC",
+      "type": "int16",
+      "size": 1,
+      "sf": "VA_SF",
+      "units": "VA",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VA phase C",
+      "device": {
+       "address": 40200,
+       "offset": 26,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40201,
+       "description": "Reads the not-implemented value. Use the total 203.W and 203.VAR.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VA_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "desc": "Apparent Power scale factor",
+      "device": {
+       "address": 40201,
+       "offset": 27,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "VAR",
+      "type": "int16",
+      "size": 1,
+      "sf": "VAR_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VAR",
+      "desc": "Reactive Power",
+      "device": {
+       "address": 40202,
+       "offset": 28,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40206,
+       "description": "Reactive power measured by the meter, native 10769 (0.01 kvar per count).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VARphA",
+      "type": "int16",
+      "size": 1,
+      "sf": "VAR_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VAR phase A",
+      "device": {
+       "address": 40203,
+       "offset": 29,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40206,
+       "description": "Reads the not-implemented value. Use the total 203.VAR.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VARphB",
+      "type": "int16",
+      "size": 1,
+      "sf": "VAR_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VAR phase B",
+      "device": {
+       "address": 40204,
+       "offset": 30,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40206,
+       "description": "Reads the not-implemented value. Use the total 203.VAR.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VARphC",
+      "type": "int16",
+      "size": 1,
+      "sf": "VAR_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VAR phase C",
+      "device": {
+       "address": 40205,
+       "offset": 31,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40206,
+       "description": "Reads the not-implemented value. Use the total 203.VAR.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VAR_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "desc": "Reactive Power scale factor",
+      "device": {
+       "address": 40206,
+       "offset": 32,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "PF",
+      "type": "int16",
+      "size": 1,
+      "sf": "PF_SF",
+      "units": "Pct",
+      "access": "R",
+      "mandatory": "O",
+      "label": "PF",
+      "desc": "Power Factor",
+      "device": {
+       "address": 40207,
+       "offset": 33,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40211,
+       "description": "Power factor measured by the meter in percent: native 10777 (0.01 per count) published with PF_SF 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFphA",
+      "type": "int16",
+      "size": 1,
+      "sf": "PF_SF",
+      "units": "Pct",
+      "access": "R",
+      "mandatory": "O",
+      "label": "PF phase A",
+      "device": {
+       "address": 40208,
+       "offset": 34,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40211,
+       "description": "Reads the not-implemented value. Use the total 203.PF.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFphB",
+      "type": "int16",
+      "size": 1,
+      "sf": "PF_SF",
+      "units": "Pct",
+      "access": "R",
+      "mandatory": "O",
+      "label": "PF phase B",
+      "device": {
+       "address": 40209,
+       "offset": 35,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40211,
+       "description": "Reads the not-implemented value. Use the total 203.PF.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFphC",
+      "type": "int16",
+      "size": 1,
+      "sf": "PF_SF",
+      "units": "Pct",
+      "access": "R",
+      "mandatory": "O",
+      "label": "PF phase C",
+      "device": {
+       "address": 40210,
+       "offset": 36,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40211,
+       "description": "Reads the not-implemented value. Use the total 203.PF.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PF_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "desc": "Power Factor scale factor",
+      "device": {
+       "address": 40211,
+       "offset": 37,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "TotWhExp",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotWh_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Total Watt-hours Exported",
+      "desc": "Total Real Energy Exported",
+      "device": {
+       "address": 40212,
+       "offset": 38,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40228,
+       "description": "Energy exported to the grid, 0.1 kWh per count: native 10612–10613, integrated by the inverter every second from the positive part of native 10041 and kept in non-volatile memory.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotWhExpPhA",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotWh_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total Watt-hours Exported phase A",
+      "device": {
+       "address": 40214,
+       "offset": 40,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40228,
+       "description": "Reads 0 (not accumulated). Use the total 203.TotWhExp.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotWhExpPhB",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotWh_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total Watt-hours Exported phase B",
+      "device": {
+       "address": 40216,
+       "offset": 42,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40228,
+       "description": "Reads 0 (not accumulated). Use the total 203.TotWhExp.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotWhExpPhC",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotWh_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total Watt-hours Exported phase C",
+      "device": {
+       "address": 40218,
+       "offset": 44,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40228,
+       "description": "Reads 0 (not accumulated). Use the total 203.TotWhExp.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotWhImp",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotWh_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "M",
+      "label": "Total Watt-hours Imported",
+      "desc": "Total Real Energy Imported",
+      "device": {
+       "address": 40220,
+       "offset": 46,
+       "implemented": "yes",
+       "writable": false,
+       "sf_address": 40228,
+       "description": "Energy imported from the grid, 0.1 kWh per count: native 10614–10615, integrated by the inverter every second from the negative part of native 10041.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotWhImpPhA",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotWh_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total Watt-hours Imported phase A",
+      "device": {
+       "address": 40222,
+       "offset": 48,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40228,
+       "description": "Reads 0 (not accumulated). Use the total 203.TotWhImp.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotWhImpPhB",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotWh_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total Watt-hours Imported phase B",
+      "device": {
+       "address": 40224,
+       "offset": 50,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40228,
+       "description": "Reads 0 (not accumulated). Use the total 203.TotWhImp.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotWhImpPhC",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotWh_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total Watt-hours Imported phase C",
+      "device": {
+       "address": 40226,
+       "offset": 52,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40228,
+       "description": "Reads 0 (not accumulated). Use the total 203.TotWhImp.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotWh_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "desc": "Real Energy scale factor",
+      "device": {
+       "address": 40228,
+       "offset": 54,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 2.",
+       "page_access": "RO",
+       "constant_value": 2
+      }
+     },
+     {
+      "name": "TotVAhExp",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVAh_SF",
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VA-hours Exported",
+      "desc": "Total Apparent Energy Exported",
+      "device": {
+       "address": 40229,
+       "offset": 55,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40245,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVAhExpPhA",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVAh_SF",
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VA-hours Exported phase A",
+      "device": {
+       "address": 40231,
+       "offset": 57,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40245,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVAhExpPhB",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVAh_SF",
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VA-hours Exported phase B",
+      "device": {
+       "address": 40233,
+       "offset": 59,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40245,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVAhExpPhC",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVAh_SF",
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VA-hours Exported phase C",
+      "device": {
+       "address": 40235,
+       "offset": 61,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40245,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVAhImp",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVAh_SF",
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VA-hours Imported",
+      "desc": "Total Apparent Energy Imported",
+      "device": {
+       "address": 40237,
+       "offset": 63,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40245,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVAhImpPhA",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVAh_SF",
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VA-hours Imported phase A",
+      "device": {
+       "address": 40239,
+       "offset": 65,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40245,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVAhImpPhB",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVAh_SF",
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VA-hours Imported phase B",
+      "device": {
+       "address": 40241,
+       "offset": 67,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40245,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVAhImpPhC",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVAh_SF",
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VA-hours Imported phase C",
+      "device": {
+       "address": 40243,
+       "offset": 69,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40245,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVAh_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "desc": "Apparent Energy scale factor",
+      "device": {
+       "address": 40245,
+       "offset": 71,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "TotVArhImpQ1",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAR-hours Imported Q1",
+      "desc": "Total Reactive Energy Imported Quadrant 1",
+      "device": {
+       "address": 40246,
+       "offset": 72,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhImpQ1PhA",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Imported Q1 phase A",
+      "device": {
+       "address": 40248,
+       "offset": 74,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhImpQ1PhB",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Imported Q1 phase B",
+      "device": {
+       "address": 40250,
+       "offset": 76,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhImpQ1PhC",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Imported Q1 phase C",
+      "device": {
+       "address": 40252,
+       "offset": 78,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhImpQ2",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Imported Q2",
+      "desc": "Total Reactive Power Imported Quadrant 2",
+      "device": {
+       "address": 40254,
+       "offset": 80,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhImpQ2PhA",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Imported Q2 phase A",
+      "device": {
+       "address": 40256,
+       "offset": 82,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhImpQ2PhB",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Imported Q2 phase B",
+      "device": {
+       "address": 40258,
+       "offset": 84,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhImpQ2PhC",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Imported Q2 phase C",
+      "device": {
+       "address": 40260,
+       "offset": 86,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhExpQ3",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Exported Q3",
+      "desc": "Total Reactive Power Exported Quadrant 3",
+      "device": {
+       "address": 40262,
+       "offset": 88,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhExpQ3PhA",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Exported Q3 phase A",
+      "device": {
+       "address": 40264,
+       "offset": 90,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhExpQ3PhB",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Exported Q3 phase B",
+      "device": {
+       "address": 40266,
+       "offset": 92,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhExpQ3PhC",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Exported Q3 phase C",
+      "device": {
+       "address": 40268,
+       "offset": 94,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhExpQ4",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Exported Q4",
+      "desc": "Total Reactive Power Exported Quadrant 4",
+      "device": {
+       "address": 40270,
+       "offset": 96,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhExpQ4PhA",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Exported Q4 Imported phase A",
+      "device": {
+       "address": 40272,
+       "offset": 98,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhExpQ4PhB",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Exported Q4 Imported phase B",
+      "device": {
+       "address": 40274,
+       "offset": 100,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArhExpQ4PhC",
+      "type": "acc32",
+      "size": 2,
+      "sf": "TotVArh_SF",
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Total VAr-hours Exported Q4 Imported phase C",
+      "device": {
+       "address": 40276,
+       "offset": 102,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40278,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TotVArh_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "desc": "Reactive Energy scale factor",
+      "device": {
+       "address": 40278,
+       "offset": 104,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "Evt",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "M",
+      "label": "Events",
+      "desc": "Meter Event Flags",
+      "symbols": [
+       {
+        "name": "M_EVENT_Power_Failure",
+        "value": 2
+       },
+       {
+        "name": "M_EVENT_Under_Voltage",
+        "value": 3
+       },
+       {
+        "name": "M_EVENT_Low_PF",
+        "value": 4
+       },
+       {
+        "name": "M_EVENT_Over_Current",
+        "value": 5
+       },
+       {
+        "name": "M_EVENT_Over_Voltage",
+        "value": 6
+       },
+       {
+        "name": "M_EVENT_Missing_Sensor",
+        "value": 7
+       },
+       {
+        "name": "M_EVENT_Reserved1",
+        "value": 8
+       },
+       {
+        "name": "M_EVENT_Reserved2",
+        "value": 9
+       },
+       {
+        "name": "M_EVENT_Reserved3",
+        "value": 10
+       },
+       {
+        "name": "M_EVENT_Reserved4",
+        "value": 11
+       },
+       {
+        "name": "M_EVENT_Reserved5",
+        "value": 12
+       },
+       {
+        "name": "M_EVENT_Reserved6",
+        "value": 13
+       },
+       {
+        "name": "M_EVENT_Reserved7",
+        "value": 14
+       },
+       {
+        "name": "M_EVENT_Reserved8",
+        "value": 15
+       },
+       {
+        "name": "M_EVENT_OEM01",
+        "value": 16
+       },
+       {
+        "name": "M_EVENT_OEM02",
+        "value": 17
+       },
+       {
+        "name": "M_EVENT_OEM03",
+        "value": 18
+       },
+       {
+        "name": "M_EVENT_OEM04",
+        "value": 19
+       },
+       {
+        "name": "M_EVENT_OEM05",
+        "value": 20
+       },
+       {
+        "name": "M_EVENT_OEM06",
+        "value": 21
+       },
+       {
+        "name": "M_EVENT_OEM07",
+        "value": 22
+       },
+       {
+        "name": "M_EVENT_OEM08",
+        "value": 23
+       },
+       {
+        "name": "M_EVENT_OEM09",
+        "value": 24
+       },
+       {
+        "name": "M_EVENT_OEM10",
+        "value": 25
+       },
+       {
+        "name": "M_EVENT_OEM11",
+        "value": 26
+       },
+       {
+        "name": "M_EVENT_OEM12",
+        "value": 27
+       },
+       {
+        "name": "M_EVENT_OEM13",
+        "value": 28
+       },
+       {
+        "name": "M_EVENT_OEM14",
+        "value": 29
+       },
+       {
+        "name": "M_EVENT_OEM15",
+        "value": 30
+       }
+      ],
+      "device": {
+       "address": 40279,
+       "offset": 105,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Meter event bits: bit 7 M_EVENT_Missing_Sensor while the energy meter is lost. No other bit is set.\nbit 2 M_EVENT_Power_Failure · bit 3 M_EVENT_Under_Voltage · bit 4 M_EVENT_Low_PF · bit 5 M_EVENT_Over_Current · bit 6 M_EVENT_Over_Voltage · bit 7 M_EVENT_Missing_Sensor · bit 8 M_EVENT_Reserved1 · bit 9 M_EVENT_Reserved2 · bit 10 M_EVENT_Reserved3 · bit 11 M_EVENT_Reserved4 · bit 12 M_EVENT_Reserved5 · bit 13 M_EVENT_Reserved6 · bit 14 M_EVENT_Reserved7 · bit 15 M_EVENT_Reserved8 · bit 16 M_EVENT_OEM01 · bit 17 M_EVENT_OEM02 · bit 18 M_EVENT_OEM03 · bit 19 M_EVENT_OEM04 · bit 20 M_EVENT_OEM05 · bit 21 M_EVENT_OEM06 · bit 22 M_EVENT_OEM07 · bit 23 M_EVENT_OEM08 · bit 24 M_EVENT_OEM09 · bit 25 M_EVENT_OEM10 · bit 26 M_EVENT_OEM11 · bit 27 M_EVENT_OEM12 · bit 28 M_EVENT_OEM13 · bit 29 M_EVENT_OEM14 · bit 30 M_EVENT_OEM15",
+       "page_access": "RO"
+      }
+     }
+    ],
+    "label": "wye-connect three phase (abcn) meter"
+   },
+   "device": {
+    "id_address": 40174,
+    "length": 105
+   }
+  },
+  {
+   "id": 120,
+   "group": {
+    "name": "nameplate",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40281,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 120.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40282,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 26.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "DERTyp",
+      "type": "enum16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "DERTyp",
+      "desc": "Type of DER device. Default value is 4 to indicate PV device.",
+      "symbols": [
+       {
+        "name": "PV",
+        "value": 4
+       },
+       {
+        "name": "PV_STOR",
+        "value": 82
+       }
+      ],
+      "device": {
+       "address": 40283,
+       "offset": 2,
+       "implemented": "yes",
+       "writable": false,
+       "description": "DER type, constant 82 (PV_STOR).\n4 PV · 82 PV_STOR",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WRtg",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WRtg_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "M",
+      "label": "WRtg",
+      "desc": "Continuous power output capability of the inverter.",
+      "device": {
+       "address": 40284,
+       "offset": 3,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40285,
+       "description": "Rated active power, 10 W per count: native 13034 (0.01 kW per count). Reads the not-implemented value while native 13034 is still 0 after start-up.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WRtg_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "WRtg_SF",
+      "desc": "Scale factor",
+      "device": {
+       "address": 40285,
+       "offset": 4,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "VARtg",
+      "type": "uint16",
+      "size": 1,
+      "sf": "VARtg_SF",
+      "units": "VA",
+      "access": "R",
+      "mandatory": "M",
+      "label": "VARtg",
+      "desc": "Continuous Volt-Ampere capability of the inverter.",
+      "device": {
+       "address": 40286,
+       "offset": 5,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40287,
+       "description": "Rated apparent power, 10 VA per count, from the built-in table indexed by the device model code (native 13016): 10 kW 11.0 kVA, 12 kW 13.2 kVA, 15 kW 16.5 kVA, 20 kW 22.0 kVA, 25 kW 25.0 kVA. Not-implemented value for an unknown model code.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VARtg_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "VARtg_SF",
+      "desc": "Scale factor",
+      "device": {
+       "address": 40287,
+       "offset": 6,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "VArRtgQ1",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArRtg_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "M",
+      "label": "VArRtgQ1",
+      "desc": "Continuous VAR capability of the inverter in quadrant 1.",
+      "device": {
+       "address": 40288,
+       "offset": 7,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40292,
+       "description": "Rated reactive power, quadrant 1, 10 var per count: 0.6 × rated apparent power (from the built-in table indexed by the device model code, native 13016).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArRtgQ2",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArRtg_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "M",
+      "label": "VArRtgQ2",
+      "desc": "Continuous VAR capability of the inverter in quadrant 2.",
+      "device": {
+       "address": 40289,
+       "offset": 8,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40292,
+       "description": "Rated reactive power, quadrant 2: as quadrant 1.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArRtgQ3",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArRtg_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "M",
+      "label": "VArRtgQ3",
+      "desc": "Continuous VAR capability of the inverter in quadrant 3.",
+      "device": {
+       "address": 40290,
+       "offset": 9,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40292,
+       "description": "Rated reactive power, quadrant 3: negative of quadrant 1.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArRtgQ4",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArRtg_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "M",
+      "label": "VArRtgQ4",
+      "desc": "Continuous VAR capability of the inverter in quadrant 4.",
+      "device": {
+       "address": 40291,
+       "offset": 10,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40292,
+       "description": "Rated reactive power, quadrant 4: negative of quadrant 1.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArRtg_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "VArRtg_SF",
+      "desc": "Scale factor",
+      "device": {
+       "address": 40292,
+       "offset": 11,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "ARtg",
+      "type": "uint16",
+      "size": 1,
+      "sf": "ARtg_SF",
+      "units": "A",
+      "access": "R",
+      "mandatory": "M",
+      "label": "ARtg",
+      "desc": "Maximum RMS AC current level capability of the inverter.",
+      "device": {
+       "address": 40293,
+       "offset": 12,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40294,
+       "description": "Rated AC current, 0.1 A per count, from the built-in table indexed by the device model code (native 13016): 16.5 / 19.1 / 23.8 / 31.9 / 36.2 A for 10 / 12 / 15 / 20 / 25 kW.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ARtg_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "ARtg_SF",
+      "desc": "Scale factor",
+      "device": {
+       "address": 40294,
+       "offset": 13,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "PFRtgQ1",
+      "type": "int16",
+      "size": 1,
+      "sf": "PFRtg_SF",
+      "units": "cos()",
+      "access": "R",
+      "mandatory": "M",
+      "label": "PFRtgQ1",
+      "desc": "Minimum power factor capability of the inverter in quadrant 1.",
+      "device": {
+       "address": 40295,
+       "offset": 14,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40299,
+       "description": "Minimum power factor, quadrant 1: 0.800 (published +800 with PFRtg_SF −3).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFRtgQ2",
+      "type": "int16",
+      "size": 1,
+      "sf": "PFRtg_SF",
+      "units": "cos()",
+      "access": "R",
+      "mandatory": "M",
+      "label": "PFRtgQ2",
+      "desc": "Minimum power factor capability of the inverter in quadrant 2.",
+      "device": {
+       "address": 40296,
+       "offset": 15,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40299,
+       "description": "Minimum power factor, quadrant 2: 0.800 (published −800).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFRtgQ3",
+      "type": "int16",
+      "size": 1,
+      "sf": "PFRtg_SF",
+      "units": "cos()",
+      "access": "R",
+      "mandatory": "M",
+      "label": "PFRtgQ3",
+      "desc": "Minimum power factor capability of the inverter in quadrant 3.",
+      "device": {
+       "address": 40297,
+       "offset": 16,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40299,
+       "description": "Minimum power factor, quadrant 3: 0.800 (published +800).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFRtgQ4",
+      "type": "int16",
+      "size": 1,
+      "sf": "PFRtg_SF",
+      "units": "cos()",
+      "access": "R",
+      "mandatory": "M",
+      "label": "PFRtgQ4",
+      "desc": "Minimum power factor capability of the inverter in quadrant 4.",
+      "device": {
+       "address": 40298,
+       "offset": 17,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40299,
+       "description": "Minimum power factor, quadrant 4: 0.800 (published −800).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFRtg_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "PFRtg_SF",
+      "desc": "Scale factor",
+      "device": {
+       "address": 40299,
+       "offset": 18,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -3.",
+       "page_access": "RO",
+       "constant_value": -3
+      }
+     },
+     {
+      "name": "WHRtg",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WHRtg_SF",
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "WHRtg",
+      "desc": "Nominal energy rating of storage device.",
+      "device": {
+       "address": 40300,
+       "offset": 19,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40301,
+       "description": "Battery energy rating, 10 Wh per count: native 10688 (0.01 kWh per count) as reported by the battery management system. Not-implemented value while the battery reports 0.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WHRtg_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "WHRtg_SF",
+      "desc": "Scale factor",
+      "device": {
+       "address": 40301,
+       "offset": 20,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "AhrRtg",
+      "type": "uint16",
+      "size": 1,
+      "sf": "AhrRtg_SF",
+      "units": "AH",
+      "access": "R",
+      "mandatory": "O",
+      "label": "AhrRtg",
+      "desc": "The usable capacity of the battery. Maximum charge minus minimum charge from a technology capability perspective (Amp-hour capacity rating).",
+      "device": {
+       "address": 40302,
+       "offset": 21,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40303,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "AhrRtg_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "AhrRtg_SF",
+      "desc": "Scale factor for amp-hour rating.",
+      "device": {
+       "address": 40303,
+       "offset": 22,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "MaxChaRte",
+      "type": "uint16",
+      "size": 1,
+      "sf": "MaxChaRte_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "O",
+      "label": "MaxChaRte",
+      "desc": "Maximum rate of energy transfer into the storage device.",
+      "device": {
+       "address": 40304,
+       "offset": 23,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40305,
+       "description": "Charge power currently permitted by the battery management system, 10 W per count: native 10686 (0.01 kW per count). Not-implemented value while the permitted power is 0 (see Implementation notes).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "MaxChaRte_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "MaxChaRte_SF",
+      "desc": "Scale factor",
+      "device": {
+       "address": 40305,
+       "offset": 24,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "MaxDisChaRte",
+      "type": "uint16",
+      "size": 1,
+      "sf": "MaxDisChaRte_SF",
+      "units": "W",
+      "access": "R",
+      "mandatory": "O",
+      "label": "MaxDisChaRte",
+      "desc": "Maximum rate of energy transfer out of the storage device.",
+      "device": {
+       "address": 40306,
+       "offset": 25,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40307,
+       "description": "Discharge power currently permitted by the battery management system, 10 W per count: native 10687. Not-implemented value while the permitted power is 0 (see Implementation notes).",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "MaxDisChaRte_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "MaxDisChaRte_SF",
+      "desc": "Scale factor",
+      "device": {
+       "address": 40307,
+       "offset": 26,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "Pad",
+      "type": "pad",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Pad",
+      "desc": "Pad register.",
+      "device": {
+       "address": 40308,
+       "offset": 27,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Pad register; reads 0x0000.",
+       "page_access": "RO"
+      }
+     }
+    ],
+    "label": "Nameplate",
+    "desc": "Inverter Controls Nameplate Ratings"
+   },
+   "device": {
+    "id_address": 40281,
+    "length": 26
+   }
+  },
+  {
+   "id": 121,
+   "group": {
+    "name": "settings",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40309,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 121.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40310,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 30.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WMax",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WMax_SF",
+      "units": "W",
+      "access": "RW",
+      "mandatory": "M",
+      "label": "WMax",
+      "desc": "Setting for maximum power output. Default to WRtg.",
+      "device": {
+       "address": 40311,
+       "offset": 2,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "control",
+       "sf_address": 40331,
+       "description": "Maximum output power, 10 W per count. Without a SunSpec cap in force: the rated power, native 13034. With a cap written by a SunSpec client: the cap, limited to the rated power. Not-implemented value while native 13034 is still 0 after start-up.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VRef",
+      "type": "uint16",
+      "size": 1,
+      "sf": "VRef_SF",
+      "units": "V",
+      "access": "RW",
+      "mandatory": "M",
+      "label": "VRef",
+      "desc": "Voltage at the PCC.",
+      "device": {
+       "address": 40312,
+       "offset": 3,
+       "implemented": "conditional",
+       "writable": true,
+       "write_range": [
+        0,
+        65534
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "fixed_value",
+       "sf_address": 40332,
+       "description": "Nominal voltage at the grid connection point, 1 V per count, from the configured grid code (native 15000): 220 V for grid code 0, 230 V for grid codes 11–17 and 51; not-implemented value for every other grid code.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VRefOfs",
+      "type": "int16",
+      "size": 1,
+      "sf": "VRefOfs_SF",
+      "units": "V",
+      "access": "RW",
+      "mandatory": "M",
+      "label": "VRefOfs",
+      "desc": "Offset from PCC to inverter.",
+      "device": {
+       "address": 40313,
+       "offset": 4,
+       "implemented": "yes",
+       "writable": true,
+       "write_range": [
+        -32767,
+        32767
+       ],
+       "write_function": [
+        "0x06",
+        "0x10"
+       ],
+       "write_kind": "fixed_value",
+       "sf_address": 40333,
+       "description": "Offset from the grid connection point to the inverter, constant 0 V.",
+       "page_access": "RW"
+      }
+     },
+     {
+      "name": "VMax",
+      "type": "uint16",
+      "size": 1,
+      "sf": "VMinMax_SF",
+      "units": "V",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VMax",
+      "desc": "Setpoint for maximum voltage.",
+      "device": {
+       "address": 40314,
+       "offset": 5,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40334,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VMin",
+      "type": "uint16",
+      "size": 1,
+      "sf": "VMinMax_SF",
+      "units": "V",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VMin",
+      "desc": "Setpoint for minimum voltage.",
+      "device": {
+       "address": 40315,
+       "offset": 6,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40334,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VAMax",
+      "type": "uint16",
+      "size": 1,
+      "sf": "VAMax_SF",
+      "units": "VA",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VAMax",
+      "desc": "Setpoint for maximum apparent power. Default to VARtg.",
+      "device": {
+       "address": 40316,
+       "offset": 7,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40335,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArMaxQ1",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArMax_SF",
+      "units": "var",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArMaxQ1",
+      "desc": "Setting for maximum reactive power in quadrant 1. Default to VArRtgQ1.",
+      "device": {
+       "address": 40317,
+       "offset": 8,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40336,
+       "description": "Maximum reactive power, quadrant 1, 10 var per count (VArMax_SF +1): the same value as 120.VArRtgQ1, from the built-in table indexed by the device model code (native 13016). Not-implemented value for an unknown model code. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArMaxQ2",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArMax_SF",
+      "units": "var",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArMaxQ2",
+      "desc": "Setting for maximum reactive power in quadrant 2. Default to VArRtgQ2.",
+      "device": {
+       "address": 40318,
+       "offset": 9,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40336,
+       "description": "Maximum reactive power, quadrant 2: as quadrant 1, 10 var per count (VArMax_SF +1); the same value as 120.VArRtgQ2, from the built-in table indexed by the device model code (native 13016). Not-implemented value for an unknown model code. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArMaxQ3",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArMax_SF",
+      "units": "var",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArMaxQ3",
+      "desc": "Setting for maximum reactive power in quadrant 3. Default to VArRtgQ3.",
+      "device": {
+       "address": 40319,
+       "offset": 10,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40336,
+       "description": "Maximum reactive power, quadrant 3: negative of quadrant 1, 10 var per count (VArMax_SF +1); the same value as 120.VArRtgQ3, from the built-in table indexed by the device model code (native 13016). Not-implemented value for an unknown model code. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArMaxQ4",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArMax_SF",
+      "units": "var",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArMaxQ4",
+      "desc": "Setting for maximum reactive power in quadrant 4. Default to VArRtgQ4.",
+      "device": {
+       "address": 40320,
+       "offset": 11,
+       "implemented": "conditional",
+       "writable": false,
+       "sf_address": 40336,
+       "description": "Maximum reactive power, quadrant 4: negative of quadrant 1, 10 var per count (VArMax_SF +1); the same value as 120.VArRtgQ4, from the built-in table indexed by the device model code (native 13016). Not-implemented value for an unknown model code. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WGra",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WGra_SF",
+      "units": "% WMax/sec",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "WGra",
+      "desc": "Default ramp rate of change of active power due to command or internal action.",
+      "device": {
+       "address": 40321,
+       "offset": 12,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40337,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFMinQ1",
+      "type": "int16",
+      "size": 1,
+      "sf": "PFMin_SF",
+      "units": "cos()",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "PFMinQ1",
+      "desc": "Setpoint for minimum power factor value in quadrant 1. Default to PFRtgQ1.",
+      "device": {
+       "address": 40322,
+       "offset": 13,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40338,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFMinQ2",
+      "type": "int16",
+      "size": 1,
+      "sf": "PFMin_SF",
+      "units": "cos()",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "PFMinQ2",
+      "desc": "Setpoint for minimum power factor value in quadrant 2. Default to PFRtgQ2.",
+      "device": {
+       "address": 40323,
+       "offset": 14,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40338,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFMinQ3",
+      "type": "int16",
+      "size": 1,
+      "sf": "PFMin_SF",
+      "units": "cos()",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "PFMinQ3",
+      "desc": "Setpoint for minimum power factor value in quadrant 3. Default to PFRtgQ3.",
+      "device": {
+       "address": 40324,
+       "offset": 15,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40338,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PFMinQ4",
+      "type": "int16",
+      "size": 1,
+      "sf": "PFMin_SF",
+      "units": "cos()",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "PFMinQ4",
+      "desc": "Setpoint for minimum power factor value in quadrant 4. Default to PFRtgQ4.",
+      "device": {
+       "address": 40325,
+       "offset": 16,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40338,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArAct",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "O",
+      "label": "VArAct",
+      "desc": "VAR action on change between charging and discharging: 1=switch 2=maintain VAR characterization.",
+      "symbols": [
+       {
+        "name": "SWITCH",
+        "value": 1
+       },
+       {
+        "name": "MAINTAIN",
+        "value": 2
+       }
+      ],
+      "device": {
+       "address": 40326,
+       "offset": 17,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point. Not writable.\n1 SWITCH · 2 MAINTAIN",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ClcTotVA",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "O",
+      "label": "ClcTotVA",
+      "desc": "Calculation method for total apparent power. 1=vector 2=arithmetic.",
+      "symbols": [
+       {
+        "name": "VECTOR",
+        "value": 1
+       },
+       {
+        "name": "ARITHMETIC",
+        "value": 2
+       }
+      ],
+      "device": {
+       "address": 40327,
+       "offset": 18,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point. Not writable.\n1 VECTOR · 2 ARITHMETIC",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "MaxRmpRte",
+      "type": "uint16",
+      "size": 1,
+      "sf": "MaxRmpRte_SF",
+      "units": "% WGra",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "MaxRmpRte",
+      "desc": "Setpoint for maximum ramp rate as percentage of nominal maximum ramp rate. This setting will limit the rate that watts delivery to the grid can increase or decrease in response to intermittent PV generation.",
+      "device": {
+       "address": 40328,
+       "offset": 19,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40339,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ECPNomHz",
+      "type": "uint16",
+      "size": 1,
+      "sf": "ECPNomHz_SF",
+      "units": "Hz",
+      "access": "RW",
+      "mandatory": "O",
+      "label": "ECPNomHz",
+      "desc": "Setpoint for nominal frequency at the ECP.",
+      "device": {
+       "address": 40329,
+       "offset": 20,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40340,
+       "description": "Reads the not-implemented value; skip this point. Not writable.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ConnPh",
+      "type": "enum16",
+      "size": 1,
+      "access": "RW",
+      "mandatory": "O",
+      "label": "ConnPh",
+      "desc": "Identity of connected phase for single phase inverters. A=1 B=2 C=3.",
+      "symbols": [
+       {
+        "name": "A",
+        "value": 1
+       },
+       {
+        "name": "B",
+        "value": 2
+       },
+       {
+        "name": "C",
+        "value": 3
+       }
+      ],
+      "device": {
+       "address": 40330,
+       "offset": 21,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point. Not writable.\n1 A · 2 B · 3 C",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WMax_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "WMax_SF",
+      "desc": "Scale factor for real power.",
+      "device": {
+       "address": 40331,
+       "offset": 22,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "VRef_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "VRef_SF",
+      "desc": "Scale factor for voltage at the PCC.",
+      "device": {
+       "address": 40332,
+       "offset": 23,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "VRefOfs_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "VRefOfs_SF",
+      "desc": "Scale factor for offset voltage.",
+      "device": {
+       "address": 40333,
+       "offset": 24,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "VMinMax_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "VMinMax_SF",
+      "desc": "Scale factor for min/max voltages.",
+      "device": {
+       "address": 40334,
+       "offset": 25,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "VAMax_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "VAMax_SF",
+      "desc": "Scale factor for apparent power.",
+      "device": {
+       "address": 40335,
+       "offset": 26,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "VArMax_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "VArMax_SF",
+      "desc": "Scale factor for reactive power.",
+      "device": {
+       "address": 40336,
+       "offset": 27,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "WGra_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "WGra_SF",
+      "desc": "Scale factor for default ramp rate.",
+      "device": {
+       "address": 40337,
+       "offset": 28,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "PFMin_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "PFMin_SF",
+      "desc": "Scale factor for minimum power factor.",
+      "device": {
+       "address": 40338,
+       "offset": 29,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "MaxRmpRte_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "MaxRmpRte_SF",
+      "desc": "Scale factor for maximum ramp percentage.",
+      "device": {
+       "address": 40339,
+       "offset": 30,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "ECPNomHz_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "ECPNomHz_SF",
+      "desc": "Scale factor for nominal frequency.",
+      "device": {
+       "address": 40340,
+       "offset": 31,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     }
+    ],
+    "label": "Basic Settings",
+    "desc": "Inverter Controls Basic Settings"
+   },
+   "device": {
+    "id_address": 40309,
+    "length": 30
+   }
+  },
+  {
+   "id": 122,
+   "group": {
+    "name": "status",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40341,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 122.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40342,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 44.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "PVConn",
+      "type": "bitfield16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "PVConn",
+      "desc": "PV inverter present/available status.",
+      "symbols": [
+       {
+        "name": "CONNECTED",
+        "value": 0
+       },
+       {
+        "name": "AVAILABLE",
+        "value": 1
+       },
+       {
+        "name": "OPERATING",
+        "value": 2
+       },
+       {
+        "name": "TEST",
+        "value": 3
+       }
+      ],
+      "device": {
+       "address": 40343,
+       "offset": 2,
+       "implemented": "yes",
+       "writable": false,
+       "description": "PV status bits from the PV input states (native 14005–14008): bits 0 CONNECTED and 1 AVAILABLE when any input is neither 'not connected' nor 'no interface'; bit 2 OPERATING when any input is running.\nbit 0 CONNECTED · bit 1 AVAILABLE · bit 2 OPERATING · bit 3 TEST",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "StorConn",
+      "type": "bitfield16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "StorConn",
+      "desc": "Storage inverter present/available status.",
+      "symbols": [
+       {
+        "name": "CONNECTED",
+        "value": 0
+       },
+       {
+        "name": "AVAILABLE",
+        "value": 1
+       },
+       {
+        "name": "OPERATING",
+        "value": 2
+       },
+       {
+        "name": "TEST",
+        "value": 3
+       }
+      ],
+      "device": {
+       "address": 40344,
+       "offset": 3,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Storage status bits from the battery state (native 14003): 0 when the battery is not connected; otherwise bits 0 and 1, plus bit 2 while charging or discharging.\nbit 0 CONNECTED · bit 1 AVAILABLE · bit 2 OPERATING · bit 3 TEST",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ECPConn",
+      "type": "bitfield16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "label": "ECPConn",
+      "desc": "ECP connection status: disconnected=0 connected=1.",
+      "symbols": [
+       {
+        "name": "DISCONNECTED",
+        "value": 0
+       },
+       {
+        "name": "CONNECTED",
+        "value": 1
+       }
+      ],
+      "device": {
+       "address": 40345,
+       "offset": 4,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Grid connection: 1 while on-grid (native 14010 = 0), 0 while off-grid.\nbit 0 DISCONNECTED · bit 1 CONNECTED",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ActWh",
+      "type": "acc64",
+      "size": 4,
+      "units": "Wh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "ActWh",
+      "desc": "AC lifetime active (real) energy output.",
+      "device": {
+       "address": 40346,
+       "offset": 5,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ActVAh",
+      "type": "acc64",
+      "size": 4,
+      "units": "VAh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "ActVAh",
+      "desc": "AC lifetime apparent energy output.",
+      "device": {
+       "address": 40350,
+       "offset": 9,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ActVArhQ1",
+      "type": "acc64",
+      "size": 4,
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "ActVArhQ1",
+      "desc": "AC lifetime reactive energy output in quadrant 1.",
+      "device": {
+       "address": 40354,
+       "offset": 13,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ActVArhQ2",
+      "type": "acc64",
+      "size": 4,
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "ActVArhQ2",
+      "desc": "AC lifetime reactive energy output in quadrant 2.",
+      "device": {
+       "address": 40358,
+       "offset": 17,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ActVArhQ3",
+      "type": "acc64",
+      "size": 4,
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "ActVArhQ3",
+      "desc": "AC lifetime negative energy output in quadrant 3.",
+      "device": {
+       "address": 40362,
+       "offset": 21,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "ActVArhQ4",
+      "type": "acc64",
+      "size": 4,
+      "units": "varh",
+      "access": "R",
+      "mandatory": "O",
+      "label": "ActVArhQ4",
+      "desc": "AC lifetime reactive energy output in quadrant 4.",
+      "device": {
+       "address": 40366,
+       "offset": 25,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads 0 (not accumulated); skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArAval",
+      "type": "int16",
+      "size": 1,
+      "sf": "VArAval_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "O",
+      "label": "VArAval",
+      "desc": "Amount of VARs available without impacting watts output.",
+      "device": {
+       "address": 40370,
+       "offset": 29,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40371,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "VArAval_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "VArAval_SF",
+      "desc": "Scale factor for available VARs.",
+      "device": {
+       "address": 40371,
+       "offset": 30,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "WAval",
+      "type": "uint16",
+      "size": 1,
+      "sf": "WAval_SF",
+      "units": "var",
+      "access": "R",
+      "mandatory": "O",
+      "label": "WAval",
+      "desc": "Amount of Watts available.",
+      "device": {
+       "address": 40372,
+       "offset": 31,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40373,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "WAval_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "WAval_SF",
+      "desc": "Scale factor for available Watts.",
+      "device": {
+       "address": 40373,
+       "offset": 32,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     },
+     {
+      "name": "StSetLimMsk",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "O",
+      "label": "StSetLimMsk",
+      "desc": "Setpoint limit(s) reached.",
+      "symbols": [
+       {
+        "name": "WMax",
+        "value": 0
+       },
+       {
+        "name": "VAMax",
+        "value": 1
+       },
+       {
+        "name": "VArAval",
+        "value": 2
+       },
+       {
+        "name": "VArMaxQ1",
+        "value": 3
+       },
+       {
+        "name": "VArMaxQ2",
+        "value": 4
+       },
+       {
+        "name": "VArMaxQ3",
+        "value": 5
+       },
+       {
+        "name": "VArMaxQ4",
+        "value": 6
+       },
+       {
+        "name": "PFMinQ1",
+        "value": 7
+       },
+       {
+        "name": "PFMinQ2",
+        "value": 8
+       },
+       {
+        "name": "PFMinQ3",
+        "value": 9
+       },
+       {
+        "name": "PFMinQ4",
+        "value": 10
+       }
+      ],
+      "device": {
+       "address": 40374,
+       "offset": 33,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.\nbit 0 WMax · bit 1 VAMax · bit 2 VArAval · bit 3 VArMaxQ1 · bit 4 VArMaxQ2 · bit 5 VArMaxQ3 · bit 6 VArMaxQ4 · bit 7 PFMinQ1 · bit 8 PFMinQ2 · bit 9 PFMinQ3 · bit 10 PFMinQ4",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "StActCtl",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "O",
+      "label": "StActCtl",
+      "desc": "Which inverter controls are currently active.",
+      "symbols": [
+       {
+        "name": "FixedW",
+        "value": 0
+       },
+       {
+        "name": "FixedVAR",
+        "value": 1
+       },
+       {
+        "name": "FixedPF",
+        "value": 2
+       },
+       {
+        "name": "Volt-VAr",
+        "value": 3
+       },
+       {
+        "name": "Freq-Watt-Param",
+        "value": 4
+       },
+       {
+        "name": "Freq-Watt-Curve",
+        "value": 5
+       },
+       {
+        "name": "Dyn-Reactive-Current",
+        "value": 6
+       },
+       {
+        "name": "LVRT",
+        "value": 7
+       },
+       {
+        "name": "HVRT",
+        "value": 8
+       },
+       {
+        "name": "Watt-PF",
+        "value": 9
+       },
+       {
+        "name": "Volt-Watt",
+        "value": 10
+       },
+       {
+        "name": "Scheduled",
+        "value": 12
+       },
+       {
+        "name": "LFRT",
+        "value": 13
+       },
+       {
+        "name": "HFRT",
+        "value": 14
+       }
+      ],
+      "device": {
+       "address": 40376,
+       "offset": 35,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Active control functions as selected by the controller: bit 0 FixedW while an active-power limit is selected (native EMS interface or SunSpec); bit 1 FixedVAR or bit 2 FixedPF or bit 9 Watt-PF according to the selected reactive-power mode; bit 4 Freq-Watt-Param, bit 7 LVRT, bit 8 HVRT and bit 10 Volt-Watt while the corresponding grid-code function is configured. Describes the selection made by the controller, not an acknowledgement from the power converter.\nbit 0 FixedW · bit 1 FixedVAR · bit 2 FixedPF · bit 3 Volt-VAr · bit 4 Freq-Watt-Param · bit 5 Freq-Watt-Curve · bit 6 Dyn-Reactive-Current · bit 7 LVRT · bit 8 HVRT · bit 9 Watt-PF · bit 10 Volt-Watt · bit 12 Scheduled · bit 13 LFRT · bit 14 HFRT",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TmSrc",
+      "type": "string",
+      "size": 4,
+      "access": "R",
+      "mandatory": "O",
+      "label": "TmSrc",
+      "desc": "Source of time synchronization.",
+      "device": {
+       "address": 40378,
+       "offset": 37,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Tms",
+      "type": "uint32",
+      "size": 2,
+      "units": "Secs",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Tms",
+      "desc": "Seconds since 01-01-2000 00:00 UTC",
+      "device": {
+       "address": 40382,
+       "offset": 41,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "RtSt",
+      "type": "bitfield16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "RtSt",
+      "desc": "Active ride-through status.",
+      "symbols": [
+       {
+        "name": "LVRT_ACTIVE",
+        "value": 0
+       },
+       {
+        "name": "HVRT_ACTIVE",
+        "value": 1
+       },
+       {
+        "name": "LFRT_ACTIVE",
+        "value": 2
+       },
+       {
+        "name": "HFRT_ACTIVE",
+        "value": 3
+       }
+      ],
+      "device": {
+       "address": 40384,
+       "offset": 43,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.\nbit 0 LVRT_ACTIVE · bit 1 HVRT_ACTIVE · bit 2 LFRT_ACTIVE · bit 3 HFRT_ACTIVE",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Ris",
+      "type": "uint16",
+      "size": 1,
+      "sf": "Ris_SF",
+      "units": "ohms",
+      "access": "R",
+      "mandatory": "O",
+      "label": "Ris",
+      "desc": "Isolation resistance.",
+      "device": {
+       "address": 40385,
+       "offset": 44,
+       "implemented": "no",
+       "writable": false,
+       "sf_address": 40386,
+       "description": "Reads the not-implemented value; skip this point.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "Ris_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Ris_SF",
+      "desc": "Scale factor for isolation resistance.",
+      "device": {
+       "address": 40386,
+       "offset": 45,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 0.",
+       "page_access": "RO",
+       "constant_value": 0
+      }
+     }
+    ],
+    "label": "Measurements_Status",
+    "desc": "Inverter Controls Extended Measurements and Status"
+   },
+   "device": {
+    "id_address": 40341,
+    "length": 44
+   }
+  },
+  {
+   "id": 160,
+   "group": {
+    "name": "mppt",
+    "type": "group",
+    "points": [
+     {
+      "name": "ID",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model ID",
+      "desc": "Model identifier",
+      "device": {
+       "address": 40387,
+       "offset": 0,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model identifier, constant 160.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "L",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "M",
+      "static": "S",
+      "label": "Model Length",
+      "desc": "Model length",
+      "device": {
+       "address": 40388,
+       "offset": 1,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Model length, constant 88.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "DCA_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Current Scale Factor",
+      "device": {
+       "address": 40389,
+       "offset": 2,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -2.",
+       "page_access": "RO",
+       "constant_value": -2
+      }
+     },
+     {
+      "name": "DCV_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Voltage Scale Factor",
+      "device": {
+       "address": 40390,
+       "offset": 3,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant -1.",
+       "page_access": "RO",
+       "constant_value": -1
+      }
+     },
+     {
+      "name": "DCW_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Power Scale Factor",
+      "device": {
+       "address": 40391,
+       "offset": 4,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 1.",
+       "page_access": "RO",
+       "constant_value": 1
+      }
+     },
+     {
+      "name": "DCWH_SF",
+      "type": "sunssf",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Energy Scale Factor",
+      "device": {
+       "address": 40392,
+       "offset": 5,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Scale factor, constant 2.",
+       "page_access": "RO",
+       "constant_value": 2
+      }
+     },
+     {
+      "name": "Evt",
+      "type": "bitfield32",
+      "size": 2,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Global Events",
+      "symbols": [
+       {
+        "name": "GROUND_FAULT",
+        "value": 0
+       },
+       {
+        "name": "INPUT_OVER_VOLTAGE",
+        "value": 1
+       },
+       {
+        "name": "RESERVED_2",
+        "value": 2
+       },
+       {
+        "name": "DC_DISCONNECT",
+        "value": 3
+       },
+       {
+        "name": "RESERVED_4",
+        "value": 4
+       },
+       {
+        "name": "CABINET_OPEN",
+        "value": 5
+       },
+       {
+        "name": "MANUAL_SHUTDOWN",
+        "value": 6
+       },
+       {
+        "name": "OVER_TEMP",
+        "value": 7
+       },
+       {
+        "name": "RESERVED_8",
+        "value": 8
+       },
+       {
+        "name": "RESERVED_9",
+        "value": 9
+       },
+       {
+        "name": "RESERVED_10",
+        "value": 10
+       },
+       {
+        "name": "RESERVED_11",
+        "value": 11
+       },
+       {
+        "name": "BLOWN_FUSE",
+        "value": 12
+       },
+       {
+        "name": "UNDER_TEMP",
+        "value": 13
+       },
+       {
+        "name": "MEMORY_LOSS",
+        "value": 14
+       },
+       {
+        "name": "ARC_DETECTION",
+        "value": 15
+       },
+       {
+        "name": "RESERVED_16",
+        "value": 16
+       },
+       {
+        "name": "RESERVED_17",
+        "value": 17
+       },
+       {
+        "name": "RESERVED_18",
+        "value": 18
+       },
+       {
+        "name": "RESERVED_19",
+        "value": 19
+       },
+       {
+        "name": "TEST_FAILED",
+        "value": 20
+       },
+       {
+        "name": "INPUT_UNDER_VOLTAGE",
+        "value": 21
+       },
+       {
+        "name": "INPUT_OVER_CURRENT",
+        "value": 22
+       }
+      ],
+      "device": {
+       "address": 40393,
+       "offset": 6,
+       "implemented": "no",
+       "writable": false,
+       "description": "Reads the not-implemented value; skip this point.\nbit 0 GROUND_FAULT · bit 1 INPUT_OVER_VOLTAGE · bit 2 RESERVED_2 · bit 3 DC_DISCONNECT · bit 4 RESERVED_4 · bit 5 CABINET_OPEN · bit 6 MANUAL_SHUTDOWN · bit 7 OVER_TEMP · bit 8 RESERVED_8 · bit 9 RESERVED_9 · bit 10 RESERVED_10 · bit 11 RESERVED_11 · bit 12 BLOWN_FUSE · bit 13 UNDER_TEMP · bit 14 MEMORY_LOSS · bit 15 ARC_DETECTION · bit 16 RESERVED_16 · bit 17 RESERVED_17 · bit 18 RESERVED_18 · bit 19 RESERVED_19 · bit 20 TEST_FAILED · bit 21 INPUT_UNDER_VOLTAGE · bit 22 INPUT_OVER_CURRENT",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "N",
+      "type": "count",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Number of Modules",
+      "device": {
+       "address": 40395,
+       "offset": 8,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Number of MPPT modules, constant 4. On models with two PV inputs, modules 3 and 4 read the not-implemented value.",
+       "page_access": "RO"
+      }
+     },
+     {
+      "name": "TmsPer",
+      "type": "uint16",
+      "size": 1,
+      "access": "R",
+      "mandatory": "O",
+      "label": "Timestamp Period",
+      "device": {
+       "address": 40396,
+       "offset": 9,
+       "implemented": "yes",
+       "writable": false,
+       "description": "Timestamp period, constant 0 (module timestamps are not implemented).",
+       "page_access": "RO"
+      }
+     }
+    ],
+    "groups": [
+     {
+      "name": "module",
+      "type": "group",
+      "count": "N",
+      "points": [
+       {
+        "name": "ID",
+        "type": "uint16",
+        "size": 1,
+        "access": "R",
+        "mandatory": "O",
+        "label": "Input ID"
+       },
+       {
+        "name": "IDStr",
+        "type": "string",
+        "size": 8,
+        "access": "R",
+        "mandatory": "O",
+        "label": "Input ID String"
+       },
+       {
+        "name": "DCA",
+        "type": "uint16",
+        "size": 1,
+        "sf": "DCA_SF",
+        "units": "A",
+        "access": "R",
+        "mandatory": "O",
+        "label": "DC Current"
+       },
+       {
+        "name": "DCV",
+        "type": "uint16",
+        "size": 1,
+        "sf": "DCV_SF",
+        "units": "V",
+        "access": "R",
+        "mandatory": "O",
+        "label": "DC Voltage"
+       },
+       {
+        "name": "DCW",
+        "type": "uint16",
+        "size": 1,
+        "sf": "DCW_SF",
+        "units": "W",
+        "access": "R",
+        "mandatory": "O",
+        "label": "DC Power"
+       },
+       {
+        "name": "DCWH",
+        "type": "acc32",
+        "size": 2,
+        "sf": "DCWH_SF",
+        "units": "Wh",
+        "access": "R",
+        "mandatory": "O",
+        "label": "Lifetime Energy"
+       },
+       {
+        "name": "Tms",
+        "type": "uint32",
+        "size": 2,
+        "units": "Secs",
+        "access": "R",
+        "mandatory": "O",
+        "label": "Timestamp"
+       },
+       {
+        "name": "Tmp",
+        "type": "int16",
+        "size": 1,
+        "units": "C",
+        "access": "R",
+        "mandatory": "O",
+        "label": "Temperature"
+       },
+       {
+        "name": "DCSt",
+        "type": "enum16",
+        "size": 1,
+        "access": "R",
+        "mandatory": "O",
+        "label": "Operating State",
+        "symbols": [
+         {
+          "name": "OFF",
+          "value": 1
+         },
+         {
+          "name": "SLEEPING",
+          "value": 2
+         },
+         {
+          "name": "STARTING",
+          "value": 3
+         },
+         {
+          "name": "MPPT",
+          "value": 4
+         },
+         {
+          "name": "THROTTLED",
+          "value": 5
+         },
+         {
+          "name": "SHUTTING_DOWN",
+          "value": 6
+         },
+         {
+          "name": "FAULT",
+          "value": 7
+         },
+         {
+          "name": "STANDBY",
+          "value": 8
+         },
+         {
+          "name": "TEST",
+          "value": 9
+         },
+         {
+          "name": "RESERVED_10",
+          "value": 10
+         }
+        ]
+       },
+       {
+        "name": "DCEvt",
+        "type": "bitfield32",
+        "size": 2,
+        "access": "R",
+        "mandatory": "O",
+        "label": "Module Events",
+        "symbols": [
+         {
+          "name": "GROUND_FAULT",
+          "value": 0
+         },
+         {
+          "name": "INPUT_OVER_VOLTAGE",
+          "value": 1
+         },
+         {
+          "name": "RESERVED_2",
+          "value": 2
+         },
+         {
+          "name": "DC_DISCONNECT",
+          "value": 3
+         },
+         {
+          "name": "RESERVED_4",
+          "value": 4
+         },
+         {
+          "name": "CABINET_OPEN",
+          "value": 5
+         },
+         {
+          "name": "MANUAL_SHUTDOWN",
+          "value": 6
+         },
+         {
+          "name": "OVER_TEMP",
+          "value": 7
+         },
+         {
+          "name": "RESERVED_8",
+          "value": 8
+         },
+         {
+          "name": "RESERVED_9",
+          "value": 9
+         },
+         {
+          "name": "RESERVED_10",
+          "value": 10
+         },
+         {
+          "name": "RESERVED_11",
+          "value": 11
+         },
+         {
+          "name": "BLOWN_FUSE",
+          "value": 12
+         },
+         {
+          "name": "UNDER_TEMP",
+          "value": 13
+         },
+         {
+          "name": "MEMORY_LOSS",
+          "value": 14
+         },
+         {
+          "name": "ARC_DETECTION",
+          "value": 15
+         },
+         {
+          "name": "RESERVED_16",
+          "value": 16
+         },
+         {
+          "name": "RESERVED_17",
+          "value": 17
+         },
+         {
+          "name": "RESERVED_18",
+          "value": 18
+         },
+         {
+          "name": "RESERVED_19",
+          "value": 19
+         },
+         {
+          "name": "TEST_FAILED",
+          "value": 20
+         },
+         {
+          "name": "INPUT_UNDER_VOLTAGE",
+          "value": 21
+         },
+         {
+          "name": "INPUT_OVER_CURRENT",
+          "value": 22
+         }
+        ]
+       }
+      ],
+      "device": {
+       "count": 4,
+       "instances": [
+        {
+         "index": 1,
+         "start_address": 40397,
+         "points": [
+          {
+           "name": "ID",
+           "device": {
+            "address": 40397,
+            "offset": 10,
+            "implemented": "yes",
+            "writable": false,
+            "description": "Module (PV input) number, constant 1.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "IDStr",
+           "device": {
+            "address": 40398,
+            "offset": 11,
+            "implemented": "no",
+            "writable": false,
+            "description": "Not implemented; all characters NUL.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCA",
+           "device": {
+            "address": 40406,
+            "offset": 19,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40389,
+            "description": "PV input 1 current, native 10349, 0.01 A per count. Reads the not-implemented value when PV input 1 does not exist on the model (native 14005 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCV",
+           "device": {
+            "address": 40407,
+            "offset": 20,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40390,
+            "description": "PV input 1 voltage, native 10348, 0.1 V per count. Reads the not-implemented value when PV input 1 does not exist on the model (native 14005 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCW",
+           "device": {
+            "address": 40408,
+            "offset": 21,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40391,
+            "description": "PV input 1 power, native 10350 (0.01 kW per count); a negative native value is published as 0. Reads the not-implemented value when PV input 1 does not exist on the model (native 14005 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCWH",
+           "device": {
+            "address": 40409,
+            "offset": 22,
+            "implemented": "yes",
+            "writable": false,
+            "sf_address": 40392,
+            "description": "PV input 1 lifetime energy, 0.1 kWh per count: native 10630–10631, kept in non-volatile memory. Reads 0 for an input that does not exist on the model.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "Tms",
+           "device": {
+            "address": 40411,
+            "offset": 24,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "Tmp",
+           "device": {
+            "address": 40413,
+            "offset": 26,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCSt",
+           "device": {
+            "address": 40414,
+            "offset": 27,
+            "implemented": "conditional",
+            "writable": false,
+            "description": "PV input 1 state from native 14005: running 4 MPPT, fault 7 FAULT, stopped or not connected 1 OFF. Reads the not-implemented value when PV input 1 does not exist on the model (native 14005 = 4) or when the DC converter data are older than 10 s.\n1 OFF · 2 SLEEPING · 3 STARTING · 4 MPPT · 5 THROTTLED · 6 SHUTTING_DOWN · 7 FAULT · 8 STANDBY · 9 TEST · 10 RESERVED_10",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCEvt",
+           "device": {
+            "address": 40415,
+            "offset": 28,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.\nbit 0 GROUND_FAULT · bit 1 INPUT_OVER_VOLTAGE · bit 2 RESERVED_2 · bit 3 DC_DISCONNECT · bit 4 RESERVED_4 · bit 5 CABINET_OPEN · bit 6 MANUAL_SHUTDOWN · bit 7 OVER_TEMP · bit 8 RESERVED_8 · bit 9 RESERVED_9 · bit 10 RESERVED_10 · bit 11 RESERVED_11 · bit 12 BLOWN_FUSE · bit 13 UNDER_TEMP · bit 14 MEMORY_LOSS · bit 15 ARC_DETECTION · bit 16 RESERVED_16 · bit 17 RESERVED_17 · bit 18 RESERVED_18 · bit 19 RESERVED_19 · bit 20 TEST_FAILED · bit 21 INPUT_UNDER_VOLTAGE · bit 22 INPUT_OVER_CURRENT",
+            "page_access": "RO"
+           }
+          }
+         ]
+        },
+        {
+         "index": 2,
+         "start_address": 40417,
+         "points": [
+          {
+           "name": "ID",
+           "device": {
+            "address": 40417,
+            "offset": 30,
+            "implemented": "yes",
+            "writable": false,
+            "description": "Module (PV input) number, constant 2.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "IDStr",
+           "device": {
+            "address": 40418,
+            "offset": 31,
+            "implemented": "no",
+            "writable": false,
+            "description": "Not implemented; all characters NUL.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCA",
+           "device": {
+            "address": 40426,
+            "offset": 39,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40389,
+            "description": "PV input 2 current, native 10353, 0.01 A per count. Reads the not-implemented value when PV input 2 does not exist on the model (native 14006 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCV",
+           "device": {
+            "address": 40427,
+            "offset": 40,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40390,
+            "description": "PV input 2 voltage, native 10352, 0.1 V per count. Reads the not-implemented value when PV input 2 does not exist on the model (native 14006 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCW",
+           "device": {
+            "address": 40428,
+            "offset": 41,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40391,
+            "description": "PV input 2 power, native 10354 (0.01 kW per count); a negative native value is published as 0. Reads the not-implemented value when PV input 2 does not exist on the model (native 14006 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCWH",
+           "device": {
+            "address": 40429,
+            "offset": 42,
+            "implemented": "yes",
+            "writable": false,
+            "sf_address": 40392,
+            "description": "PV input 2 lifetime energy, 0.1 kWh per count: native 10632–10633, kept in non-volatile memory. Reads 0 for an input that does not exist on the model.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "Tms",
+           "device": {
+            "address": 40431,
+            "offset": 44,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "Tmp",
+           "device": {
+            "address": 40433,
+            "offset": 46,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCSt",
+           "device": {
+            "address": 40434,
+            "offset": 47,
+            "implemented": "conditional",
+            "writable": false,
+            "description": "PV input 2 state from native 14006: running 4 MPPT, fault 7 FAULT, stopped or not connected 1 OFF. Reads the not-implemented value when PV input 2 does not exist on the model (native 14006 = 4) or when the DC converter data are older than 10 s.\n1 OFF · 2 SLEEPING · 3 STARTING · 4 MPPT · 5 THROTTLED · 6 SHUTTING_DOWN · 7 FAULT · 8 STANDBY · 9 TEST · 10 RESERVED_10",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCEvt",
+           "device": {
+            "address": 40435,
+            "offset": 48,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.\nbit 0 GROUND_FAULT · bit 1 INPUT_OVER_VOLTAGE · bit 2 RESERVED_2 · bit 3 DC_DISCONNECT · bit 4 RESERVED_4 · bit 5 CABINET_OPEN · bit 6 MANUAL_SHUTDOWN · bit 7 OVER_TEMP · bit 8 RESERVED_8 · bit 9 RESERVED_9 · bit 10 RESERVED_10 · bit 11 RESERVED_11 · bit 12 BLOWN_FUSE · bit 13 UNDER_TEMP · bit 14 MEMORY_LOSS · bit 15 ARC_DETECTION · bit 16 RESERVED_16 · bit 17 RESERVED_17 · bit 18 RESERVED_18 · bit 19 RESERVED_19 · bit 20 TEST_FAILED · bit 21 INPUT_UNDER_VOLTAGE · bit 22 INPUT_OVER_CURRENT",
+            "page_access": "RO"
+           }
+          }
+         ]
+        },
+        {
+         "index": 3,
+         "start_address": 40437,
+         "points": [
+          {
+           "name": "ID",
+           "device": {
+            "address": 40437,
+            "offset": 50,
+            "implemented": "yes",
+            "writable": false,
+            "description": "Module (PV input) number, constant 3.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "IDStr",
+           "device": {
+            "address": 40438,
+            "offset": 51,
+            "implemented": "no",
+            "writable": false,
+            "description": "Not implemented; all characters NUL.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCA",
+           "device": {
+            "address": 40446,
+            "offset": 59,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40389,
+            "description": "PV input 3 current, native 10357, 0.01 A per count. Reads the not-implemented value when PV input 3 does not exist on the model (native 14007 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCV",
+           "device": {
+            "address": 40447,
+            "offset": 60,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40390,
+            "description": "PV input 3 voltage, native 10356, 0.1 V per count. Reads the not-implemented value when PV input 3 does not exist on the model (native 14007 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCW",
+           "device": {
+            "address": 40448,
+            "offset": 61,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40391,
+            "description": "PV input 3 power, native 10358 (0.01 kW per count); a negative native value is published as 0. Reads the not-implemented value when PV input 3 does not exist on the model (native 14007 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCWH",
+           "device": {
+            "address": 40449,
+            "offset": 62,
+            "implemented": "yes",
+            "writable": false,
+            "sf_address": 40392,
+            "description": "PV input 3 lifetime energy, 0.1 kWh per count: native 10634–10635, kept in non-volatile memory. Reads 0 for an input that does not exist on the model.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "Tms",
+           "device": {
+            "address": 40451,
+            "offset": 64,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "Tmp",
+           "device": {
+            "address": 40453,
+            "offset": 66,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCSt",
+           "device": {
+            "address": 40454,
+            "offset": 67,
+            "implemented": "conditional",
+            "writable": false,
+            "description": "PV input 3 state from native 14007: running 4 MPPT, fault 7 FAULT, stopped or not connected 1 OFF. Reads the not-implemented value when PV input 3 does not exist on the model (native 14007 = 4) or when the DC converter data are older than 10 s.\n1 OFF · 2 SLEEPING · 3 STARTING · 4 MPPT · 5 THROTTLED · 6 SHUTTING_DOWN · 7 FAULT · 8 STANDBY · 9 TEST · 10 RESERVED_10",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCEvt",
+           "device": {
+            "address": 40455,
+            "offset": 68,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.\nbit 0 GROUND_FAULT · bit 1 INPUT_OVER_VOLTAGE · bit 2 RESERVED_2 · bit 3 DC_DISCONNECT · bit 4 RESERVED_4 · bit 5 CABINET_OPEN · bit 6 MANUAL_SHUTDOWN · bit 7 OVER_TEMP · bit 8 RESERVED_8 · bit 9 RESERVED_9 · bit 10 RESERVED_10 · bit 11 RESERVED_11 · bit 12 BLOWN_FUSE · bit 13 UNDER_TEMP · bit 14 MEMORY_LOSS · bit 15 ARC_DETECTION · bit 16 RESERVED_16 · bit 17 RESERVED_17 · bit 18 RESERVED_18 · bit 19 RESERVED_19 · bit 20 TEST_FAILED · bit 21 INPUT_UNDER_VOLTAGE · bit 22 INPUT_OVER_CURRENT",
+            "page_access": "RO"
+           }
+          }
+         ]
+        },
+        {
+         "index": 4,
+         "start_address": 40457,
+         "points": [
+          {
+           "name": "ID",
+           "device": {
+            "address": 40457,
+            "offset": 70,
+            "implemented": "yes",
+            "writable": false,
+            "description": "Module (PV input) number, constant 4.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "IDStr",
+           "device": {
+            "address": 40458,
+            "offset": 71,
+            "implemented": "no",
+            "writable": false,
+            "description": "Not implemented; all characters NUL.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCA",
+           "device": {
+            "address": 40466,
+            "offset": 79,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40389,
+            "description": "PV input 4 current, native 10361, 0.01 A per count. Reads the not-implemented value when PV input 4 does not exist on the model (native 14008 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCV",
+           "device": {
+            "address": 40467,
+            "offset": 80,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40390,
+            "description": "PV input 4 voltage, native 10360, 0.1 V per count. Reads the not-implemented value when PV input 4 does not exist on the model (native 14008 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCW",
+           "device": {
+            "address": 40468,
+            "offset": 81,
+            "implemented": "conditional",
+            "writable": false,
+            "sf_address": 40391,
+            "description": "PV input 4 power, native 10362 (0.01 kW per count); a negative native value is published as 0. Reads the not-implemented value when PV input 4 does not exist on the model (native 14008 = 4) or when the DC converter data are older than 10 s.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCWH",
+           "device": {
+            "address": 40469,
+            "offset": 82,
+            "implemented": "yes",
+            "writable": false,
+            "sf_address": 40392,
+            "description": "PV input 4 lifetime energy, 0.1 kWh per count: native 10636–10637, kept in non-volatile memory. Reads 0 for an input that does not exist on the model.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "Tms",
+           "device": {
+            "address": 40471,
+            "offset": 84,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "Tmp",
+           "device": {
+            "address": 40473,
+            "offset": 86,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCSt",
+           "device": {
+            "address": 40474,
+            "offset": 87,
+            "implemented": "conditional",
+            "writable": false,
+            "description": "PV input 4 state from native 14008: running 4 MPPT, fault 7 FAULT, stopped or not connected 1 OFF. Reads the not-implemented value when PV input 4 does not exist on the model (native 14008 = 4) or when the DC converter data are older than 10 s.\n1 OFF · 2 SLEEPING · 3 STARTING · 4 MPPT · 5 THROTTLED · 6 SHUTTING_DOWN · 7 FAULT · 8 STANDBY · 9 TEST · 10 RESERVED_10",
+            "page_access": "RO"
+           }
+          },
+          {
+           "name": "DCEvt",
+           "device": {
+            "address": 40475,
+            "offset": 88,
+            "implemented": "no",
+            "writable": false,
+            "description": "Reads the not-implemented value; skip this point.\nbit 0 GROUND_FAULT · bit 1 INPUT_OVER_VOLTAGE · bit 2 RESERVED_2 · bit 3 DC_DISCONNECT · bit 4 RESERVED_4 · bit 5 CABINET_OPEN · bit 6 MANUAL_SHUTDOWN · bit 7 OVER_TEMP · bit 8 RESERVED_8 · bit 9 RESERVED_9 · bit 10 RESERVED_10 · bit 11 RESERVED_11 · bit 12 BLOWN_FUSE · bit 13 UNDER_TEMP · bit 14 MEMORY_LOSS · bit 15 ARC_DETECTION · bit 16 RESERVED_16 · bit 17 RESERVED_17 · bit 18 RESERVED_18 · bit 19 RESERVED_19 · bit 20 TEST_FAILED · bit 21 INPUT_UNDER_VOLTAGE · bit 22 INPUT_OVER_CURRENT",
+            "page_access": "RO"
+           }
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ],
+    "label": "Multiple MPPT Inverter Extension Model"
+   },
+   "device": {
+    "id_address": 40387,
+    "length": 88
+   }
+  }
+ ]
+}

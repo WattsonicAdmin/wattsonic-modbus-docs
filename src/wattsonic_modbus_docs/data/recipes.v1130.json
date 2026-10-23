@@ -1,0 +1,1515 @@
+{
+ "description": "Closed-loop control recipes for the Wattsonic MATIC inverter: preconditions, write sequence, confirmation and failure/recovery. Values are raw register values; negative values are sent as 16-bit two's complement. Function codes: 0x03 read holding registers, 0x06 write single register, 0x10 write multiple registers.",
+ "firmware_applicability": "ARM >= M013V1130B01D05 (13021 >= 1130)",
+ "edition": "2026-10-23",
+ "transport": {
+  "protocol": "Modbus TCP",
+  "port": 502,
+  "unit_id": 1
+ },
+ "recipes": [
+  {
+   "id": "native.ems_session_start",
+   "title": "Open an EMS control session with communications watchdog and heartbeat",
+   "interface": "native",
+   "summary": "Arms the communications watchdog, opens EMS control (11060 + 12002) and keeps it alive with the heartbeat on 12026. Every native setpoint (11045, 11300-11303, 11320-11324, 11330) is used only while this session is active.",
+   "preconditions": [
+    {
+     "text": "Modbus TCP connection to port 502, unit identifier 1. Use one connection for all writes: a write from a second connection is answered with exception 0x06 (another client holds write control)."
+    },
+    {
+     "text": "Firmware applies: 13021 >= 1130.",
+     "read": {
+      "address": 13021,
+      "expected": ">= 1130"
+     }
+    },
+    {
+     "text": "The device is a MATIC inverter: 13016 reads 10-14.",
+     "read": {
+      "address": 13016,
+      "expected": "10..14"
+     }
+    },
+    {
+     "text": "You are on an EMS-native channel: 14030 reads 0x1018 (4120).",
+     "read": {
+      "address": 14030,
+      "expected": "0x1018"
+     }
+    },
+    {
+     "text": "Read the rated power 13034 (0.01 kW) to clamp your setpoints.",
+     "read": {
+      "address": 13034,
+      "expected": "rated power"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 11701,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      10,
+      600
+     ],
+     "example_value": 60,
+     "description": "Watchdog timeout in seconds.",
+     "check": "read back 11701"
+    },
+    {
+     "op": "write",
+     "address": 11702,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      3
+     ],
+     "example_value": 1,
+     "description": "Timeout action: 0 stop inverter, 1 self-consumption, 2 hold last state, 3 zero export.",
+     "check": "read back 11702"
+    },
+    {
+     "op": "write",
+     "address": 11704,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      2
+     ],
+     "example_value": 1,
+     "description": "Recovery behaviour: 0 LATCH, 1 AUTO-RESUME, 2 MANUAL_CONFIRM. Write it before 11700 = 1: while the watchdog runs (14031 = 1, 2 or 3, except the start-up SAFE_STATE with 14042 = 6) or is latched, a write to 11704 is answered with exception 0x03.",
+     "check": "read back 11704"
+    },
+    {
+     "op": "write",
+     "address": 11700,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "Enable the communications watchdog.",
+     "check": "read back 11700 = 1"
+    },
+    {
+     "op": "write",
+     "address": 11060,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "Enable external EMS dispatch.",
+     "check": "read back 11060 = 1"
+    },
+    {
+     "op": "write",
+     "address": 12002,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "Remote control mode.",
+     "check": "14044 = 1"
+    },
+    {
+     "op": "write",
+     "address": 12026,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      65535
+     ],
+     "example_value": 1,
+     "description": "Heartbeat: any value except 0x5A5A (0x5A5A trips the watchdog on purpose, 14042 = 2). A counter is a good choice.",
+     "repeat": {
+      "interval": "every 1-5 s (keeps 14041 far below the 11701 timeout and its 11703 pre-warning, keeps write control on port 502, which is released after 30 s without an executed write, and meets the 5 s window of the MANUAL_CONFIRM / LATCH recovery)",
+      "until": "the session ends"
+     },
+     "check": "14041 returns to 0 after each heartbeat"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14044,
+     "expected": "1",
+     "meaning": "EMS control active (11060 = 1 and 12002 = 1)"
+    },
+    {
+     "read": 14031,
+     "expected": "1",
+     "meaning": "watchdog normal; 2 = pre-warning, 3 = SAFE_STATE (tripped)"
+    },
+    {
+     "read": 14041,
+     "expected": "below 11701",
+     "meaning": "seconds since the last heartbeat"
+    }
+   ],
+   "failure_and_recovery": [
+    "Without a heartbeat for 11701 s the inverter enters SAFE_STATE (14031 = 3, cause in 14042) and applies the 11702 action. Recover with recipe native.recover_safe_state.",
+    "14042 = 4: EMS control was closed (11060 or 12002 not 1) while the watchdog was enabled.",
+    "After a restart 12002 reads 0 and 11045 reads 0; if the EMS was in control before, the unit starts in SAFE_STATE with 14042 = 6. Continue with recipe native.resume_after_restart.",
+    "Exception 0x06 on a write: another connection holds write control; write from one connection only."
+   ],
+   "notes": [
+    "Optional pre-warning: 11703 (seconds before the timeout, lower than 11701) makes 14031 read 2 before the trip.",
+    "SunSpec writes do not count as the heartbeat; while 11700 is not 0 the heartbeat on 12026 must continue."
+   ],
+   "doc_refs": [
+    {
+     "page": "native.md",
+     "section": "Controlling the inverter: closed loop"
+    },
+    {
+     "page": "native.md",
+     "section": "Settings Registers"
+    },
+    {
+     "page": "native.md",
+     "section": "System Status"
+    }
+   ],
+   "registers": [
+    11060,
+    11700,
+    11701,
+    11702,
+    11704,
+    12002,
+    12026,
+    13016,
+    13021,
+    13034,
+    14030,
+    14031,
+    14041,
+    14044
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "native.active_power_setpoint",
+   "title": "Set the active-power setpoint (11045)",
+   "interface": "native",
+   "summary": "Commands battery charge/discharge through the total AC active-power setpoint. Writing 11045 during an active EMS session puts the inverter into EMS dispatch (mode 20).",
+   "preconditions": [
+    {
+     "text": "EMS control session active (recipe native.ems_session_start).",
+     "read": {
+      "address": 14044,
+      "expected": "1"
+     }
+    },
+    {
+     "text": "Watchdog normal.",
+     "read": {
+      "address": 14031,
+      "expected": "1"
+     }
+    },
+    {
+     "text": "Inverter in PCS state 1 (Standby) or 8 (Running).",
+     "read": {
+      "address": 14002,
+      "expected": "1 or 8"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 11045,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      -2500,
+      2500
+     ],
+     "example_value": 1500,
+     "description": "Active power, 0.01 kW, positive = discharge, negative = charge from the grid (1500 = discharge 15.00 kW, -1000 = charge 10.00 kW). Values outside -2500..+2500 are clamped without an exception; the inverter also limits the setpoint to its rated power (13034).",
+     "check": "14250 = written raw value"
+    },
+    {
+     "op": "read",
+     "address": 14250,
+     "count": 4,
+     "function_code": "0x03",
+     "wait_before_s": 1,
+     "description": "Setpoint Shadow of 11045: 14250 requested, 14251 applied, 14253 rejection flag.",
+     "check": "14251 = 14250 and 14253 = 0; 14253 = 1 means the value was clamped"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14251,
+     "expected": "applied raw value",
+     "meaning": "value in force after clamping"
+    },
+    {
+     "read": 14253,
+     "expected": "0",
+     "meaning": "1 = value was clamped"
+    },
+    {
+     "read": 10019,
+     "expected": "follows the setpoint",
+     "meaning": "inverter active power, 0.01 kW, +output / -absorb"
+    },
+    {
+     "read": 10346,
+     "expected": "battery power",
+     "meaning": "0.01 kW, +discharge / -charge"
+    },
+    {
+     "read": 14031,
+     "expected": "1",
+     "meaning": "the session stays active"
+    }
+   ],
+   "failure_and_recovery": [
+    "The setpoint is executed only while the EMS is in control; if the watchdog trips (14031 = 3) the 11702 action applies instead.",
+    "11045 is not retained: after a restart it reads 0. Write it again once the EMS is back in control.",
+    "When EMS control has been interrupted and re-established, write 11045 again: the inverter returns to EMS dispatch only on a new 11045 write."
+   ],
+   "notes": [
+    "Write the setpoint again whenever your dispatch value changes; keep the heartbeat running."
+   ],
+   "doc_refs": [
+    {
+     "page": "native.md",
+     "section": "Controlling the inverter: closed loop"
+    },
+    {
+     "page": "native.md",
+     "section": "EMS Setpoint Shadow"
+    }
+   ],
+   "registers": [
+    10019,
+    10346,
+    11045,
+    14002,
+    14031,
+    14044,
+    14250,
+    14251,
+    14253
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "native.active_power_limit_pct",
+   "title": "Cap the discharge setpoint with Active_Power_Limit_Pct (11320 / 11321) during EMS dispatch",
+   "interface": "native",
+   "summary": "Caps the positive (discharge) active-power setpoint at a percentage of the rated power while the inverter runs EMS dispatch (mode 20).",
+   "preconditions": [
+    {
+     "text": "EMS control session active.",
+     "read": {
+      "address": 14044,
+      "expected": "1"
+     }
+    },
+    {
+     "text": "EMS dispatch: 11045 written in this session (recipe native.active_power_setpoint).",
+     "read": {
+      "address": 14250,
+      "expected": "your last 11045 value"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 11320,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "Enable the percentage limit (single-register write).",
+     "check": "read back 11320 = 1"
+    },
+    {
+     "op": "write",
+     "address": 11321,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      1000
+     ],
+     "example_value": 700,
+     "description": "Limit in 0.1 % of the rated power (700 = 70.0 %). Values above 1000 are answered with exception 0x03.",
+     "check": "read back 11321 = written value"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 11321,
+     "expected": "written value",
+     "meaning": "limit in 0.1 %"
+    },
+    {
+     "read": 17290,
+     "expected": "4",
+     "meaning": "read 17284-17360 in one request: 4 = limit applied under EMS control, 3 = requested but not applied"
+    },
+    {
+     "read": 17358,
+     "expected": "2",
+     "meaning": "under EMS control"
+    },
+    {
+     "read": 10019,
+     "expected": "<= limit x rated power",
+     "meaning": "inverter active power"
+    }
+   ],
+   "failure_and_recovery": [
+    "Outside EMS dispatch the limit is not applied (17290 = 3, 17358 = 1). For a feed-in cap that holds in every operating mode use Export_Limits 11113 with 11107 = 1.",
+    "11320 = 0 means 100 %.",
+    "Values written over Modbus TCP port 502 are held in RAM: write 11320 and 11321 again after every restart."
+   ],
+   "notes": [
+    "Write 11320 and 11321 with function code 0x06, one register per request; an 0x10 block across 11320-11324 does not reach these settings."
+   ],
+   "doc_refs": [
+    {
+     "page": "native.md",
+     "section": "What changed in this edition"
+    },
+    {
+     "page": "native.md",
+     "section": "Settings Registers"
+    },
+    {
+     "page": "sunspec.md",
+     "section": "Control-truth block 17284–17360"
+    }
+   ],
+   "registers": [
+    10019,
+    11320,
+    11321,
+    14044,
+    14250,
+    17290,
+    17358
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "native.reactive_power",
+   "title": "Set the reactive-power mode and setpoint (11300-11303)",
+   "interface": "native",
+   "summary": "Fixed reactive power (mode 1, setpoint 11302) or fixed power factor (mode 2, setpoint 11301), used while the EMS is in control.",
+   "preconditions": [
+    {
+     "text": "EMS control session active; otherwise the grid-code settings apply.",
+     "read": {
+      "address": 14044,
+      "expected": "1"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 11300,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      4
+     ],
+     "example_value": 1,
+     "description": "Mode first: 0 off, 1 fixed reactive power Q (11302), 2 fixed power factor (11301), 3 Q(U), 4 Cos-phi(P).",
+     "check": "read back 11300"
+    },
+    {
+     "op": "write",
+     "address": 11302,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      -2500,
+      2500
+     ],
+     "example_value": 500,
+     "condition": "mode 1 (11300 = 1)",
+     "description": "Reactive power, 0.01 kVar, positive = leading (capacitive), negative = lagging (inductive).",
+     "check": "read back 11302"
+    },
+    {
+     "op": "write",
+     "address": 11301,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      -1000,
+      1000
+     ],
+     "example_value": 950,
+     "condition": "mode 2 (11300 = 2)",
+     "description": "Power factor, 0.001, stored with 0.01 resolution: write multiples of 10 (994 reads back 990).",
+     "check": "read back 11301 (rounded to 0.01)"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 11300,
+     "expected": "written mode",
+     "meaning": "mode in use while the EMS is in control"
+    },
+    {
+     "read": 11302,
+     "expected": "written value",
+     "meaning": "mode 1 setpoint"
+    },
+    {
+     "read": 11301,
+     "expected": "written value rounded to 0.01",
+     "meaning": "mode 2 setpoint"
+    },
+    {
+     "read": 10020,
+     "expected": "inverter reactive power",
+     "meaning": "0.01 kVar; reactive power flows only while the inverter exchanges active power"
+    }
+   ],
+   "failure_and_recovery": [
+    "Use function code 0x06 for each register: an 0x10 block across 11300-11303 does not reach these settings.",
+    "When the EMS is not in control (14044 = 0 or 14031 = 3) the grid-code settings apply.",
+    "Values written over Modbus TCP port 502 are held in RAM: write mode and setpoint again after every restart."
+   ],
+   "notes": [
+    "11303 (0.01 kVar, 0..10000) is the upper limit of the reactive-power command; factory default 10000.",
+    "Factory default: 11300 = 1 with 11302 = 0 (no reactive power)."
+   ],
+   "doc_refs": [
+    {
+     "page": "native.md",
+     "section": "Settings Registers"
+    },
+    {
+     "page": "native.md",
+     "section": "What changed in this edition"
+    }
+   ],
+   "registers": [
+    10020,
+    11300,
+    11301,
+    11302,
+    14044
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "native.eco_schedule",
+   "title": "Program the Eco time schedule (11151 = 2, periods from 11190)",
+   "interface": "native",
+   "summary": "Runs the battery on a daily time schedule: up to 24 periods of 3 registers each (start, end, type) from 11190, weekday mask 11254.",
+   "preconditions": [
+    {
+     "text": "Inverter clock and time zone correct (11006): periods use local inverter time.",
+     "read": {
+      "address": 11006,
+      "expected": "your time zone code"
+     }
+    },
+    {
+     "text": "Eco SOC band inactive: keep 11262 / 11263 at 0 while you use periods.",
+     "read": {
+      "address": 11262,
+      "expected": "0"
+     }
+    },
+    {
+     "text": "The inverter runs its own operating mode: no native EMS dispatch (11045) and no SunSpec forced storage command is active."
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 11151,
+     "function_code": "0x06",
+     "value": 2,
+     "description": "Eco mode (value 4 selects a different time-of-use mode).",
+     "check": "read back 11151 = 2"
+    },
+    {
+     "op": "write",
+     "address": 11190,
+     "function_code": "0x10",
+     "count": 3,
+     "values": [
+      0,
+      420,
+      1
+     ],
+     "description": "Period 1: 00:00-07:00, type 1 = charge.",
+     "check": "read back"
+    },
+    {
+     "op": "write",
+     "address": 11193,
+     "function_code": "0x10",
+     "count": 3,
+     "values": [
+      420,
+      1020,
+      2
+     ],
+     "description": "Period 2: 07:00-17:00, type 2 = self-consumption.",
+     "check": "read back"
+    },
+    {
+     "op": "write",
+     "address": 11196,
+     "function_code": "0x10",
+     "count": 3,
+     "values": [
+      1020,
+      1380,
+      0
+     ],
+     "description": "Period 3: 17:00-23:00, type 0 = discharge.",
+     "check": "read back"
+    },
+    {
+     "op": "write",
+     "address": 11254,
+     "function_code": "0x06",
+     "value": 127,
+     "description": "Weekday mask 0x7F = every day (bit0 = Monday to bit6 = Sunday). Single-register write.",
+     "check": "read back 11254 = 127"
+    },
+    {
+     "op": "write",
+     "address": 11108,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      10000
+     ],
+     "example_value": 1000,
+     "description": "Grid-tied minimum SOC, 0.01 % (1000 = 10.00 %).",
+     "check": "read back"
+    },
+    {
+     "op": "write",
+     "address": 11109,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      10000
+     ],
+     "example_value": 10000,
+     "description": "Grid-tied maximum SOC, 0.01 % (10000 = 100.00 %).",
+     "check": "read back"
+    },
+    {
+     "op": "read",
+     "address": 11190,
+     "count": 9,
+     "function_code": "0x03",
+     "description": "Read the periods back.",
+     "check": "equal to the written values"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 11151,
+     "expected": "2",
+     "meaning": "Eco mode selected"
+    },
+    {
+     "read": 14000,
+     "expected": "2",
+     "meaning": "PCS working mode Economic"
+    },
+    {
+     "read": 11190,
+     "expected": "written periods",
+     "meaning": "read 11190 onward back"
+    }
+   ],
+   "failure_and_recovery": [
+    "A period applies while start <= time < end (minutes from midnight); outside all periods, and on days not in 11254, the inverter runs self-consumption.",
+    "An Eco SOC band wider than 4.00 % (11263 - 11262 > 400, BMS-connected battery) takes precedence over the periods. The band registers 11262-11268 read 0 after every restart.",
+    "Charge and discharge power per period, and grid charging in charge periods, follow the installer settings (factory: 100 % of rated power, charging from PV)."
+   ],
+   "notes": [
+    "Period type (11192 and every third register after it): 0 = discharge, 1 = charge, 2 = self-consumption.",
+    "Periods you do not use: write start = end = 0 (such a period never applies)."
+   ],
+   "doc_refs": [
+    {
+     "page": "native.md",
+     "section": "3. Eco Schedule Programming (TCP)"
+    },
+    {
+     "page": "native.md",
+     "section": "What changed in this edition"
+    }
+   ],
+   "registers": [
+    11006,
+    11108,
+    11109,
+    11151,
+    11190,
+    11191,
+    11192,
+    11193,
+    11194,
+    11195,
+    11196,
+    11197,
+    11198,
+    11254,
+    11262,
+    14000
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "native.recover_safe_state",
+   "title": "Recover from the watchdog SAFE_STATE (14031 = 3)",
+   "interface": "native",
+   "summary": "Returns the communications watchdog to normal according to the recovery behaviour in 11704.",
+   "preconditions": [
+    {
+     "text": "Watchdog tripped.",
+     "read": {
+      "address": 14031,
+      "expected": "3"
+     }
+    },
+    {
+     "text": "Read the cause promptly: with LATCH the true reason (1-4) is readable for about 1 s, then 14042 reads 5.",
+     "read": {
+      "address": 14042,
+      "expected": "trip reason"
+     }
+    },
+    {
+     "text": "Read the recovery behaviour (while latched it reads 0 = LATCH).",
+     "read": {
+      "address": 11704,
+      "expected": "0, 1 or 2"
+     }
+    },
+    {
+     "text": "EMS control open: 11060 = 1 and 12002 = 1 (after a restart write 12002 = 1 first); recovery is processed only while EMS control is open.",
+     "read": {
+      "address": 14044,
+      "expected": "1"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 12026,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      65535
+     ],
+     "example_value": 1,
+     "condition": "11704 = 1 (AUTO-RESUME)",
+     "description": "Resume the heartbeat: the first heartbeat returns the watchdog to normal.",
+     "repeat": {
+      "interval": "every 1-5 s (keeps 14041 far below the 11701 timeout and its 11703 pre-warning, keeps write control on port 502, which is released after 30 s without an executed write, and meets the 5 s window of the MANUAL_CONFIRM / LATCH recovery)",
+      "until": "the session ends"
+     },
+     "check": "14031 = 1"
+    },
+    {
+     "op": "write",
+     "address": 12001,
+     "function_code": "0x06",
+     "value": 1,
+     "condition": "11704 = 2 (MANUAL_CONFIRM)",
+     "description": "With the heartbeat running every 1-5 s, write 12001 = 1 right after a heartbeat; the next heartbeat returns the watchdog to normal.",
+     "check": "14031 = 1 after the next heartbeat"
+    },
+    {
+     "op": "write",
+     "address": 11700,
+     "function_code": "0x06",
+     "value": 0,
+     "condition": "11704 = 0 (LATCH)",
+     "description": "LATCH, step 1: disable the watchdog. Keep the heartbeat running every 1-5 s during the whole LATCH sequence.",
+     "check": "14031 = 0"
+    },
+    {
+     "op": "write",
+     "address": 12001,
+     "function_code": "0x06",
+     "value": 1,
+     "condition": "11704 = 0 (LATCH)",
+     "wait_before_s": 2,
+     "description": "LATCH, step 2: at least 2 s later, right after a heartbeat, clear the latch.",
+     "check": "11704 can be written again (latch cleared)"
+    },
+    {
+     "op": "write",
+     "address": 12000,
+     "function_code": "0x06",
+     "value": 1,
+     "condition": "11704 = 0 and 11702 = 0 (Stop)",
+     "wait_before_s": 2,
+     "description": "LATCH with stop action: at least 2 s later switch the inverter on again.",
+     "check": "14002 moves towards 8 (Running)"
+    },
+    {
+     "op": "write",
+     "address": 11700,
+     "function_code": "0x06",
+     "value": 1,
+     "condition": "11704 = 0 (LATCH)",
+     "wait_before_s": 2,
+     "description": "LATCH, last step: re-enable the watchdog and resume the heartbeat.",
+     "check": "14031 = 1"
+    },
+    {
+     "op": "write",
+     "address": 11045,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      -2500,
+      2500
+     ],
+     "example_value": 0,
+     "description": "Write your active-power setpoint again (EMS dispatch resumes only on a new 11045 write).",
+     "check": "14250 / 14251"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14031,
+     "expected": "1",
+     "meaning": "watchdog normal"
+    },
+    {
+     "read": 14044,
+     "expected": "1",
+     "meaning": "EMS control active"
+    },
+    {
+     "read": 14251,
+     "expected": "your setpoint",
+     "meaning": "applied 11045"
+    }
+   ],
+   "failure_and_recovery": [
+    "LATCH: writing 12001 while the watchdog is enabled does not clear the latch; follow the order 11700 = 0, wait >= 2 s, 12001 = 1, wait >= 2 s, (12000 = 1 if 11702 = 0), 11700 = 1.",
+    "While the latch is set it survives a power cycle and 11704 reads back as LATCH.",
+    "With 11702 = 0 (stop) the trip switches the inverter off: production returns only after 12000 = 1.",
+    "12001 = 1 confirms the recovery only if a heartbeat arrived within the last 5 s; otherwise send a heartbeat and write 12001 = 1 again.",
+    "14042 = 4: EMS control was closed (11060 or 12002 not 1); write 11060 = 1 and 12002 = 1 again."
+   ],
+   "notes": [
+    "A watchdog in SAFE_STATE also refuses SunSpec writes (machine veto) and releases held SunSpec controls."
+   ],
+   "doc_refs": [
+    {
+     "page": "native.md",
+     "section": "Controlling the inverter: closed loop"
+    },
+    {
+     "page": "native.md",
+     "section": "Settings Registers"
+    },
+    {
+     "page": "native.md",
+     "section": "System Status"
+    }
+   ],
+   "registers": [
+    11045,
+    11700,
+    11704,
+    12000,
+    12001,
+    12026,
+    14031,
+    14042,
+    14044,
+    14251
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "native.resume_after_restart",
+   "title": "Resume EMS control after an inverter restart",
+   "interface": "native",
+   "summary": "After a restart 12002 and 11045 read 0, RAM-held settings are gone and, if the EMS was in control before, the unit starts in SAFE_STATE (14042 = 6) until the EMS's first write.",
+   "preconditions": [
+    {
+     "text": "New Modbus TCP session to port 502; read 14030 = 0x1018.",
+     "read": {
+      "address": 14030,
+      "expected": "0x1018"
+     }
+    },
+    {
+     "text": "Start-up state.",
+     "read": {
+      "address": 14042,
+      "expected": "6 if the EMS was in control before the restart"
+     }
+    },
+    {
+     "text": "Stored session settings: 11700, 11701, 11702, 11704 and 11060 survive the restart; check them.",
+     "read": {
+      "address": 11060,
+      "expected": "1"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 12026,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      0,
+      65535
+     ],
+     "example_value": 1,
+     "description": "First heartbeat: ends the start-up SAFE_STATE (14042 = 6), whatever 11704 says.",
+     "repeat": {
+      "interval": "every 1-5 s (keeps 14041 far below the 11701 timeout and its 11703 pre-warning, keeps write control on port 502, which is released after 30 s without an executed write, and meets the 5 s window of the MANUAL_CONFIRM / LATCH recovery)",
+      "until": "the session ends"
+     },
+     "check": "14031 = 1"
+    },
+    {
+     "op": "write",
+     "address": 12002,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "Remote control mode again (reads 0 after every restart).",
+     "check": "14044 = 1"
+    },
+    {
+     "op": "write",
+     "address": 11045,
+     "function_code": "0x06",
+     "value": null,
+     "value_range": [
+      -2500,
+      2500
+     ],
+     "example_value": 0,
+     "description": "Active-power setpoint again (reads 0 after a restart).",
+     "check": "14250 / 14251"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14031,
+     "expected": "1",
+     "meaning": "watchdog normal"
+    },
+    {
+     "read": 14044,
+     "expected": "1",
+     "meaning": "EMS control active"
+    },
+    {
+     "read": 14251,
+     "expected": "your setpoint",
+     "meaning": "applied 11045"
+    }
+   ],
+   "failure_and_recovery": [
+    "If 11060 or 11700 do not read 1, run recipe native.ems_session_start.",
+    "If 14031 stays 3 with 14042 = 5, the LATCH is set: run recipe native.recover_safe_state.",
+    "Write again every value that is held in RAM and that you use: 11320/11321, 11300-11303, 11068/11069 (when written over Modbus TCP) and the Eco SOC band 11262-11268.",
+    "SunSpec controls are released by a restart: re-send the SunSpec commands that are to remain in force."
+   ],
+   "notes": [
+    "The start-up SAFE_STATE never latches."
+   ],
+   "doc_refs": [
+    {
+     "page": "native.md",
+     "section": "What changed in this edition"
+    },
+    {
+     "page": "native.md",
+     "section": "Controlling the inverter: closed loop"
+    }
+   ],
+   "registers": [
+    11045,
+    11060,
+    12002,
+    12026,
+    14030,
+    14031,
+    14042,
+    14044,
+    14251
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "native.emergency_stop",
+   "title": "Emergency stop (12021) and restart after clearance",
+   "interface": "native",
+   "summary": "Stops all power conversion at once and latches until it is cleared with 12001.",
+   "preconditions": [
+    {
+     "text": "No unlock register is needed. Do not write 12007 or 12008 (they are not the emergency stop)."
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 12021,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "Emergency stop: immediately cease all power conversion; latches.",
+     "check": "14002 = 1"
+    },
+    {
+     "op": "read",
+     "address": 14002,
+     "count": 1,
+     "function_code": "0x03",
+     "wait_before_s": 1,
+     "description": "PCS state.",
+     "check": "1 (Standby)"
+    },
+    {
+     "op": "write",
+     "address": 12001,
+     "function_code": "0x06",
+     "value": 1,
+     "condition": "after human clearance",
+     "description": "Clear the emergency stop latch and recoverable faults.",
+     "check": "read alarms 14100+"
+    },
+    {
+     "op": "write",
+     "address": 12000,
+     "function_code": "0x06",
+     "value": 1,
+     "condition": "after 12001",
+     "description": "Switch the inverter on again.",
+     "check": "14002 moves towards 8 (Running)"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14002,
+     "expected": "1 after the stop; 8 after the restart",
+     "meaning": "PCS running status"
+    },
+    {
+     "read": 10019,
+     "expected": "about 0 after the stop",
+     "meaning": "inverter active power"
+    }
+   ],
+   "failure_and_recovery": [
+    "While 12021 is set the inverter stays off: 12000 = 1 alone does not restart it; clear with 12001 = 1 first.",
+    "While the emergency stop is set SunSpec writes are refused with 0x04 and held SunSpec controls are released.",
+    "After a restart with the native EMS session, write the heartbeat, 12002 = 1 and 11045 again."
+   ],
+   "notes": [
+    "Check the alarm and fault registers (14100 onward) before the restart."
+   ],
+   "doc_refs": [
+    {
+     "page": "native.md",
+     "section": "Control Commands"
+    },
+    {
+     "page": "native.md",
+     "section": "7. Emergency Stop & Safety Sequence (RTU)"
+    }
+   ],
+   "registers": [
+    10019,
+    12000,
+    12001,
+    12021,
+    14002
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "sunspec.open_write_gate",
+   "title": "Open the SunSpec control gate (11790 = 0x5355)",
+   "interface": "sunspec",
+   "summary": "SunSpec control writes to 40000-40478 are accepted only while the installer gate 11790 holds 0x5355.",
+   "preconditions": [
+    {
+     "text": "SunSpec map present: 40000-40001 read 0x5375 0x6E53 ('SunS').",
+     "read": {
+      "address": 40000,
+      "expected": "0x5375 0x6E53"
+     }
+    },
+    {
+     "text": "Firmware applies: the third field of 1.Vr reads 1130 or higher.",
+     "read": {
+      "address": 40044,
+      "expected": "V<DC>.<AC>.<main>, main >= 1130"
+     }
+    },
+    {
+     "text": "One writing connection on port 502 (write control)."
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 11790,
+     "function_code": "0x06",
+     "value": 21333,
+     "description": "Open the gate (0x5355). Any other value closes it.",
+     "check": "14233 = 1"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14233,
+     "expected": "1",
+     "meaning": "control gate open"
+    }
+   ],
+   "failure_and_recovery": [
+    "While the gate is closed every SunSpec write is answered with exception 0x04.",
+    "Closing the gate (any other value) releases every held SunSpec control within 1 s and erases its setpoints.",
+    "Even with the gate open, writes are refused with 0x04 while the inverter is switched off (12000 = 0), the emergency stop is set (12021), the unit is not commissioned, the native watchdog is in SAFE_STATE or the external meter is in its meter-lost safe state."
+   ],
+   "notes": [
+    "The gate value is stored in non-volatile memory and survives a restart.",
+    "No authentication: while the gate is open, any Modbus TCP client that reaches port 502 can command the inverter. Protect port 502 on the network."
+   ],
+   "doc_refs": [
+    {
+     "page": "sunspec.md",
+     "section": "Control gate"
+    },
+    {
+     "page": "sunspec.md",
+     "section": "Machine veto"
+    }
+   ],
+   "registers": [
+    11790,
+    14233,
+    40000,
+    40044
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "sunspec.active_power_limit",
+   "title": "SunSpec active-power limit (model 123 WMaxLimPct) applied under EMS control",
+   "interface": "sunspec",
+   "summary": "Writes the active-power limit, timers and enable in one frame. The limit is applied only while the unit operates under EMS control (mode 20): a SunSpec forced charge/discharge command or native EMS external control with 11045.",
+   "preconditions": [
+    {
+     "text": "Control gate open (recipe sunspec.open_write_gate).",
+     "read": {
+      "address": 14233,
+      "expected": "1"
+     }
+    },
+    {
+     "text": "Unit under EMS control: recipe sunspec.forced_charge / sunspec.forced_discharge, or native.ems_session_start + native.active_power_setpoint.",
+     "read": {
+      "address": 17358,
+      "expected": "2"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 40075,
+     "function_code": "0x10",
+     "count": 5,
+     "values": [
+      500,
+      0,
+      60,
+      0,
+      1
+     ],
+     "description": "WMaxLimPct = 500 (50.0 %, WMaxLimPct_SF = -1), WinTms = 0, RvrtTms = 60 s, RmpTms = 0, WMaxLim_Ena = 1.",
+     "check": "normal response echoes start 40075, count 5"
+    },
+    {
+     "op": "read",
+     "address": 17284,
+     "count": 77,
+     "function_code": "0x03",
+     "wait_before_s": 2,
+     "description": "Control-truth block in one request.",
+     "check": "17284 = 0xCA12 and 17285 = 17360 (consistent); 17290 = 4 and 17358 = 2"
+    },
+    {
+     "op": "write",
+     "address": 40079,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "Keep-alive: re-write WMaxLim_Ena = 1.",
+     "repeat": {
+      "interval": "at most one third of RvrtTms (20 s for 60 s) and well below 30 s",
+      "until": "the limit is released"
+     },
+     "check": "normal response"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14234,
+     "expected": "high byte 2",
+     "meaning": "limit in force in the control layer"
+    },
+    {
+     "read": 14242,
+     "expected": "5000",
+     "meaning": "limit selected for dispatch, 0.01 % of rated power"
+    },
+    {
+     "read": 17290,
+     "expected": "4",
+     "meaning": "applied (3 = requested but not applied)"
+    },
+    {
+     "read": 17358,
+     "expected": "2",
+     "meaning": "under EMS control"
+    },
+    {
+     "read": 17359,
+     "expected": "AC output bound in W",
+     "meaning": "resulting upper bound of the AC output"
+    }
+   ],
+   "failure_and_recovery": [
+    "17290 = 3 with 17358 = 1: the limit is held but the unit runs its own operating mode; establish EMS control.",
+    "The SunSpec limit is combined with the native limit by taking the lower value: it can lower, never raise it.",
+    "Released on RvrtTms expiry, gate closure, machine veto or restart; the unit then applies its own limit. After RvrtTms expiry writing only the enable (40079 = 1) re-activates the last setpoints.",
+    "Release on purpose: write 40079 = 0 (the override stops at once)."
+   ],
+   "notes": [
+    "RvrtTms must be 0 or greater than WinTms; otherwise the frame is answered with exception 0x03.",
+    "Write only the points you change; never write back a block you have read."
+   ],
+   "doc_refs": [
+    {
+     "page": "sunspec.md",
+     "section": "When the active-power limit is in force"
+    },
+    {
+     "page": "sunspec.md",
+     "section": "Checking whether the active-power limit is applied"
+    },
+    {
+     "page": "sunspec.md",
+     "section": "Worked examples"
+    }
+   ],
+   "registers": [
+    14233,
+    14234,
+    14242,
+    17284,
+    17290,
+    17358,
+    17359,
+    40075,
+    40076,
+    40077,
+    40078,
+    40079
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "sunspec.forced_charge",
+   "title": "SunSpec forced charge (model 124: DISCHARGE bit with negative OutWRte)",
+   "interface": "sunspec",
+   "summary": "Forces the battery to charge at a share of 124.WChaMax; the unit changes to EMS control (mode 20).",
+   "preconditions": [
+    {
+     "text": "Control gate open.",
+     "read": {
+      "address": 14233,
+      "expected": "1"
+     }
+    },
+    {
+     "text": "Native EMS interface inactive (native watchdog disabled).",
+     "read": {
+      "address": 11700,
+      "expected": "0"
+     }
+    },
+    {
+     "text": "124.WChaMax above 0 (it is the reference of OutWRte / InWRte).",
+     "read": {
+      "address": 40098,
+      "expected": "> 0"
+     }
+    },
+    {
+     "text": "Inverter switched on.",
+     "read": {
+      "address": 40074,
+      "expected": "1"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 40108,
+     "function_code": "0x10",
+     "count": 5,
+     "values": [
+      -4000,
+      0,
+      0,
+      60,
+      0
+     ],
+     "description": "OutWRte = -4000 (-40.00 % of WChaMax, InOutWRte_SF = -2), InWRte = 0, WinTms = 0, RvrtTms = 60 s, RmpTms = 0.",
+     "check": "normal response echoes start 40108, count 5"
+    },
+    {
+     "op": "write",
+     "address": 40101,
+     "function_code": "0x06",
+     "value": 2,
+     "description": "StorCtl_Mod = 2 (DISCHARGE bit): the negative OutWRte forces charging.",
+     "check": "14240 high byte 2"
+    },
+    {
+     "op": "write",
+     "address": 40101,
+     "function_code": "0x06",
+     "value": 2,
+     "description": "Keep-alive: re-write the same StorCtl_Mod.",
+     "repeat": {
+      "interval": "at most one third of RvrtTms (20 s for 60 s) and well below 30 s",
+      "until": "the command ends"
+     },
+     "check": "normal response"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14240,
+     "expected": "high byte 2",
+     "meaning": "storage control in force"
+    },
+    {
+     "read": 14245,
+     "expected": "negative",
+     "meaning": "forced setpoint per phase, 0.01 kW, positive = AC output"
+    },
+    {
+     "read": 17358,
+     "expected": "2",
+     "meaning": "under EMS control"
+    },
+    {
+     "read": 10346,
+     "expected": "negative",
+     "meaning": "battery power, +discharge / -charge"
+    }
+   ],
+   "failure_and_recovery": [
+    "Released by InOutWRte_RvrtTms expiry, gate closure, machine veto or restart. After RvrtTms expiry StorCtl_Mod reads 0 but the mode is kept: the next accepted write to any storage point re-activates it.",
+    "To restart with new values: 40101 = 0 (0x06), then the 0x10 frame from 40108, then 40101.",
+    "With native 11700 not 0 the storage control is outranked (14240 high byte 3).",
+    "Stop on purpose: write 40101 = 0 (the override stops at once).",
+    "14240 low byte 7: the charge and discharge bounds exclude each other and the battery is held at 0 W."
+   ],
+   "notes": [
+    "The unit runs the bound nearest to 0 W as AC active-power setpoint, split equally over the three phases.",
+    "Close the power loop on 203.W (grid meter)."
+   ],
+   "doc_refs": [
+    {
+     "page": "sunspec.md",
+     "section": "Implementation notes"
+    },
+    {
+     "page": "sunspec.md",
+     "section": "Worked examples"
+    },
+    {
+     "page": "sunspec.md",
+     "section": "Holding and releasing a control"
+    }
+   ],
+   "registers": [
+    10346,
+    11700,
+    14233,
+    14240,
+    14245,
+    17358,
+    40074,
+    40098,
+    40101,
+    40108,
+    40109,
+    40110,
+    40111,
+    40112
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "id": "sunspec.forced_discharge",
+   "title": "SunSpec forced discharge (model 124: CHARGE bit with negative InWRte)",
+   "interface": "sunspec",
+   "summary": "Forces the battery to discharge at a share of 124.WChaMax; the unit changes to EMS control (mode 20).",
+   "preconditions": [
+    {
+     "text": "Control gate open.",
+     "read": {
+      "address": 14233,
+      "expected": "1"
+     }
+    },
+    {
+     "text": "Native EMS interface inactive (native watchdog disabled).",
+     "read": {
+      "address": 11700,
+      "expected": "0"
+     }
+    },
+    {
+     "text": "124.WChaMax above 0.",
+     "read": {
+      "address": 40098,
+      "expected": "> 0"
+     }
+    },
+    {
+     "text": "Inverter switched on.",
+     "read": {
+      "address": 40074,
+      "expected": "1"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "op": "write",
+     "address": 40108,
+     "function_code": "0x10",
+     "count": 5,
+     "values": [
+      0,
+      -4000,
+      0,
+      60,
+      0
+     ],
+     "description": "OutWRte = 0, InWRte = -4000 (-40.00 % of WChaMax), WinTms = 0, RvrtTms = 60 s, RmpTms = 0.",
+     "check": "normal response echoes start 40108, count 5"
+    },
+    {
+     "op": "write",
+     "address": 40101,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "StorCtl_Mod = 1 (CHARGE bit): the negative InWRte forces discharging.",
+     "check": "14240 high byte 2"
+    },
+    {
+     "op": "write",
+     "address": 40101,
+     "function_code": "0x06",
+     "value": 1,
+     "description": "Keep-alive: re-write the same StorCtl_Mod.",
+     "repeat": {
+      "interval": "at most one third of RvrtTms (20 s for 60 s) and well below 30 s",
+      "until": "the command ends"
+     },
+     "check": "normal response"
+    }
+   ],
+   "confirm": [
+    {
+     "read": 14240,
+     "expected": "high byte 2",
+     "meaning": "storage control in force"
+    },
+    {
+     "read": 14245,
+     "expected": "positive",
+     "meaning": "forced setpoint per phase, 0.01 kW, positive = AC output"
+    },
+    {
+     "read": 17358,
+     "expected": "2",
+     "meaning": "under EMS control"
+    },
+    {
+     "read": 10346,
+     "expected": "positive",
+     "meaning": "battery power, +discharge / -charge"
+    }
+   ],
+   "failure_and_recovery": [
+    "Released by InOutWRte_RvrtTms expiry, gate closure, machine veto or restart. After RvrtTms expiry StorCtl_Mod reads 0 but the mode is kept: the next accepted write to any storage point re-activates it.",
+    "To restart with new values: 40101 = 0 (0x06), then the 0x10 frame from 40108, then 40101.",
+    "With native 11700 not 0 the storage control is outranked (14240 high byte 3).",
+    "Stop on purpose: write 40101 = 0 (the override stops at once)."
+   ],
+   "notes": [
+    "Combine with recipe sunspec.active_power_limit to bound the AC output while discharging.",
+    "Close the power loop on 203.W (grid meter)."
+   ],
+   "doc_refs": [
+    {
+     "page": "sunspec.md",
+     "section": "Implementation notes"
+    },
+    {
+     "page": "sunspec.md",
+     "section": "When the active-power limit is in force"
+    }
+   ],
+   "registers": [
+    10346,
+    11700,
+    14233,
+    14240,
+    14245,
+    17358,
+    40074,
+    40098,
+    40101,
+    40108,
+    40109,
+    40110,
+    40111,
+    40112
+   ],
+   "applies_from_firmware": "M013V1130B01D05"
+  }
+ ]
+}

@@ -1,0 +1,26 @@
+# Wattsonic MATIC Modbus interface
+
+> Modbus register reference for the Wattsonic MATIC three-phase hybrid PV and storage inverter (10-25 kW, one battery input). The inverter serves Modbus TCP on port 502 (Ethernet and Wi-Fi; unit identifier 1) and Modbus RTU on RS485. Two register interfaces share the same port and connection and are selected by the start address of each request: the native Wattsonic EMS map (10000-19800: monitoring, settings, EMS dispatch, communications watchdog) and the SunSpec map (40000-40478: models 1, 123, 124, 103, 203, 120, 121, 122, 160). Applies to ARM firmware M013V1130B01D05 or later (native register 13021 >= 1130). Edition 2026-10-23.
+
+Control writes follow a closed loop: meet the preconditions, write the sequence, read back to confirm the command is in force, and know how it is released. Use function code 0x03 for reads; write the control registers 11300-11303, 11320-11324 and 11330 with 0x06 (one register per request). SunSpec control writes need the control gate 11790 = 0x5355.
+
+## Documentation
+
+- [Native EMS protocol (Markdown)](native.md): register map, data types, EMS session, watchdog, scenarios with Python / Node.js / C# / Go examples. Sections: Overview; Data Types; Monitoring Registers; Settings Registers; Control Commands; Device Information; System Status; EMS Setpoint Shadow; Alarms & Faults; Quick Start Guide; Scenarios.
+- [SunSpec interface (Markdown)](sunspec.md): sessions, model chain, all points, control interface, verification blocks, worked frames. Sections: Overview; Interface and sessions; Data representation; Model chain discovery; Polling; Model 1 · Common; Model 123 · Immediate controls; Model 124 · Storage; Model 103 · Inverter, three-phase; Model 203 · Meter, three-phase wye; Model 120 · Nameplate; Model 121 · Basic settings; Model 122 · Measurements and status; Model 160 · Multiple MPPT inverter extension; Control interface; Checking that a command is in force; Worked examples; Implementation notes; What's new in this edition; Terms and abbreviations.
+
+## Data
+
+- [Native register map with integration fields](registers.v1130.json): every native register with type, scale, unit, access, range, and where documented: write function, effective conditions, read-back registers, persistence.
+- [SunSpec model chain](sunspec-models.v1130.json): the device's SunSpec models in the SunSpec Alliance JSON layout with addresses, scale factors, access and per-point device notes.
+- [Control recipes](recipes.v1130.json): closed-loop sequences (EMS session, active-power setpoint, power limit, reactive power, Eco schedule, SunSpec gate, SunSpec limit, forced charge/discharge, recovery, emergency stop).
+
+## Pages
+
+- [Native EMS protocol](Wattsonic_EMS_Modbus_Protocol.html): the HTML reference (also served as index.html); English, Chinese, German and French.
+- [SunSpec interface](sunspec.html): the HTML reference of the SunSpec map.
+
+## Optional
+
+- [Full text](llms-full.txt): both Markdown documents in one file.
+- [Register map as published by the page](Wattsonic_MATIC_Modbus_Registers.json): the original register map file offered by the Download JSON button.

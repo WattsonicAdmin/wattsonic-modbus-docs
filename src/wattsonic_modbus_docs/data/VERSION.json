@@ -1,0 +1,16 @@
+{
+ "data_version": "M013V1130B01D05+2026-10-23",
+ "firmware": "M013V1130B01D05",
+ "firmware_applicability": "ARM >= M013V1130B01D05 (13021 >= 1130)",
+ "edition": "2026-10-23",
+ "build_date": "2026-10-23",
+ "source": "https://modbus.wattsonic.com/",
+ "files_md5": {
+  "native.md": "b875fba9bf377eba39e4301e728e6896",
+  "sunspec.md": "46aab3e67ee6f8b0a402ffea3ccb3e47",
+  "llms.txt": "541f89007883f98accb29f44ea29de36",
+  "registers.v1130.json": "1f2ba96c1f2480694c31efb7286584e8",
+  "sunspec-models.v1130.json": "8eef2dd804776ba14e4522154eeeb01d",
+  "recipes.v1130.json": "aa02ca59ae101488b4eae8f9eb3165e9"
+ }
+}

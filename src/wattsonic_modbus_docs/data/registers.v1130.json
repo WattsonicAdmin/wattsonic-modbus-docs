@@ -1,0 +1,4041 @@
+{
+ "vendor": "Wattsonic",
+ "product_series": "MATIC",
+ "power_range": "10-25 kW",
+ "protocol": "Modbus TCP/IP",
+ "protocol_version": "v2.0.20",
+ "revision": "2026-10-23",
+ "firmware_applicability": "ARM >= M013V1130B01D05 (13021 >= 1130)",
+ "transport": {
+  "type": "Modbus TCP",
+  "port": 502,
+  "unit_id": 1
+ },
+ "function_codes": {
+  "read": "0x03 (FC03)",
+  "write_single": "0x06 (FC06)",
+  "write_multiple": "0x10 (FC16)",
+  "note": "Use 0x03 (Read Holding) for ALL registers. 0x04 (Read Input) is served ONLY for read-only registers; issued against a read/write register it returns a malformed response (MBAP Length = 0, no PDU). IMPORTANT: the control registers 11300-11303, 11320-11324, 11330 and 11442-11444 MUST be written with 0x06 single-register writes, NOT 0x10 block writes."
+ },
+ "scale_note": "engineering value = register_value × scale; signed types are two's-complement; RW bounds are raw register values",
+ "register_count": 178,
+ "source": "Wattsonic MATIC EMS Modbus TCP/IP Interface Specification v2.0.20",
+ "agent_layer": {
+  "description": "Register map of the website (Wattsonic_MATIC_Modbus_Registers.json, unchanged keys) with integration fields per register. A field is present only where the published documentation states it; absent means not specified.",
+  "fields": {
+   "applies_from_firmware": "ARM firmware from which the register applies as documented.",
+   "write_function": "Function codes accepted for writing; single_write_required = write with 0x06, one register per request.",
+   "effective_when": "Conditions under which a written value is used.",
+   "confirm_by": "Registers to read back to confirm the write is in force.",
+   "persistence": "retained = survives a restart; volatile = lost at restart; volatile_over_tcp = RAM-held when written over Modbus TCP port 502, stored when written over RS485; command = action register, not stored."
+  },
+  "supplementary_registers": "Registers documented in the page text but not listed in the register map file."
+ },
+ "registers": [
+  {
+   "address": 10000,
+   "address_label": "10000",
+   "name": "Inverter_Frequency",
+   "description": "Inverter Output Frequency",
+   "type": "S16",
+   "unit": "Hz",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10001,
+   "address_label": "10001",
+   "name": "Inverter_Voltage_A",
+   "description": "Phase A Inverter Voltage (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10002,
+   "address_label": "10002",
+   "name": "Inverter_Voltage_B",
+   "description": "Phase B Inverter Voltage (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10003,
+   "address_label": "10003",
+   "name": "Inverter_Voltage_C",
+   "description": "Phase C Inverter Voltage (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10004,
+   "address_label": "10004",
+   "name": "Inverter_Current_A",
+   "description": "Phase A Inverter Current (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10005,
+   "address_label": "10005",
+   "name": "Inverter_Current_B",
+   "description": "Phase B Inverter Current (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10006,
+   "address_label": "10006",
+   "name": "Inverter_Current_C",
+   "description": "Phase C Inverter Current (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10019,
+   "address_label": "10019",
+   "name": "Inverter_Active_Power_Total",
+   "description": "Total Active Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "+ output (discharge/export) / − input (charge)",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10020,
+   "address_label": "10020",
+   "name": "Inverter_Reactive_Power_Total",
+   "description": "Total Reactive Power",
+   "type": "S16",
+   "unit": "kVar",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10021,
+   "address_label": "10021",
+   "name": "Inverter_Apparent_Power_Total",
+   "description": "Total Apparent Power",
+   "type": "S16",
+   "unit": "kVA",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10009,
+   "address_label": "10009",
+   "name": "Inverter_Power_Factor",
+   "description": "Inverter Displacement Power Factor",
+   "type": "S16",
+   "unit": null,
+   "scale": 0.001,
+   "access": "RO",
+   "values": "−1.000 to +1.000. Use this value to confirm that reactive power control is in effect.",
+   "group": "AC Inverter Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10022,
+   "address_label": "10022",
+   "name": "Grid_Frequency",
+   "description": "Grid Frequency at PCC",
+   "type": "S16",
+   "unit": "Hz",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10023,
+   "address_label": "10023",
+   "name": "Grid_Voltage_A",
+   "description": "Phase A Grid Voltage (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10024,
+   "address_label": "10024",
+   "name": "Grid_Voltage_B",
+   "description": "Phase B Grid Voltage (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10025,
+   "address_label": "10025",
+   "name": "Grid_Voltage_C",
+   "description": "Phase C Grid Voltage (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10026,
+   "address_label": "10026",
+   "name": "Grid_Current_A",
+   "description": "Phase A Grid Current (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10027,
+   "address_label": "10027",
+   "name": "Grid_Current_B",
+   "description": "Phase B Grid Current (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10028,
+   "address_label": "10028",
+   "name": "Grid_Current_C",
+   "description": "Phase C Grid Current (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10041,
+   "address_label": "10041",
+   "name": "Grid_Active_Power_Total",
+   "description": "Total Grid Active Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "+export / -import",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10042,
+   "address_label": "10042",
+   "name": "Grid_Reactive_Power_Total",
+   "description": "Total Grid Reactive Power",
+   "type": "S16",
+   "unit": "kVar",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10043,
+   "address_label": "10043",
+   "name": "Grid_Apparent_Power_Total",
+   "description": "Total Grid Apparent Power",
+   "type": "S16",
+   "unit": "kVA",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "AC Grid Side",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10062,
+   "address_label": "10062",
+   "name": "Backup_Active_Power_Total",
+   "description": "Total Backup Active Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "Backup Load Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10063,
+   "address_label": "10063",
+   "name": "Backup_Reactive_Power_Total",
+   "description": "Total Backup Reactive Power",
+   "type": "S16",
+   "unit": "kVar",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "Backup Load Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10064,
+   "address_label": "10064",
+   "name": "Backup_Apparent_Power_Total",
+   "description": "Total Backup Apparent Power",
+   "type": "S16",
+   "unit": "kVA",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "Backup Load Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10074,
+   "address_label": "10074",
+   "name": "Ongrid_Active_Power_Total",
+   "description": "On-Grid Load Total Active Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "On-Grid Load Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10075,
+   "address_label": "10075",
+   "name": "Ongrid_Reactive_Power_Total",
+   "description": "On-Grid Load Total Reactive Power",
+   "type": "S16",
+   "unit": "kVar",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "On-Grid Load Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10076,
+   "address_label": "10076",
+   "name": "Ongrid_Apparent_Power_Total",
+   "description": "On-Grid Load Total Apparent Power",
+   "type": "S16",
+   "unit": "kVA",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "On-Grid Load Output",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10337,
+   "address_label": "10337",
+   "name": "Bat1_Voltage",
+   "description": "Battery Port 1 DC Bus Voltage",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery DC Power (Converter Level, 10337–10346)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10339,
+   "address_label": "10339",
+   "name": "Bat1_Current",
+   "description": "Battery Port 1 DC Bus Current",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "+discharge / −charge",
+   "group": "Battery DC Power (Converter Level, 10337–10346)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10340,
+   "address_label": "10340",
+   "name": "Bat1_Power",
+   "description": "Battery Port 1 DC Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "+discharge / −charge",
+   "group": "Battery DC Power (Converter Level, 10337–10346)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10346,
+   "address_label": "10346",
+   "name": "Bat_Power_Total",
+   "description": "Total Battery DC Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "+discharge / −charge. Use this for EMS battery power monitoring.",
+   "group": "Battery DC Power (Converter Level, 10337–10346)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10348,
+   "address_label": "10348",
+   "name": "PV1_Voltage",
+   "description": "MPPT 1 DC Input Voltage",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10349,
+   "address_label": "10349",
+   "name": "PV1_Current",
+   "description": "MPPT 1 DC Input Current",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10350,
+   "address_label": "10350",
+   "name": "PV1_Power",
+   "description": "MPPT 1 DC Input Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10352,
+   "address_label": "10352",
+   "name": "PV2_Voltage",
+   "description": "MPPT 2 DC Input Voltage",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10353,
+   "address_label": "10353",
+   "name": "PV2_Current",
+   "description": "MPPT 2 DC Input Current",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10354,
+   "address_label": "10354",
+   "name": "PV2_Power",
+   "description": "MPPT 2 DC Input Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10356,
+   "address_label": "10356",
+   "name": "PV3_Voltage",
+   "description": "MPPT 3 DC Input Voltage",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10357,
+   "address_label": "10357",
+   "name": "PV3_Current",
+   "description": "MPPT 3 DC Input Current",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10358,
+   "address_label": "10358",
+   "name": "PV3_Power",
+   "description": "MPPT 3 DC Input Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10360,
+   "address_label": "10360",
+   "name": "PV4_Voltage",
+   "description": "MPPT 4 DC Input Voltage",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10361,
+   "address_label": "10361",
+   "name": "PV4_Current",
+   "description": "MPPT 4 DC Input Current",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10362,
+   "address_label": "10362",
+   "name": "PV4_Power",
+   "description": "MPPT 4 DC Input Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10364,
+   "address_label": "10364",
+   "name": "PV5_Voltage",
+   "description": "MPPT 5 DC Input Voltage",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "Not available on all models",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10365,
+   "address_label": "10365",
+   "name": "PV5_Current",
+   "description": "MPPT 5 DC Input Current",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "Not available on all models",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10366,
+   "address_label": "10366",
+   "name": "PV5_Power",
+   "description": "MPPT 5 DC Input Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "Not available on all models",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10367,
+   "address_label": "10367",
+   "name": "PV_Total_Power",
+   "description": "Total PV DC Input Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "Primary EMS register for PV generation. Sum of all active MPPT trackers.",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10368,
+   "address_label": "10368",
+   "name": "DC_Bus_Voltage",
+   "description": "DC Bus Average Voltage",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "Internal DC bus voltage. Useful for system health monitoring.",
+   "group": "PV / DC Input",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10671,
+   "address_label": "10671",
+   "name": "BMS_Bat1_SOC",
+   "description": "Battery Port 1 State of Charge",
+   "type": "U16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "0–10000 (0–100.00 %). Use the value only when it lies in this range.",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10672,
+   "address_label": "10672",
+   "name": "BMS_Bat1_SOH",
+   "description": "Battery Port 1 State of Health",
+   "type": "U16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "0-10000 (0-100.00%)",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10674,
+   "address_label": "10674",
+   "name": "BMS_Bat1_Voltage",
+   "description": "Battery Port 1 DC Voltage",
+   "type": "U16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10675,
+   "address_label": "10675",
+   "name": "BMS_Bat1_Current",
+   "description": "Battery Port 1 DC Current",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "+discharge / -charge",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10676,
+   "address_label": "10676",
+   "name": "BMS_Bat1_Temperature",
+   "description": "Battery Port 1 Temperature",
+   "type": "S16",
+   "unit": "°C",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10677,
+   "address_label": "10677",
+   "name": "BMS_Bat1_Charge_Energy",
+   "description": "Battery Port 1 Total Charge Energy",
+   "type": "U32_BE",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers, high word first.",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10679,
+   "address_label": "10679",
+   "name": "BMS_Bat1_Discharge_Energy",
+   "description": "Battery Port 1 Total Discharge Energy",
+   "type": "U32_BE",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers, high word first.",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10685,
+   "address_label": "10685",
+   "name": "BMS_Bat1_Power",
+   "description": "Battery Port 1 Active Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "+discharge / -charge. Direct readout avoids V×I calculation errors.",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10686,
+   "address_label": "10686",
+   "name": "BMS_Bat1_Max_Charge_Power",
+   "description": "BMS Allowed Max Charge Power",
+   "type": "U16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "RO. Maximum charge power permitted by the BMS; may differ from the EMS setting depending on temperature and SOC.",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10687,
+   "address_label": "10687",
+   "name": "BMS_Bat1_Max_Discharge_Power",
+   "description": "BMS Allowed Max Discharge Power",
+   "type": "U16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "RO. Maximum discharge power permitted by the BMS; may be lower at low temperature or SOC.",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10688,
+   "address_label": "10688",
+   "name": "BMS_Bat1_Rated_Capacity",
+   "description": "Battery Port 1 Rated Capacity",
+   "type": "U16",
+   "unit": "kWh",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "RO. Total rated capacity, for example for dispatch planning.",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10689,
+   "address_label": "10689",
+   "name": "BMS_Bat1_Available_Energy",
+   "description": "Battery Port 1 Available Energy",
+   "type": "U16",
+   "unit": "kWh",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "RO. Remaining usable energy (SOC × usable capacity).",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10693,
+   "address_label": "10693",
+   "name": "BMS_Bat1_Alarm",
+   "description": "Battery Port 1 Alarm Code",
+   "type": "U32_BE",
+   "unit": null,
+   "scale": 1,
+   "access": "RO",
+   "values": "Bitmap, 2 registers, high word first.",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10752,
+   "address_label": "10752",
+   "name": "Meter_Voltage_A",
+   "description": "Meter Voltage Phase A (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10753,
+   "address_label": "10753",
+   "name": "Meter_Voltage_B",
+   "description": "Meter Voltage Phase B (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10754,
+   "address_label": "10754",
+   "name": "Meter_Voltage_C",
+   "description": "Meter Voltage Phase C (RMS)",
+   "type": "S16",
+   "unit": "V",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10758,
+   "address_label": "10758",
+   "name": "Meter_Current_A",
+   "description": "Meter Current Phase A (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10759,
+   "address_label": "10759",
+   "name": "Meter_Current_B",
+   "description": "Meter Current Phase B (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10760,
+   "address_label": "10760",
+   "name": "Meter_Current_C",
+   "description": "Meter Current Phase C (RMS)",
+   "type": "S16",
+   "unit": "A",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10765,
+   "address_label": "10765",
+   "name": "Meter_Active_Power_Total",
+   "description": "Meter Total Active Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "values": "+export / -import",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10769,
+   "address_label": "10769",
+   "name": "Meter_Reactive_Power_Total",
+   "description": "Meter Total Reactive Power",
+   "type": "S16",
+   "unit": "kVar",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10777,
+   "address_label": "10777",
+   "name": "Meter_Power_Factor_Total",
+   "description": "Meter Total Power Factor",
+   "type": "S16",
+   "unit": null,
+   "scale": 0.01,
+   "access": "RO",
+   "values": "-1.00 to 1.00",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10778,
+   "address_label": "10778",
+   "name": "Meter_Frequency",
+   "description": "Grid Frequency at PCC",
+   "type": "S16",
+   "unit": "Hz",
+   "scale": 0.01,
+   "access": "RO",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10781,
+   "address_label": "10781",
+   "name": "Meter_Energy_Import",
+   "description": "Total Import Energy",
+   "type": "U32_BE",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10783,
+   "address_label": "10783",
+   "name": "Meter_Energy_Export",
+   "description": "Total Export Energy",
+   "type": "U32_BE",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers",
+   "group": "Battery (Pack Level)",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10785,
+   "address_label": "10785",
+   "name": "PV_To_Grid_Energy_Today",
+   "description": "Daily PV-to-Grid Energy",
+   "type": "U16",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Energy Counters",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10786,
+   "address_label": "10786",
+   "name": "PV_To_Load_Energy_Today",
+   "description": "Daily PV-to-Load Energy",
+   "type": "S16",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "Signed 16-bit value; maximum 3276.7 kWh per day.",
+   "group": "Energy Counters",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10787,
+   "address_label": "10787",
+   "name": "Battery_To_Grid_Today",
+   "description": "Daily Battery-to-Grid Energy",
+   "type": "S16",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "Signed 16-bit value; maximum 3276.7 kWh per day.",
+   "group": "Energy Counters",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10788,
+   "address_label": "10788",
+   "name": "Battery_To_Load_Energy_Today",
+   "description": "Daily Battery-to-Load Energy",
+   "type": "U16",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "group": "Energy Counters",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10789,
+   "address_label": "10789",
+   "name": "PV_To_Grid_Energy_Total",
+   "description": "Total PV to Grid Energy",
+   "type": "U32_BE",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers",
+   "group": "Energy Counters",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10791,
+   "address_label": "10791",
+   "name": "PV_To_Load_Energy_Total",
+   "description": "Total PV to Load Energy",
+   "type": "U32_BE",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers",
+   "group": "Energy Counters",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10793,
+   "address_label": "10793",
+   "name": "Battery_To_Grid_Total",
+   "description": "Total Battery to Grid Energy",
+   "type": "U32_BE",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers",
+   "group": "Energy Counters",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 10795,
+   "address_label": "10795",
+   "name": "Battery_To_Load_Energy_Total",
+   "description": "Total Battery to Load Energy",
+   "type": "U32_BE",
+   "unit": "kWh",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers",
+   "group": "Energy Counters",
+   "category": "monitoring",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 11000,
+   "address_label": "11000",
+   "name": "RTC_Year_Set",
+   "description": "RTC Year",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 1990,
+   "max": 2099,
+   "group": "System Time",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   }
+  },
+  {
+   "address": 11001,
+   "address_label": "11001",
+   "name": "RTC_Month_Set",
+   "description": "RTC Month",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 1,
+   "max": 12,
+   "group": "System Time",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   }
+  },
+  {
+   "address": 11002,
+   "address_label": "11002",
+   "name": "RTC_Day_Set",
+   "description": "RTC Day",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 1,
+   "max": 31,
+   "group": "System Time",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   }
+  },
+  {
+   "address": 11003,
+   "address_label": "11003",
+   "name": "RTC_Hour_Set",
+   "description": "RTC Hour",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 23,
+   "group": "System Time",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   }
+  },
+  {
+   "address": 11004,
+   "address_label": "11004",
+   "name": "RTC_Minute_Set",
+   "description": "RTC Minute",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 59,
+   "group": "System Time",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   }
+  },
+  {
+   "address": 11005,
+   "address_label": "11005",
+   "name": "RTC_Second_Set",
+   "description": "RTC Second",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 59,
+   "group": "System Time",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   }
+  },
+  {
+   "address": 11006,
+   "address_label": "11006",
+   "name": "Time_Zone_Set",
+   "description": "Time Zone",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 1,
+   "min": 1,
+   "max": 650,
+   "values": "Lookup table: 1=UTC-12..., 13=UTC+0 (GMT), 14=UTC+1 (CET), 15=UTC+2 (EET)..., 25=UTC+12. Half-hour zones: 530=UTC+5:30 (IST), 545=UTC+5:45 (NPT). Important: set the correct time zone for TOU schedules.",
+   "group": "System Time",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11060,
+   "address_label": "11060",
+   "name": "EMS_Switch_Set",
+   "description": "External EMS Dispatch Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Enabled Must be set to 1 for EMS commands to take effect.",
+   "group": "EMS Control Enable",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Together with 12002 = 1 it opens EMS control; 14044 reads the combined state."
+   ],
+   "confirm_by": [
+    {
+     "address": 14044,
+     "expect": "1 once 12002 = 1 as well"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11045,
+   "address_label": "11045",
+   "name": "Active_Power_Set",
+   "description": "Active Power Setpoint (Total)",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 0,
+   "min": -2500,
+   "max": 2500,
+   "values": "Positive = discharge, negative = charge from grid. Values outside -2500..+2500 are accepted and clamped to +/-2500 (25.00 kW); requested and applied values are reported in the Setpoint Shadow (14250 / 14251). The inverter also limits the setpoint to its rated power: read 13034 after connecting. The setpoint is executed only while the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026). After a restart it reads 0: write the setpoint again once the EMS is back in control.",
+   "group": "Active Power Control",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Executed only while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive.",
+    "The inverter accepts EMS commands in PCS states 1 (Standby) and 8 (Running) (14002).",
+    "Clamped to -2500..+2500 (±25.00 kW) and to the rated power (13034)."
+   ],
+   "confirm_by": [
+    {
+     "address": 14250,
+     "expect": "requested raw value"
+    },
+    {
+     "address": 14251,
+     "expect": "applied (clamped) raw value"
+    },
+    {
+     "address": 14253,
+     "expect": "0 (1 = value was clamped)"
+    },
+    {
+     "address": 10019,
+     "expect": "inverter active power follows the setpoint"
+    },
+    {
+     "address": 10346,
+     "expect": "battery power (+discharge / -charge)"
+    }
+   ],
+   "persistence": {
+    "class": "volatile",
+    "note": "Not retained: reads 0 after a restart. Write the setpoint again once the EMS is back in control."
+   }
+  },
+  {
+   "address": 11151,
+   "address_label": "11151",
+   "name": "Run_Mode_Set",
+   "description": "Operating Mode",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 6,
+   "values": "0: General (Self-Consumption) 1: Grid Balancing 2: Eco (time schedule 11190–11249) 3: UPS / Backup Priority 4: TOU (Time-of-Use) 5: Forecast 6: Off-Grid Write only the values 0-6 listed above; 7-20 are reserved.",
+   "group": "Working Mode",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "confirm_by": [
+    {
+     "address": 11151,
+     "expect": "written value (0-6)"
+    },
+    {
+     "address": 14000,
+     "expect": "working mode"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11108,
+   "address_label": "11108",
+   "name": "Grid_tied_SOC_MIN",
+   "description": "On-Grid Minimum SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 1000,
+   "min": 0,
+   "max": 10000,
+   "values": "Do not discharge below this SOC",
+   "group": "SOC Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11109,
+   "address_label": "11109",
+   "name": "Grid_tied_SOC_MAX",
+   "description": "On-Grid Maximum SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 10000,
+   "min": 0,
+   "max": 10000,
+   "values": "Do not charge above this SOC",
+   "group": "SOC Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11110,
+   "address_label": "11110",
+   "name": "Off_grid_SOC_MIN",
+   "description": "Off-Grid Minimum SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 1000,
+   "min": 0,
+   "max": 10000,
+   "values": "Backup reserve SOC",
+   "group": "SOC Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11111,
+   "address_label": "11111",
+   "name": "Off_grid_SOC_MAX",
+   "description": "Off-Grid Maximum SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 10000,
+   "min": 0,
+   "max": 10000,
+   "group": "SOC Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11162,
+   "address_label": "11162",
+   "name": "Gen_Mode_Min_SOC_Set",
+   "description": "General Mode Min SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 1000,
+   "min": 0,
+   "max": 10000,
+   "values": "Not used for control. Set the SOC limits with 11108 / 11109 .",
+   "group": "SOC Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11163,
+   "address_label": "11163",
+   "name": "Gen_Mode_Max_SOC_Set",
+   "description": "General Mode Max SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 8000,
+   "min": 0,
+   "max": 10000,
+   "values": "Not used for control. Set the SOC limits with 11108 / 11109 .",
+   "group": "SOC Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11176,
+   "address_label": "11176",
+   "name": "Grid_Bal_Min_SOC_Set",
+   "description": "Grid Balancing Mode Min SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 1000,
+   "min": 0,
+   "max": 10000,
+   "values": "Not used for control. Set the SOC limits with 11108 / 11109 .",
+   "group": "SOC Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Applies when 11151 = 1 (Grid Balancing)."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11177,
+   "address_label": "11177",
+   "name": "Grid_Bal_Max_SOC_Set",
+   "description": "Grid Balancing Mode Max SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 10000,
+   "values": "Not used for control. Set the SOC limits with 11108 / 11109 .",
+   "group": "SOC Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Applies when 11151 = 1 (Grid Balancing)."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11106,
+   "address_label": "11106",
+   "name": "Import_Limits_Switch",
+   "description": "Import Power Limit Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Enabled",
+   "group": "Grid Export / Import Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11107,
+   "address_label": "11107",
+   "name": "Export_Limits_Switch",
+   "description": "Export Power Limit Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Enabled",
+   "group": "Grid Export / Import Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11112,
+   "address_label": "11112",
+   "name": "Import_Limits",
+   "description": "Max Import Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 5000,
+   "values": "Range: Maximum 2500 (25 kW). Read 13034 (Inverter_Rated_Power) and limit the value accordingly.",
+   "group": "Grid Export / Import Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11113,
+   "address_label": "11113",
+   "name": "Export_Limits",
+   "description": "Max Export Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 2500,
+   "values": "Set to 0 for zero-export. Range: Maximum 2500 (25 kW). Read 13034 (Inverter_Rated_Power) and limit the value accordingly.",
+   "group": "Grid Export / Import Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Requires 11107 = 1. Holds in every operating mode."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11164,
+   "address_label": "11164",
+   "name": "Gen_Mode_Max_Buy_Power",
+   "description": "General Mode Maximum Import Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 5000,
+   "values": "Not used for control. Set import and export limits with 11106 / 11112 and 11107 / 11113 .",
+   "group": "Grid Export / Import Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11165,
+   "address_label": "11165",
+   "name": "Gen_Mode_Max_Sell_Power",
+   "description": "General Mode Maximum Export Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 5000,
+   "values": "Not used for control. Set import and export limits with 11106 / 11112 and 11107 / 11113 .",
+   "group": "Grid Export / Import Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11178,
+   "address_label": "11178",
+   "name": "Grid_Bal_Max_Buy_Power_Set",
+   "description": "Grid Balancing Mode Max Import",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 5000,
+   "values": "Not used for control. Set import and export limits with 11106 / 11112 and 11107 / 11113 .",
+   "group": "Grid Export / Import Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Applies when 11151 = 1 (Grid Balancing)."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11179,
+   "address_label": "11179",
+   "name": "Grid_Bal_Max_Sell_Power_Set",
+   "description": "Grid Balancing Mode Max Export",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 5000,
+   "values": "Not used for control. Set import and export limits with 11106 / 11112 and 11107 / 11113 .",
+   "group": "Grid Export / Import Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Applies when 11151 = 1 (Grid Balancing)."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11057,
+   "address_label": "11057",
+   "name": "Bat_1_Enable",
+   "description": "Battery Port 1 Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 1,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Enabled",
+   "group": "Battery Power Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11068,
+   "address_label": "11068",
+   "name": "Bat1_Max_Chg_Power",
+   "description": "Battery Port 1 Max Charge Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 3200,
+   "values": "Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "group": "Battery Power Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "volatile_over_tcp",
+    "note": "A value written over Modbus TCP port 502 (Ethernet or Wi-Fi) is held in RAM: after a restart the register returns to the last value stored from another interface. Write it again after every restart. A value written over RS485 is stored."
+   }
+  },
+  {
+   "address": 11069,
+   "address_label": "11069",
+   "name": "Bat1_Max_Dchg_Power",
+   "description": "Battery Port 1 Max Discharge Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 2500,
+   "min": 0,
+   "max": 3200,
+   "values": "Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "group": "Battery Power Limits",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "volatile_over_tcp",
+    "note": "A value written over Modbus TCP port 502 (Ethernet or Wi-Fi) is held in RAM: after a restart the register returns to the last value stored from another interface. Write it again after every restart. A value written over RS485 is stored."
+   }
+  },
+  {
+   "address": 11190,
+   "address_label": "11190",
+   "name": "Eco_Start1_Set",
+   "description": "Eco Period 1 Start Time",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11190,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11191,
+   "address_label": "11191",
+   "name": "Eco_End1_Set",
+   "description": "Eco Period 1 End Time",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11191,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11192,
+   "address_label": "11192",
+   "name": "Eco_Peak_Sel1_Set",
+   "description": "Eco Period 1 Type",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 2,
+   "values": "0: Discharge 1: Charge 2: Self-consumption",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11192,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11193,
+   "address_label": "11193–11195",
+   "address_end": 11195,
+   "name": "Eco_Period2",
+   "description": "Eco Period 2 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "values": "Same structure as Period 1",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11193,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11196,
+   "address_label": "11196–11198",
+   "address_end": 11198,
+   "name": "Eco_Period3",
+   "description": "Eco Period 3 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11196,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11199,
+   "address_label": "11199–11201",
+   "address_end": 11201,
+   "name": "Eco_Period4",
+   "description": "Eco Period 4 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11199,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11202,
+   "address_label": "11202–11204",
+   "address_end": 11204,
+   "name": "Eco_Period5",
+   "description": "Eco Period 5 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11202,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11205,
+   "address_label": "11205–11207",
+   "address_end": 11207,
+   "name": "Eco_Period6",
+   "description": "Eco Period 6 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11205,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11208,
+   "address_label": "11208–11210",
+   "address_end": 11210,
+   "name": "Eco_Period7",
+   "description": "Eco Period 7 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11208,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11211,
+   "address_label": "11211–11213",
+   "address_end": 11213,
+   "name": "Eco_Period8",
+   "description": "Eco Period 8 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11211,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11214,
+   "address_label": "11214–11216",
+   "address_end": 11216,
+   "name": "Eco_Period9",
+   "description": "Eco Period 9 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11214,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11217,
+   "address_label": "11217–11219",
+   "address_end": 11219,
+   "name": "Eco_Period10",
+   "description": "Eco Period 10 (Start/End/Type)",
+   "type": "S16",
+   "unit": "min",
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1440,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2); a period applies while start <= time < end (minutes from midnight, local inverter time); not while the Eco SOC band (11262/11263) is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11217,
+     "expect": "read the period registers back from 11190 onward"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11262,
+   "address_label": "11262",
+   "name": "Eco_Min_SOC_Set",
+   "description": "Eco Mode Minimum SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 10000,
+   "values": "Eco SOC band (with 11263). Active in Eco mode when 11263 - 11262 > 400 (4.00 %) with a BMS-connected battery; it then takes precedence over the Eco periods: self-consumption, charging below 11262 (from the grid when 11266 = 1, at up to 11268), with 11264 / 11265 capping grid import / export. Held in RAM: write again after every restart.",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Eco mode (11151 = 2) with a BMS-connected battery: the band acts when 11263 - 11262 > 400 (4.00 %) and then takes precedence over the Eco periods."
+   ],
+   "persistence": {
+    "class": "volatile",
+    "note": "Held in RAM: reads 0 after a restart; write it again after every restart if you use the Eco SOC band."
+   }
+  },
+  {
+   "address": 11263,
+   "address_label": "11263",
+   "name": "Eco_Max_SOC_Set",
+   "description": "Eco Mode Maximum SOC",
+   "type": "S16",
+   "unit": "%",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 10000,
+   "values": "Upper limit of the Eco SOC band (see 11262). Held in RAM: write again after every restart.",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Upper limit of the Eco SOC band (see 11262)."
+   ],
+   "persistence": {
+    "class": "volatile",
+    "note": "Held in RAM: reads 0 after a restart; write it again after every restart if you use the Eco SOC band."
+   }
+  },
+  {
+   "address": 11264,
+   "address_label": "11264",
+   "name": "Eco_Max_Buy_Power_Set",
+   "description": "Eco Mode Maximum Grid Import Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 6000,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "volatile",
+    "note": "Held in RAM: reads 0 after a restart; write it again after every restart if you use the Eco SOC band."
+   }
+  },
+  {
+   "address": 11265,
+   "address_label": "11265",
+   "name": "Eco_Max_Sell_Power_Set",
+   "description": "Eco Mode Maximum Grid Export Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 6000,
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "volatile",
+    "note": "Held in RAM: reads 0 after a restart; write it again after every restart if you use the Eco SOC band."
+   }
+  },
+  {
+   "address": 11266,
+   "address_label": "11266",
+   "name": "Eco_Grid_Charge_Set",
+   "description": "Eco Mode Allow Grid Charging",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Allow grid to charge battery during Eco mode.",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "volatile",
+    "note": "Held in RAM: reads 0 after a restart; write it again after every restart if you use the Eco SOC band."
+   }
+  },
+  {
+   "address": 11267,
+   "address_label": "11267",
+   "name": "Eco_Batto_Grid_Set",
+   "description": "Eco Mode Allow Battery to Grid",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Allow battery discharge to grid during Eco mode.",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "volatile",
+    "note": "Held in RAM: reads 0 after a restart; write it again after every restart if you use the Eco SOC band."
+   }
+  },
+  {
+   "address": 11268,
+   "address_label": "11268",
+   "name": "Eco_Max_Chg_Set",
+   "description": "Eco Mode Max Grid Charge Power",
+   "type": "S16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 6000,
+   "values": "Maximum battery charging power from the grid when Eco_Grid_Charge_Set = 1.",
+   "group": "Eco Schedule (Economic Mode, 11190–11249)",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Used when 11266 = 1."
+   ],
+   "persistence": {
+    "class": "volatile",
+    "note": "Held in RAM: reads 0 after a restart; write it again after every restart if you use the Eco SOC band."
+   }
+  },
+  {
+   "address": 11137,
+   "address_label": "11137",
+   "name": "Backup_Switch",
+   "description": "Backup Output Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 1,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Enabled",
+   "group": "Backup / Off-Grid",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11041,
+   "address_label": "11041",
+   "name": "On_Off_Grid_Switch_Enable",
+   "description": "Planned Off-Grid Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 1,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Enabled",
+   "group": "Backup / Off-Grid",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11300,
+   "address_label": "11300",
+   "name": "Reactive_Power_Mode",
+   "description": "Reactive Power Control Mode",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 1,
+   "min": 0,
+   "max": 4,
+   "values": "0: Off 1: Fixed reactive power Q (setpoint 11302) 2: Fixed power factor (setpoint 11301) 3: Q(U) curve 4: Cosφ(P) curve Factory default 1 with 11302 = 0 (no reactive power). These values are used while the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026); otherwise the grid-code settings apply. Set the mode first, then the setpoint, with FC06 single-register writes; an FC16 block write to 11300–11303 does not set these values. Reactive power flows only while the inverter is exchanging active power. Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "group": "Reactive Power Control",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Used while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive; otherwise the grid-code settings apply.",
+    "Reactive power flows only while the inverter is exchanging active power."
+   ],
+   "confirm_by": [
+    {
+     "address": 11300,
+     "expect": "written mode"
+    }
+   ],
+   "persistence": {
+    "class": "volatile_over_tcp",
+    "note": "A value written over Modbus TCP port 502 (Ethernet or Wi-Fi) is held in RAM: after a restart the register returns to the last value stored from another interface. Write it again after every restart. A value written over RS485 is stored."
+   }
+  },
+  {
+   "address": 11301,
+   "address_label": "11301",
+   "name": "Reactive_Power_PF_Set",
+   "description": "Power Factor Setpoint",
+   "type": "S16",
+   "unit": null,
+   "scale": 0.001,
+   "access": "RW",
+   "default": 0,
+   "min": -1000,
+   "max": 1000,
+   "values": "−1.000 to +1.000 (mode 2). The value is stored with a resolution of 0.01; the last digit reads back as 0 (for example, 994 reads back as 990). Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "group": "Reactive Power Control",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Used in reactive-power mode 2 (11300 = 2) while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive."
+   ],
+   "confirm_by": [
+    {
+     "address": 11301,
+     "expect": "value rounded to 0.01 (994 reads back 990)"
+    }
+   ],
+   "persistence": {
+    "class": "volatile_over_tcp",
+    "note": "A value written over Modbus TCP port 502 (Ethernet or Wi-Fi) is held in RAM: after a restart the register returns to the last value stored from another interface. Write it again after every restart. A value written over RS485 is stored."
+   }
+  },
+  {
+   "address": 11302,
+   "address_label": "11302",
+   "name": "Reactive_Power_Q_Set",
+   "description": "Reactive Power Setpoint",
+   "type": "S16",
+   "unit": "kVar",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 0,
+   "min": -2500,
+   "max": 2500,
+   "values": "+leading/-lagging (mode 1) Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "group": "Reactive Power Control",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Used in reactive-power mode 1 (11300 = 1) while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive."
+   ],
+   "confirm_by": [
+    {
+     "address": 11302,
+     "expect": "written value"
+    }
+   ],
+   "persistence": {
+    "class": "volatile_over_tcp",
+    "note": "A value written over Modbus TCP port 502 (Ethernet or Wi-Fi) is held in RAM: after a restart the register returns to the last value stored from another interface. Write it again after every restart. A value written over RS485 is stored."
+   }
+  },
+  {
+   "address": 11303,
+   "address_label": "11303",
+   "name": "Reactive_Power_Q_Max",
+   "description": "Max Reactive Power",
+   "type": "S16",
+   "unit": "kVar",
+   "scale": 0.01,
+   "access": "RW",
+   "default": 10000,
+   "min": 0,
+   "max": 10000,
+   "values": "Upper limit for the reactive-power command. Used while the EMS is in control. Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "group": "Reactive Power Control",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Used while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive."
+   ],
+   "persistence": {
+    "class": "volatile_over_tcp",
+    "note": "A value written over Modbus TCP port 502 (Ethernet or Wi-Fi) is held in RAM: after a restart the register returns to the last value stored from another interface. Write it again after every restart. A value written over RS485 is stored."
+   }
+  },
+  {
+   "address": 11320,
+   "address_label": "11320",
+   "name": "Active_Power_Limit_Pct_Enable",
+   "description": "Active Power Limit (%) Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: No percentage limit (100 %) 1: Apply Active_Power_Limit_Pct (11321) to EMS dispatch Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "group": "Active Power Limit Percentage",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Applied only during EMS dispatch (mode 20): the EMS is in control and has written 11045, or a SunSpec forced charge/discharge command is active."
+   ],
+   "confirm_by": [
+    {
+     "address": 11320,
+     "expect": "written value"
+    }
+   ],
+   "persistence": {
+    "class": "volatile_over_tcp",
+    "note": "A value written over Modbus TCP port 502 (Ethernet or Wi-Fi) is held in RAM: after a restart the register returns to the last value stored from another interface. Write it again after every restart. A value written over RS485 is stored."
+   }
+  },
+  {
+   "address": 11321,
+   "address_label": "11321",
+   "name": "Active_Power_Limit_Pct",
+   "description": "Active Power Limit as % of Pn",
+   "type": "U16",
+   "unit": "%",
+   "scale": 0.1,
+   "access": "RW",
+   "default": 1000,
+   "min": 0,
+   "max": 1000,
+   "values": "0-100.0 % of rated power (700 = 70.0 %). Applied while the inverter runs EMS dispatch: the EMS is in control (11700 = 1, 11060 = 1, 12002 = 1, heartbeat on 12026) and has written Active_Power_Set (11045). With 11320 = 1 the discharge (positive) setpoint is then capped at this percentage of rated power; 11320 = 0 means 100 %. For a feed-in cap that holds in every operating mode, use Export_Limits (11113, enable 11107). Over TCP port 502 (Ethernet or Wi-Fi) a write changes the working value only: after a restart the register returns to its last stored value. Write it again after every restart.",
+   "group": "Active Power Limit Percentage",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Applied only during EMS dispatch (mode 20): the EMS is in control and has written 11045, or a SunSpec forced charge/discharge command is active.",
+    "With 11320 = 1 it caps the discharge (positive) setpoint at this percentage of the rated power; 11320 = 0 means 100 %.",
+    "For a feed-in cap that holds in every operating mode use 11113 with 11107 = 1."
+   ],
+   "confirm_by": [
+    {
+     "address": 11321,
+     "expect": "written value (0.1 %)"
+    },
+    {
+     "address": 17290,
+     "expect": "4 = limit applied under EMS control, 3 = requested but not applied"
+    },
+    {
+     "address": 17358,
+     "expect": "2 = under EMS control"
+    }
+   ],
+   "persistence": {
+    "class": "volatile_over_tcp",
+    "note": "A value written over Modbus TCP port 502 (Ethernet or Wi-Fi) is held in RAM: after a restart the register returns to the last value stored from another interface. Write it again after every restart. A value written over RS485 is stored."
+   }
+  },
+  {
+   "address": 11322,
+   "address_label": "11322",
+   "name": "Power_Ramp_Rate_Up",
+   "description": "Power Increase Ramp Rate",
+   "type": "U16",
+   "unit": "%Pn/s",
+   "scale": 0.1,
+   "access": "RW",
+   "default": 10,
+   "min": 1,
+   "max": 1000,
+   "values": "Rate of active power increase. 100 = 10.0 %Pn/s. Used while the EMS is in control; otherwise the grid-code ramp settings apply.",
+   "group": "Power Ramp Rate / Gradient",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Used while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive; otherwise the grid-code ramp settings apply."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11323,
+   "address_label": "11323",
+   "name": "Power_Ramp_Rate_Down",
+   "description": "Power Decrease Ramp Rate",
+   "type": "U16",
+   "unit": "%Pn/s",
+   "scale": 0.1,
+   "access": "RW",
+   "default": 40,
+   "min": 1,
+   "max": 1000,
+   "values": "Rate of active power decrease. Used while the EMS is in control; otherwise the grid-code ramp settings apply.",
+   "group": "Power Ramp Rate / Gradient",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Used while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive; otherwise the grid-code ramp settings apply."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11324,
+   "address_label": "11324",
+   "name": "Reconnect_Ramp_Rate",
+   "description": "Post-Reconnection Ramp Rate",
+   "type": "U16",
+   "unit": "%Pn/min",
+   "scale": 0.1,
+   "access": "RW",
+   "default": 10,
+   "min": 10,
+   "max": 1000,
+   "values": "Ramp rate after grid reconnection. Used while the EMS is in control; otherwise the grid-code setting applies.",
+   "group": "Power Ramp Rate / Gradient",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Used while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive; otherwise the grid-code setting applies."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11330,
+   "address_label": "11330",
+   "name": "Freq_Watt_Enable",
+   "description": "Frequency-Watt Response Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 1,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Enabled (default). Used while the EMS is in control; otherwise the grid-code P(f) setting applies.",
+   "group": "Frequency-Watt P(f) Response",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "effective_when": [
+    "Used while the EMS is in control: 11700 = 1, 11060 = 1, 12002 = 1 and the heartbeat on 12026 is kept alive; otherwise the grid-code P(f) setting applies."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11700,
+   "address_label": "11700",
+   "name": "Comms_Watchdog_Enable",
+   "description": "Watchdog Enable",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: Disabled 1: Enabled Enables the fail-safe action on loss of communication.",
+   "group": "Communications Watchdog Configuration",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "confirm_by": [
+    {
+     "address": 14031,
+     "expect": "1 (normal) while heartbeats arrive"
+    }
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11701,
+   "address_label": "11701",
+   "name": "Comms_Watchdog_Timeout",
+   "description": "Watchdog Timeout",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 60,
+   "min": 10,
+   "max": 600,
+   "values": "Time without a heartbeat before the fail-safe action is executed (s).",
+   "group": "Communications Watchdog Configuration",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11702,
+   "address_label": "11702",
+   "name": "Comms_Timeout_Action",
+   "description": "Timeout Action",
+   "type": "S16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 0,
+   "min": 0,
+   "max": 3,
+   "values": "0: Stop inverter : holds PowerOn_Switch (12000) at 0. After the recovery set in 11704, write 12000 = 1 to restart. | 1: Self-consumption : the inverter operates in General mode; the stored values of 11151, 11107 and 11113 are not changed. | 2: Hold last state : no degradation, EMS setpoints retained. | 3: Zero-export : export is limited to 0 kW (stored settings are not changed). The inverter stays connected to the grid and remains in operation; this is export curtailment, not a shutdown.",
+   "group": "Communications Watchdog Configuration",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Applied when the watchdog trips (14031 = 3)."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11703,
+   "address_label": "11703",
+   "name": "Comms_Watchdog_Prewarn_Sec",
+   "description": "Pre-Warning Time",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 20,
+   "min": 5,
+   "max": 300,
+   "values": "Pre-warning time in seconds. When 11701 − 14041 ≤ 11703 (the heartbeat is overdue), 14031 Comms_Watchdog_Status changes to 2 (PREWARN) and bit 0 of 14106 is set; the next heartbeat returns it to 1. Must be smaller than 11701 , otherwise the write is answered with exception 0x03.",
+   "group": "Communications Watchdog Configuration",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Must be lower than 11701; a larger value is answered with exception 0x03."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 11704,
+   "address_label": "11704",
+   "name": "Comms_Watchdog_Resume_Mode",
+   "description": "Recovery Behavior",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RW",
+   "default": 1,
+   "min": 0,
+   "max": 2,
+   "values": "0 LATCH: after a timeout the 11702 action stays in force, also across a restart, even when heartbeats resume, until it is cleared as described below. 1 AUTO-RESUME (default): the first heartbeat received in SAFE_STATE returns the watchdog to NORMAL. 2 MANUAL_CONFIRM: with the heartbeat running every 1–5 s, write 12001 = 1; the next heartbeat returns the watchdog to NORMAL. Write 11704 only while the watchdog is disabled ( 11700 = 0, or 14044 = 0) and no LATCH is stored, that is before 11700 = 1; otherwise the write is answered with exception 0x03. Recovery needs 14044 = 1 ( 11060 = 1 and 12002 = 1). 0 LATCH: set 11700 = 0, wait ≥ 2 s, write the heartbeat 12026 and within 5 s Malfunction_Clear (12001) = 1, wait ≥ 2 s, then set 11700 = 1. The latch is stored in non-volatile memory and survives a power cycle; writing 12001 while 11700 = 1 does not clear it. If 11702 = 0 (stop), also write 12000 = 1 to restart the inverter.",
+   "group": "Communications Watchdog Configuration",
+   "category": "settings",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "effective_when": [
+    "Write it while the watchdog is disabled (14031 = 0) and not latched: while the watchdog runs (14031 = 1, 2 or 3, except the start-up SAFE_STATE with 14042 = 6) or is latched, a write to 11704 is answered with exception 0x03."
+   ],
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   }
+  },
+  {
+   "address": 12000,
+   "address_label": "12000",
+   "name": "PowerOn_Switch",
+   "description": "Power On / Off",
+   "type": "S16",
+   "access": "WO",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: Power Off 1: Power On",
+   "group": null,
+   "category": "commands",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Control command: send it with function code 0x06."
+   },
+   "persistence": {
+    "class": "command",
+    "note": "Command register: the value is not retained after execution."
+   }
+  },
+  {
+   "address": 12001,
+   "address_label": "12001",
+   "name": "Malfunction_Clear",
+   "description": "Fault Clear",
+   "type": "S16",
+   "access": "WO",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: No action 1: Clear faults",
+   "group": null,
+   "category": "commands",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Control command: send it with function code 0x06."
+   },
+   "effective_when": [
+    "Clears faults, clears an emergency stop (12021) and confirms watchdog recovery in modes MANUAL_CONFIRM and LATCH (see 11704)."
+   ],
+   "persistence": {
+    "class": "command",
+    "note": "Command register: the value is not retained after execution."
+   }
+  },
+  {
+   "address": 12002,
+   "address_label": "12002",
+   "name": "Remote_Mode",
+   "description": "Remote Control Mode",
+   "type": "S16",
+   "access": "WO",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "0: Local 1: Remote Set to 1 for EMS control",
+   "group": null,
+   "category": "commands",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Control command: send it with function code 0x06."
+   },
+   "effective_when": [
+    "Together with 11060 = 1 it opens EMS control; 14044 reads the combined state."
+   ],
+   "confirm_by": [
+    {
+     "address": 14044,
+     "expect": "1 once 11060 = 1 as well"
+    }
+   ],
+   "persistence": {
+    "class": "volatile",
+    "note": "Reads 0 after every restart: write 12002 = 1 again after reconnecting."
+   }
+  },
+  {
+   "address": 12021,
+   "address_label": "12021",
+   "name": "Emergency_Stop",
+   "description": "Emergency Stop",
+   "type": "S16",
+   "access": "WO",
+   "default": 0,
+   "min": 0,
+   "max": 1,
+   "values": "1: Stop all power conversion immediately. Writing 12021 = 1 latches the inverter in the safe state. Safety-critical. Latches until cleared via 12001 Malfunction_Clear =1; then write 12000 = 1 to restart. No unlock is required.",
+   "group": "Emergency Stop",
+   "category": "commands",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Control command: send it with function code 0x06."
+   },
+   "effective_when": [
+    "No unlock is required. Latches until 12001 = 1."
+   ],
+   "confirm_by": [
+    {
+     "address": 14002,
+     "expect": "1 (Standby)"
+    }
+   ],
+   "persistence": {
+    "class": "command",
+    "note": "Command register: the value is not retained after execution."
+   }
+  },
+  {
+   "address": 12026,
+   "address_label": "12026",
+   "name": "Comms_Heartbeat",
+   "description": "Heartbeat",
+   "type": "U16",
+   "access": "WO",
+   "default": 0,
+   "min": 0,
+   "max": 65535,
+   "values": "Heartbeat: write any value except 0x5A5A every 1–5 s. Each write restarts the watchdog time (14041 = 0). 0x5A5A trips the watchdog on purpose (14042 = 2).",
+   "group": "Communications Watchdog",
+   "category": "commands",
+   "applies_from_firmware": "M013V1130B01D05",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Control command: send it with function code 0x06."
+   },
+   "effective_when": [
+    "Any value resets the watchdog age (14041) except 0x5A5A, which trips the watchdog on purpose (14042 = 2)."
+   ],
+   "confirm_by": [
+    {
+     "address": 14041,
+     "expect": "0 right after the write (seconds since last heartbeat)"
+    },
+    {
+     "address": 14031,
+     "expect": "1 (normal)"
+    }
+   ],
+   "persistence": {
+    "class": "command",
+    "note": "Command register: the value is not retained after execution."
+   }
+  },
+  {
+   "address": 13000,
+   "address_label": "13000",
+   "name": "Device_SN",
+   "description": "Device Serial Number",
+   "type": "ASCII32",
+   "unit": null,
+   "scale": 1,
+   "access": "RO",
+   "values": "16 registers (32 bytes)",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13016,
+   "address_label": "13016",
+   "name": "Device_Info",
+   "description": "Device Model Code (MATIC variant)",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RO",
+   "values": "MATIC units report 10-14: 10 = 10 kW, 11 = 12 kW, 12 = 15 kW, 13 = 20 kW, 14 = 25 kW (see Model Code Reference; the rated power is also in 13034). Any other value means the device is not a MATIC inverter covered by this document.",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13017,
+   "address_label": "13017",
+   "name": "DSP_AC_App_Version",
+   "description": "AC DSP Firmware Version",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RO",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13019,
+   "address_label": "13019",
+   "name": "DC_App_V_Ver",
+   "description": "DC DSP Firmware Version",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RO",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13021,
+   "address_label": "13021",
+   "name": "ARM_App_V_Ver",
+   "description": "ARM Firmware Version",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RO",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13025,
+   "address_label": "13025",
+   "name": "WIFI_App_Ver",
+   "description": "Wi-Fi Module Firmware Version",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RO",
+   "values": "Use for communication diagnostics and firmware inventory.",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13029,
+   "address_label": "13029",
+   "name": "Hardware_Ver",
+   "description": "Hardware Version",
+   "type": "U16",
+   "unit": null,
+   "scale": 1,
+   "access": "RO",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13034,
+   "address_label": "13034",
+   "name": "Inverter_Rated_Power",
+   "description": "Rated Power",
+   "type": "U16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13035,
+   "address_label": "13035",
+   "name": "Inverter_Max_Power",
+   "description": "Maximum Output Power",
+   "type": "U16",
+   "unit": "kW",
+   "scale": 0.01,
+   "access": "RO",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 13120,
+   "address_label": "13120",
+   "name": "Inverter_Total_Working_Time",
+   "description": "Total Working Time",
+   "type": "U32_BE",
+   "unit": "h",
+   "scale": 0.1,
+   "access": "RO",
+   "values": "2 registers",
+   "group": null,
+   "category": "deviceinfo",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14000,
+   "address_label": "14000",
+   "name": "PCS_Working_Mode",
+   "description": "PCS Working Mode",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: General 1: Grid Balancing 2: Economic 3: UPS 4: TOU 5: Forecast 6: Off-Grid",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14001,
+   "address_label": "14001",
+   "name": "TOU_Submode",
+   "description": "TOU Sub-Mode",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: Self-Use 1: Charge 2: Discharge 3: Peak Shaving 4: Battery Off",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14002,
+   "address_label": "14002",
+   "name": "PCS_Working_Status",
+   "description": "PCS Running Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: Self-checking 1: Standby 2: Pre-charging 3: Grid-synchronizing 4: Waiting 5: Initializing 6: Starting 7: Connecting 8: Running EMS commands are accepted only in states 1 (Standby) and 8 (Running).",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14003,
+   "address_label": "14003",
+   "name": "Battery1_Working_Status",
+   "description": "Battery Port 1 Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: Stop 1: Charging 2: Discharging 3: Not Connected 4: Abnormal",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14005,
+   "address_label": "14005",
+   "name": "PV1_Working_Status",
+   "description": "PV1 Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: Stop 1: Running 2: Not Connected 3: Abnormal 4: No Interface",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14006,
+   "address_label": "14006",
+   "name": "PV2_Working_Status",
+   "description": "PV2 Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "Same as PV1",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14007,
+   "address_label": "14007",
+   "name": "PV3_Working_Status",
+   "description": "PV3 Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "Same as PV1",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14008,
+   "address_label": "14008",
+   "name": "PV4_Working_Status",
+   "description": "PV4 Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "Same as PV1",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14009,
+   "address_label": "14009",
+   "name": "PV5_Working_Status",
+   "description": "PV5 Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "Same as PV1",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14010,
+   "address_label": "14010",
+   "name": "Grid_Working_Status",
+   "description": "Grid Connection Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: On-Grid 1: Off-Grid (Islanded)",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14027,
+   "address_label": "14027",
+   "name": "AC_Power_On_Off_Status",
+   "description": "AC Side On/Off Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: Off 1: On",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14028,
+   "address_label": "14028",
+   "name": "DC_Power_On_Off_Status",
+   "description": "DC Side On/Off Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: Off 1: On",
+   "group": null,
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14031,
+   "address_label": "14031",
+   "name": "Comms_Watchdog_Status",
+   "description": "Watchdog State",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: Disabled ( 11700 = 0 or 14044 = 0) | 1: Normal (heartbeat OK) | 2: Pre-warning: the heartbeat is overdue ( 11701 − 14041 ≤ 11703 ); write 12026 at once | 3: SAFE_STATE: the 11702 action is applied; recover as set in 11704 (cause in 14042 )",
+   "group": "Communications Watchdog Status",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14041,
+   "address_label": "14041",
+   "name": "Comms_Watchdog_Age_Sec",
+   "description": "Seconds Since Last Heartbeat",
+   "type": "U16",
+   "access": "RO",
+   "values": "Seconds since the last heartbeat write to 12026 (0 after each heartbeat, maximum 65535). Time left before the timeout = 11701 − 14041 ; the pre-warning ( 14031 = 2) starts when this is 11703 or less.",
+   "group": "Communications Watchdog Status",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14042,
+   "address_label": "14042",
+   "name": "Comms_Watchdog_Trip_Reason",
+   "description": "Reason for the last watchdog trip (held until the watchdog is enabled again)",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: Never-tripped | 1: Heartbeat timeout (age > 11701 Timeout) | 2: Manual trigger (write 12026=0x5A5A) | 3: reserved | 4: EMS control closed while the watchdog is enabled (11060 != 1 or 12002 != 1) | 5: SAFE_STATE held/restored from the EEPROM latch (not 'reserved'). | 6: restart while the EMS was in control : the unit started in SAFE_STATE and waits for the EMS's first write. Important: read this register promptly. when 11704 Resume_Mode = LATCH, the true trip reason (1-4) is readable for about 1 second after the trip; the value then changes to 5. Poll 14031 and read 14042 as soon as 14031 changes to 3. While the latch is set, the inverter also sets 11704 to LATCH ; a different Resume_Mode written while the latch is set is replaced by LATCH. To clear the latch (with 14044 = 1): 11700 = 0 → wait ≥ 2 s → heartbeat 12026 and within 5 s 12001 = 1 → wait ≥ 2 s → 11700 = 1.",
+   "group": "Communications Watchdog Status",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14030,
+   "address_label": "14030",
+   "name": "EMS_Channel_Canary",
+   "description": "Constant 0x1018 on EMS channels: use it to verify that you are reading the EMS register view",
+   "type": "U16",
+   "access": "RO",
+   "values": "Reads 0x1018 (4120) only on EMS-native channels (Modbus TCP 502, Wi-Fi 502, RS-485 RTU). This document describes the EMS-channel view; cloud channels see a different view for some addresses (e.g. 10009, 10685–10689). If this register does not read 0x1018, you are not connected to an EMS channel and the register definitions in this document do not apply.",
+   "group": "Communications Watchdog Status",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14044,
+   "address_label": "14044",
+   "name": "EMS_Control_Active",
+   "description": "EMS Control Active Status",
+   "type": "U16",
+   "access": "RO",
+   "values": "0: EMS disabled (local control) 1: EMS active (remote control) Combined state of EMS_Switch_Set (11060) and Remote_Mode (12002).",
+   "group": "EMS Control & Mode Readback",
+   "category": "status",
+   "applies_from_firmware": "M013V1130B01D05"
+  }
+ ],
+ "supplementary_registers": [
+  {
+   "address": 11254,
+   "name": "TOU_Day_Of_Week_Mask",
+   "access": "RW",
+   "type": "U16",
+   "min": 0,
+   "max": 127,
+   "description": "Weekdays of the Eco schedule: bit0 = Monday to bit6 = Sunday, 0x7F = every day.",
+   "write_function": {
+    "allowed": [
+     "0x06"
+    ],
+    "single_write_required": true,
+    "note": "Write with function code 0x06 (one register per request). An 0x10 block that covers this address does not reach this setting."
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: the value survives a restart."
+   },
+   "documented_in": {
+    "page": "native.md",
+    "section": "3. Eco Schedule Programming (TCP)"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 11790,
+   "name": "SunSpec_Control_Gate",
+   "access": "RW",
+   "type": "U16",
+   "description": "SunSpec control gate. Write 0x5355 (21333) to open it; any other value closes it. Factory default 0. Stored in non-volatile memory. Closing the gate releases every held SunSpec control within 1 s.",
+   "write_function": {
+    "allowed": [
+     "0x06",
+     "0x10"
+    ],
+    "single_write_required": false
+   },
+   "persistence": {
+    "class": "retained",
+    "note": "Stored in non-volatile memory: survives a restart."
+   },
+   "confirm_by": [
+    {
+     "address": 14233,
+     "expect": "1 while the gate is open"
+    }
+   ],
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control gate"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14232,
+   "name": "SunSpec_Diag_Layout",
+   "access": "RO",
+   "type": "U16",
+   "description": "Control diagnostic block layout version: reads 0x1112.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14233,
+   "name": "SunSpec_Diag_Gate",
+   "access": "RO",
+   "type": "U16",
+   "description": "Control gate: 1 open, 0 closed.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14234,
+   "name": "SunSpec_Diag_Active_Power_Limit_State",
+   "access": "RO",
+   "type": "U16",
+   "description": "Active Power Limit control: high byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (see the page).",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14235,
+   "name": "SunSpec_Diag_Active_Power_Limit_Rvrt_Left",
+   "access": "RO",
+   "type": "U16",
+   "description": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14236,
+   "name": "SunSpec_Diag_Power_Factor_State",
+   "access": "RO",
+   "type": "U16",
+   "description": "Power Factor control: high byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (see the page).",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14237,
+   "name": "SunSpec_Diag_Power_Factor_Rvrt_Left",
+   "access": "RO",
+   "type": "U16",
+   "description": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14238,
+   "name": "SunSpec_Diag_Reactive_Power_State",
+   "access": "RO",
+   "type": "U16",
+   "description": "Reactive Power control: high byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (see the page).",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14239,
+   "name": "SunSpec_Diag_Reactive_Power_Rvrt_Left",
+   "access": "RO",
+   "type": "U16",
+   "description": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14240,
+   "name": "SunSpec_Diag_Storage_State",
+   "access": "RO",
+   "type": "U16",
+   "description": "Storage control: high byte state (0 released, 1 waiting, 2 in force, 3 outranked, 4 disabled by the client), low byte reason (see the page).",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14241,
+   "name": "SunSpec_Diag_Storage_Rvrt_Left",
+   "access": "RO",
+   "type": "U16",
+   "description": "Seconds left until reversion; 0xFFFF if RvrtTms = 0.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14242,
+   "name": "SunSpec_Diag_WLim_Selected",
+   "access": "RO",
+   "type": "U16",
+   "description": "Active-power limit selected for dispatch, 0.01 % of the rated power; 0xFFFF if none.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14243,
+   "name": "SunSpec_Diag_PF_Selected",
+   "access": "RO",
+   "type": "S16",
+   "description": "Power factor selected for dispatch, 0.01; 0x8000 if none.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14244,
+   "name": "SunSpec_Diag_VAr_Selected",
+   "access": "RO",
+   "type": "S16",
+   "description": "Reactive power selected for dispatch, 0.01 %; 0x8000 if none.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14245,
+   "name": "SunSpec_Diag_Storage_Setpoint",
+   "access": "RO",
+   "type": "S16",
+   "description": "Forced storage setpoint per phase selected for dispatch, 0.01 kW, positive = AC output; 0x8000 if none.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14246,
+   "name": "SunSpec_Diag_Refused_Frames",
+   "access": "RO",
+   "type": "U16",
+   "description": "Count of refused SunSpec write frames (saturates at 65535).",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14247,
+   "name": "SunSpec_Diag_Last_Write_Age",
+   "access": "RO",
+   "type": "U16",
+   "description": "Seconds since the last accepted SunSpec write; 0xFFFF if none since the restart.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control diagnostic block 14232–14247"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14250,
+   "name": "Active_Power_Set_Last_Requested",
+   "access": "RO",
+   "type": "U16",
+   "description": "Setpoint Shadow of 11045: last requested raw value.",
+   "documented_in": {
+    "page": "native.md",
+    "section": "Controlling the inverter: closed loop"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14251,
+   "name": "Active_Power_Set_Last_Applied",
+   "access": "RO",
+   "type": "U16",
+   "description": "Setpoint Shadow of 11045: last applied raw value (after clamping).",
+   "documented_in": {
+    "page": "native.md",
+    "section": "Controlling the inverter: closed loop"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 14253,
+   "name": "Active_Power_Set_Last_Reject_Code",
+   "access": "RO",
+   "type": "U16",
+   "description": "Setpoint Shadow of 11045: rejection flag (0 = accepted as written).",
+   "documented_in": {
+    "page": "native.md",
+    "section": "Controlling the inverter: closed loop"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17284,
+   "name": "Control_Truth_Layout",
+   "access": "RO",
+   "type": "U16",
+   "description": "Control-truth block layout identifier, reads 0xCA12. Read 17284-17360 (77 registers) in one request.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control-truth block 17284–17360"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17285,
+   "name": "Control_Truth_Seq",
+   "access": "RO",
+   "type": "U16",
+   "description": "Publication sequence number; equals 17360 in a consistent read.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control-truth block 17284–17360"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17287,
+   "name": "Control_Truth_WLim_Requested",
+   "access": "RO",
+   "type": "U16",
+   "description": "Slot 1 (parameter 321, active-power limit): limit requested from the power converter, 0.01 %.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Checking whether the active-power limit is applied"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17290,
+   "name": "Control_Truth_WLim_Effective",
+   "access": "RO",
+   "type": "U16",
+   "description": "Slot 1 effective state: 4 applied under EMS control, 3 requested but not applied.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Checking whether the active-power limit is applied"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17358,
+   "name": "Control_Truth_Mode",
+   "access": "RO",
+   "type": "U16",
+   "description": "Operating mode of the latest parameter pass: 0 none since the restart, 1 not under EMS control, 2 under EMS control.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control-truth block 17284–17360"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17359,
+   "name": "Control_Truth_Output_Bound",
+   "access": "RO",
+   "type": "S16",
+   "description": "Under EMS control: upper bound of the AC output in W; 0x8000 otherwise.",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control-truth block 17284–17360"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  },
+  {
+   "address": 17360,
+   "name": "Control_Truth_Seq_End",
+   "access": "RO",
+   "type": "U16",
+   "description": "Publication sequence number again (equals 17285 in a consistent read).",
+   "documented_in": {
+    "page": "sunspec.md",
+    "section": "Control-truth block 17284–17360"
+   },
+   "applies_from_firmware": "M013V1130B01D05"
+  }
+ ]
+}

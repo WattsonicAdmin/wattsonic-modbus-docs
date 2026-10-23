@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wattsonic-modbus-docs"
+version = "0.1.0"
+description = "Read-only MCP server with the Modbus documentation of Wattsonic MATIC hybrid inverters (native EMS registers, SunSpec models, closed-loop control recipes). Never connects to a device."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "LICENSE-DATA", "NOTICE"]
+authors = [{ name = "Wattsonic GmbH" }]
+keywords = ["mcp", "modbus", "sunspec", "inverter", "ems", "wattsonic"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Documentation",
+  "Topic :: System :: Hardware",
+]
+dependencies = ["mcp>=1.10,<2"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+wattsonic-modbus-docs = "wattsonic_modbus_docs.server:main"
+
+[project.urls]
+Documentation = "https://modbus.wattsonic.com/"
+Repository = "https://github.com/WattsonicAdmin/wattsonic-modbus-docs"
+Issues = "https://github.com/WattsonicAdmin/wattsonic-modbus-docs/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wattsonic_modbus_docs"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/wattsonic_modbus_docs", "tests", "README.md", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

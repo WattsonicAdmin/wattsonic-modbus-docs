@@ -1,0 +1,9 @@
+Documentation data (src/**/data/: register maps, SunSpec model descriptions, control recipes,
+Markdown documentation, llms.txt) is licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/legalcode
+
+Attribution: "Wattsonic MATIC Modbus documentation, https://modbus.wattsonic.com/".
+
+The data describes device behaviour for the firmware it states. It is provided "as is",
+without warranty; integrators remain responsible for validating control logic on their own
+installations.
