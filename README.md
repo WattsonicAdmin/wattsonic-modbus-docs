@@ -72,6 +72,20 @@ claude mcp add wattsonic-modbus-docs -- uvx wattsonic-modbus-docs
 }
 ```
 
+**Codex** (CLI and IDE extension; `~/.codex/config.toml`):
+
+```bash
+codex mcp add wattsonic-modbus-docs -- uvx wattsonic-modbus-docs
+```
+
+or in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.wattsonic-modbus-docs]
+command = "uvx"
+args = ["wattsonic-modbus-docs"]
+```
+
 ## Development
 
 ```bash
