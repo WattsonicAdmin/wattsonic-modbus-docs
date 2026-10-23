@@ -39,7 +39,7 @@ def search_registers(
 
 @mcp.tool()
 def get_register(
-    address: Annotated[str, Field(description="Register address as a number ('11045', '40075'), a native register "
+    address: Annotated[int | str, Field(description="Register address as a number ('11045', '40075'), a native register "
                                               "name ('Active_Power_Set') or a SunSpec point ('123.WMaxLimPct').")],
 ) -> dict:
     """Full documentation of one register: name, description, type, scale/unit, access, documented range and values,
@@ -47,7 +47,7 @@ def get_register(
     confirm_by (registers to read back) and persistence (retained, volatile, volatile_over_tcp, command).
     For SunSpec addresses: model, point, size, sf with its constant value, writable range, device notes.
     Documentation only; never touches a device."""
-    return docs.get_register(address)
+    return docs.get_register(str(address))
 
 
 @mcp.tool()
@@ -95,7 +95,7 @@ def get_recipe(
 
 @mcp.tool()
 def validate_write(
-    address: Annotated[str, Field(description="Register address ('11321', '40075') or name / SunSpec point.")],
+    address: Annotated[int | str, Field(description="Register address ('11321', '40075') or name / SunSpec point.")],
     value: Annotated[float, Field(description="Value to write: raw register value by default (e.g. 700 for 70.0 % on "
                                               "11321, -1000 for -10.00 kW on 11045).")],
     function_code: Annotated[str, Field(description="'0x06' (write single register) or '0x10' (write multiple).")] = "0x06",
@@ -107,7 +107,7 @@ def validate_write(
     11057, 11254, commands), SunSpec writable range, gate and veto preconditions, side effects (e.g. 0x5A5A on 12026)
     and the registers to read back afterwards. Returns verdict ok / ok_with_warnings / reject with reasons.
     Guidance only; this server never connects to a device and never writes registers."""
-    return docs.validate_write(address, value, function_code, value_is_engineering)
+    return docs.validate_write(str(address), value, function_code, value_is_engineering)
 
 
 @mcp.tool()

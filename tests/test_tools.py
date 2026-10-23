@@ -199,3 +199,12 @@ def test_outputs_have_no_internal_content():
     for bad in ("firmware_src", "INTERNAL", "notes_internal", "\"macro\"", "wt_v1130"):
         assert bad not in blob
     json.loads(docs.text("recipes.v1130.json"))
+
+
+def test_integer_address_accepted():
+    from wattsonic_modbus_docs import server
+    a = server.get_register(11045)
+    b = server.get_register("11045")
+    assert a == b
+    v = server.validate_write(11045, 0)
+    assert v["verdict"] in ("ok", "ok_with_warnings", "reject")

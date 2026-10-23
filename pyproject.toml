@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wattsonic-modbus-docs"
-version = "0.1.0"
+version = "0.1.1"
 description = "Read-only MCP server with the Modbus documentation of Wattsonic MATIC hybrid inverters (native EMS registers, SunSpec models, closed-loop control recipes). Never connects to a device."
 readme = "README.md"
 requires-python = ">=3.10"

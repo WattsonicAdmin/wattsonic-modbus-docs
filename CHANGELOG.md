@@ -2,6 +2,9 @@
 
 Versions follow the documentation data: each release states the inverter firmware it applies to.
 
+## 0.1.1 — 2026-10-23
+- `get_register` and `validate_write` accept the address as a number (e.g. 11045) as well as a string.
+
 ## 0.1.0 — 2026-10-23
 - First public release. Data applies to Wattsonic MATIC ARM firmware M013V1130B01D05 and later.
 - Tools: search_registers, get_register, list_sunspec_models, get_sunspec_point, list_recipes,
